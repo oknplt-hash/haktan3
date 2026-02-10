@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HAKTAN - Kampanya Yönetimi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-gray-800 font-display min-h-screen flex">
+
+    <!-- Sidebar injected via JS -->
+
+    <main class="flex-1 flex gap-6 p-6 h-screen overflow-hidden">
+
+        <!-- Left: Dashboard & List -->
+        <div class="flex-1 flex flex-col gap-6 overflow-y-auto pr-2 custom-scrollbar">
+
+            <!-- Header -->
+            <div>
+                <h1 class="text-3xl font-black text-gray-900">Admin Kampanya Yönetimi</h1>
+                <p class="text-gray-500 mt-1">HAKTAN Sarayı için ana sayfa bannerlarını ve duyuruları yönetin.</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Aktif Bannerlar</p>
+                        <div class="flex items-center gap-3 mt-1">
+                            <span class="text-3xl font-black text-gray-900" id="statActive">0</span>
+                            <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">+1
+                                bu hafta</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-[#fae8cc] flex items-center justify-center opacity-50">
+                        <span class="material-symbols-outlined text-primary text-2xl">view_carousel</span>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Planlananlar</p>
+                        <div class="flex items-center gap-3 mt-1">
+                            <span class="text-3xl font-black text-gray-900" id="statPlanned">0</span>
+                            <span
+                                class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Sıradaki:
+                                1 Kas</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                        <span class="material-symbols-outlined text-2xl">event</span>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Toplam Etkileşim</p>
+                        <div class="flex items-center gap-3 mt-1">
+                            <span class="text-3xl font-black text-gray-900" id="statClicks">0</span>
+                            <span
+                                class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">+12%
+                                geçen aya göre</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-500">
+                        <span class="material-symbols-outlined text-2xl">touch_app</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List Section -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm flex-1 flex flex-col min-h-[400px]">
+                <!-- Tabs & Search -->
+                <div class="p-6 border-b border-gray-100 flex flex-col gap-4">
+                    <div class="flex items-center gap-1 bg-gray-100/50 p-1 rounded-lg w-fit">
+                        <button
+                            class="px-4 py-1.5 rounded-md text-sm font-bold bg-white shadow-sm text-gray-900 tab-btn"
+                            onclick="filterCampaigns('all')">Duyurular</button>
+                        <button
+                            class="px-4 py-1.5 rounded-md text-sm font-bold text-gray-500 hover:text-gray-900 tab-btn"
+                            onclick="switchView('products')">Haftanın Ürünleri</button>
+                    </div>
+                </div>
+
+                <!-- Content Area -->
+                <div id="campaignContent" class="flex-1 overflow-y-auto">
+                    <!-- Default: Campaign List -->
+                    <div class="divide-y divide-gray-50" id="campaignList"></div>
+
+                    <!-- Weekly Products View (Hidden by default) -->
+                    <div id="weeklyProductsView" class="hidden p-6">
+                        <div class="flex gap-6 h-full">
+                            <!-- Selected Products -->
+                            <div class="flex-1">
+                                <h3 class="font-bold text-gray-900 mb-4">Seçili Ürünler (Ana Sayfa)</h3>
+                                <div class="space-y-2" id="selectedProductsList">
+                                    <!-- Injected -->
+                                </div>
+                            </div>
+                            <!-- Product Selector -->
+                            <div class="w-80 border-l border-gray-100 pl-6 flex flex-col">
+                                <h3 class="font-bold text-gray-900 mb-4">Ürün Ekle</h3>
+                                <input type="text" placeholder="Ürün ara..." id="productSearch"
+                                    class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm mb-4 focus:outline-none focus:border-primary">
+                                <div class="flex-1 overflow-y-auto space-y-2 max-h-[400px] pr-2 custom-scrollbar"
+                                    id="availableProductsList">
+                                    <!-- Injected -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Create Form -->
+        <div class="w-[400px] bg-white rounded-2xl border border-gray-100 shadow-lg p-6 flex flex-col shrink-0 h-fit">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="w-10 h-10 rounded-lg bg-[#fff4e5] text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined">add_photo_alternate</span>
+                </span>
+                <h2 class="text-xl font-black text-gray-900">Duyuru Oluştur</h2>
+            </div>
+
+            <form id="campaignForm" class="space-y-5">
+                <input type="hidden" name="id">
+
+                <!-- Image Upload -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Görsel Yükle</label>
+                    <div class="border-2 border-dashed border-gray-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-gray-50 hover:border-primary/50 transition-all cursor-pointer group"
+                        onclick="document.getElementById('imgInput').focus()">
+                        <span
+                            class="material-symbols-outlined text-4xl text-gray-300 group-hover:text-primary transition-colors mb-2">cloud_upload</span>
+                        <p class="text-sm font-medium text-primary">Yüklemek için tıkla <span
+                                class="text-gray-500 font-normal">veya sürükle bırak</span></p>
+                        <p class="text-[10px] text-gray-400 mt-1">PNG, JPG, GIF (Max 5MB - 1920x600px)</p>
+                        <input type="url" name="image" id="imgInput" placeholder="URL giriniz (Simülasyon)"
+                            class="mt-4 w-full text-xs border p-2 rounded bg-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Kampanya Adı</label>
+                    <input type="text" name="title" placeholder="Örn: Yaz Kuruyemiş Festivali"
+                        class="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Bağlantı</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">link</span>
+                        <input type="text" name="buttonLink" placeholder="https://haktan.com/kampanya/..."
+                            class="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Başlangıç Tarihi</label>
+                        <input type="date" name="startDate"
+                            class="w-full bg-white border border-gray-200 rounded-lg px-3 py-3 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Bitiş Tarihi</label>
+                        <input type="date" name="endDate"
+                            class="w-full bg-white border border-gray-200 rounded-lg px-3 py-3 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <div>
+                        <span class="block text-sm font-bold text-gray-900">Aktif/Pasif</span>
+                        <span class="text-xs text-gray-400">Kaydettikten sonra aktif et</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="active" class="sr-only peer" checked>
+                        <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                        </div>
+                    </label>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="resetForm()"
+                        class="flex-1 px-4 py-3 rounded-lg border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors">İptal</button>
+                    <button type="submit"
+                        class="flex-1 bg-primary hover:bg-[#c57910] text-white px-4 py-3 rounded-lg font-bold shadow-lg shadow-primary/20 transition-all active:scale-95">Kaydet</button>
+                </div>
+            </form>
+        </div>
+
+    </main>
+
+    <script type="module" src="/src/admin-main.js"></script>
+    <script type="module">
+        import { getSliders, addSlider, updateSlider, deleteSlider, getCampaignProducts, addCampaignProduct, removeCampaignProduct } from './src/modules/campaigns.js';
+        import { getProducts, searchProducts } from './src/modules/products.js';
+        import { isAdminLoggedIn } from './src/modules/admin.js';
+
+        if (!isAdminLoggedIn()) window.location.href = 'admin.html';
+
+        // Correct renderSidebar call already handled via admin-main?
+        // We need to ensure we call it. In previous admin-main.js it might expose it or setup auto-load.
+        // admin-main.js exposes HaktanApp.
+        // We will manually inject sidebar logic helper or use what we have.
+        // Actually src/admin-main.js sets window.HaktanApp but doesn't auto render sidebar unless we call it.
+        // Wait, admin.html calls renderSidebar('dashboard'). We should call renderSidebar('campaigns').
+
+        // Basic sidebar injection
+        import { renderSidebar } from './src/components/AdminSidebar.js';
+        document.body.prepend(renderSidebar('campaigns'));
+
+
+        // --- App Logic ---
+
+        function renderStats() {
+            const sliders = getSliders();
+            const active = sliders.filter(s => s.active).length;
+            const planned = sliders.filter(s => s.status === 'planned' || (!s.active && s.startDate > new Date().toISOString().split('T')[0])).length;
+            const clicks = sliders.reduce((acc, curr) => acc + (curr.clicks || 0), 0);
+
+            document.getElementById('statActive').innerText = active;
+            document.getElementById('statPlanned').innerText = planned;
+            document.getElementById('statClicks').innerText = clicks.toLocaleString();
+        }
+
+        function renderList(filter = 'all') {
+            const list = document.getElementById('campaignList');
+            let items = getSliders();
+
+            if (filter === 'active') items = items.filter(i => i.active);
+            if (filter === 'planned') items = items.filter(i => !i.active && i.startDate); // simplified logic
+            if (filter === 'ended') items = items.filter(i => false); // Mock
+
+            list.innerHTML = items.map(item => `
+                <div class="flex items-center p-4 hover:bg-gray-50 group transition-colors">
+                    <div class="w-32 aspect-video rounded-lg overflow-hidden bg-gray-200 shrink-0 border border-gray-100 relative">
+                        <img src="${item.image}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">${item.title}</h3>
+                        <a href="${item.buttonLink}" target="_blank" class="text-xs text-gray-400 hover:underline truncate block max-w-[200px]">${item.buttonLink}</a>
+                        
+                        <div class="flex items-center gap-4 mt-2">
+                            <div class="flex items-center gap-1 text-[10px] text-gray-500 font-medium">
+                                <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                                ${item.startDate || '-'} - ${item.endDate || '-'}
+                            </div>
+                            <div class="flex items-center gap-1 text-[10px] text-gray-500 font-medium">
+                                <span class="material-symbols-outlined text-[14px]">touch_app</span>
+                                ${item.clicks || 0} tıklama
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        ${getStatusBadge(item)}
+                        <div class="flex items-center gap-1 text-gray-300">
+                             <button onclick="window.editCampaign(${item.id})" class="p-2 hover:bg-white hover:text-blue-500 hover:shadow-sm rounded-full transition-all"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+                             <button onclick="window.delCampaign(${item.id})" class="p-2 hover:bg-white hover:text-red-500 hover:shadow-sm rounded-full transition-all"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusBadge(item) {
+            if (item.active) return `<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full">Aktif</span>`;
+            if (item.status === 'planned') return `<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-full">Planlı</span>`;
+            return `<span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded-full">Pasif</span>`;
+        }
+
+        // --- Weekly Products Logic ---
+
+        window.switchView = (view) => {
+            const list = document.getElementById('campaignList');
+            const productsView = document.getElementById('weeklyProductsView');
+            const btns = document.querySelectorAll('.tab-btn');
+
+            if (view === 'products') {
+                list.classList.add('hidden');
+                productsView.classList.remove('hidden');
+                renderWeeklyProducts();
+                renderAvailableProducts();
+
+                // Update tabs
+                btns[0].className = "px-4 py-1.5 rounded-md text-sm font-bold text-gray-500 hover:text-gray-900 tab-btn";
+                btns[1].className = "px-4 py-1.5 rounded-md text-sm font-bold bg-white shadow-sm text-gray-900 tab-btn";
+            } else {
+                list.classList.remove('hidden');
+                productsView.classList.add('hidden');
+                filterCampaigns('all'); // Reset to all
+
+                btns[0].className = "px-4 py-1.5 rounded-md text-sm font-bold bg-white shadow-sm text-gray-900 tab-btn";
+                btns[1].className = "px-4 py-1.5 rounded-md text-sm font-bold text-gray-500 hover:text-gray-900 tab-btn";
+            }
+        };
+
+        function renderWeeklyProducts() {
+            const selectedIds = getCampaignProducts();
+            const allProducts = getProducts();
+            const selected = allProducts.filter(p => selectedIds.includes(p.id));
+            const container = document.getElementById('selectedProductsList');
+
+            if (selected.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-400 italic">Henüz ürün seçilmedi.</p>';
+                return;
+            }
+
+            container.innerHTML = selected.map(p => `
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 group">
+                    <img src="${p.image}" class="w-12 h-12 rounded object-cover border border-gray-200">
+                    <div class="flex-1 ml-3">
+                        <div class="text-sm font-bold text-gray-900">${p.name}</div>
+                        <div class="text-xs text-gray-500">${p.price}₺</div>
+                    </div>
+                    <button onclick="window.removeProduct(${p.id})" class="text-red-400 hover:text-red-600 p-2"><span class="material-symbols-outlined">close</span></button>
+                </div>
+            `).join('');
+        }
+
+        function renderAvailableProducts(query = '') {
+            const container = document.getElementById('availableProductsList');
+            let products = query ? searchProducts(query) : getProducts();
+            // Exclude already selected
+            const selectedIds = getCampaignProducts();
+            products = products.filter(p => !selectedIds.includes(p.id)).slice(0, 20); // Limit results
+
+            container.innerHTML = products.map(p => `
+                <div class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer group" onclick="window.addProduct(${p.id})">
+                    <img src="${p.image}" class="w-8 h-8 rounded object-cover border border-gray-200">
+                    <div class="flex-1 ml-2 overflow-hidden">
+                        <div class="text-xs font-bold text-gray-900 truncate">${p.name}</div>
+                        <div class="text-[10px] text-gray-500">${p.price}₺</div>
+                    </div>
+                    <span class="material-symbols-outlined text-gray-300 group-hover:text-primary text-sm">add_circle</span>
+                </div>
+            `).join('');
+        }
+
+        window.addProduct = (id) => {
+            addCampaignProduct(id);
+            renderWeeklyProducts();
+            renderAvailableProducts(document.getElementById('productSearch').value);
+        };
+
+        window.removeProduct = (id) => {
+            removeCampaignProduct(id);
+            renderWeeklyProducts();
+            renderAvailableProducts(document.getElementById('productSearch').value);
+        };
+
+        document.getElementById('productSearch').addEventListener('input', (e) => {
+            renderAvailableProducts(e.target.value);
+        });
+
+        // Form Handling
+        // Form Handling
+        const form = document.getElementById('campaignForm');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(form));
+            data.active = form.active.checked;
+
+            // Fix: Don't reset clicks on edit
+            if (data.id) {
+                // Determine clicks from existing item to preserve it
+                const existing = getSliders().find(s => s.id == data.id);
+                data.clicks = existing ? existing.clicks : 0;
+                updateSlider(data.id, data);
+            } else {
+                delete data.id;
+                data.clicks = 0; // Init for new
+                addSlider(data);
+            }
+            renderList();
+            renderStats();
+            form.reset();
+            form.id.value = ''; // Ensure ID is cleared
+        });
+
+        window.editCampaign = (id) => {
+            const item = getSliders().find(s => s.id == id);
+            if (item) {
+                form.id.value = item.id;
+                form.title.value = item.title;
+                form.imgInput.value = item.image; // Corrected input ID
+                form.buttonLink.value = item.buttonLink;
+                form.startDate.value = item.startDate || '';
+                form.endDate.value = item.endDate || '';
+                form.active.checked = item.active;
+            }
+        };
+
+        window.delCampaign = (id) => {
+            if (confirm('Silmek istediğinize emin misiniz?')) {
+                deleteSlider(id);
+                renderList();
+                renderStats();
+            }
+        };
+
+        window.resetForm = () => {
+            form.reset();
+            form.id.value = '';
+        }
+
+        window.filterCampaigns = (filter) => {
+            const list = document.getElementById('campaignList');
+            const productsView = document.getElementById('weeklyProductsView');
+
+            list.classList.remove('hidden');
+            productsView.classList.add('hidden');
+
+            // Update UI tabs state
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                const onclick = btn.getAttribute('onclick');
+                if (onclick && onclick.includes(`'${filter}'`)) {
+                    btn.className = "px-4 py-1.5 rounded-md text-sm font-bold bg-white shadow-sm text-gray-900 tab-btn";
+                } else if (!onclick.includes('switchView')) {
+                    btn.className = "px-4 py-1.5 rounded-md text-sm font-bold text-gray-500 hover:text-gray-900 tab-btn";
+                }
+            });
+            renderList(filter);
+        }
+
+        renderStats();
+        renderList();
+
+    </script>
+</body>
+
+</html>

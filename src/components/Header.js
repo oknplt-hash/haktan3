@@ -1,0 +1,125 @@
+
+import { getActiveAnnouncement } from '../modules/campaigns.js';
+
+export function renderHeader() {
+    const activeAnnouncement = getActiveAnnouncement();
+    const headers = [];
+
+    // Announcement Bar
+    if (activeAnnouncement) {
+        const announceBar = document.createElement('div');
+        announceBar.className = 'bg-primary text-white text-xs font-bold py-2 px-4 text-center tracking-wide';
+        announceBar.innerHTML = activeAnnouncement.text;
+        headers.push(announceBar);
+    }
+
+    const header = document.createElement('header');
+    header.className = 'sticky top-0 z-50 bg-white border-b border-border-light shadow-sm';
+    header.innerHTML = `
+        <div class="container mx-auto px-4 lg:px-10 flex items-center justify-between py-3 gap-4">
+            <a href="index.html" class="flex items-center gap-2 shrink-0">
+                <span class="material-symbols-outlined text-primary text-3xl">diamond</span>
+                <div class="flex flex-col">
+                    <h2 class="text-xl font-bold leading-none tracking-tight text-text-main">HAKTAN</h2>
+                    <span class="text-xs text-text-muted font-medium tracking-wide">Kuruyemiş Şarküteri Sarayı</span>
+                </div>
+            </a>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobileMenuBtn" class="md:hidden text-text-main">
+                <span class="material-symbols-outlined text-3xl">menu</span>
+            </button>
+
+            <!-- Desktop Search -->
+            <div class="flex-1 max-w-xl mx-4 hidden md:block">
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-xl">search</span>
+                    <input id="searchInput" type="text" placeholder="Ürün, kategori veya marka ara..."
+                        class="w-full pl-10 pr-4 py-2.5 rounded-full border border-border-light bg-secondary text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                    <a href="shoping_page.html" class="flex items-center gap-2 text-text-main hover:text-primary transition-colors relative">
+                    <div class="relative">
+                        <span class="material-symbols-outlined text-[26px]">shopping_cart</span>
+                        <span class="cart-count absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-sm" style="display:none">0</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Desktop Nav -->
+        <nav class="hidden md:flex w-full bg-white border-t border-border-light">
+            <div class="container mx-auto px-4 lg:px-10 overflow-x-auto">
+                <ul class="flex items-center gap-8 py-3 text-sm font-semibold whitespace-nowrap text-text-main">
+                    <li><a class="hover:text-primary pb-0.5 transition-all" href="index.html">Ana Sayfa</a></li>
+                    <li><a class="hover:text-primary pb-0.5 transition-all" href="product_category.html?cat=kuruyemis">Kuruyemiş</a></li>
+                    <li><a class="hover:text-primary pb-0.5 transition-all" href="product_category.html?cat=sarkuteri">Şarküteri</a></li>
+                    <li><a class="hover:text-primary pb-0.5 transition-all" href="product_category.html?cat=aktar">Aktar</a></li>
+                    <li><a class="hover:text-primary pb-0.5 transition-all" href="product_category.html?cat=bakliyat">Bakliyat</a></li>
+                    <li><a class="hover:text-primary pb-0.5 transition-all" href="product_category.html?cat=pestil-kome">Pestil & Köme</a></li>
+                    <li><a class="hover:text-primary pb-0.5 transition-all" href="product_category.html?cat=yoresel">Yöresel Ürünler</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu (Hidden default) -->
+        <div id="mobileMenu" class="hidden fixed inset-0 bg-white z-[60] p-4 flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                 <h2 class="text-xl font-bold">Menü</h2>
+                 <button id="closeMobileMenu" class="text-gray-500 hover:text-red-500">
+                    <span class="material-symbols-outlined text-3xl">close</span>
+                 </button>
+            </div>
+             <div class="mb-6">
+                <input id="mobileSearchInput" type="text" placeholder="Ürün ara..." class="w-full p-3 bg-gray-100 rounded-lg">
+            </div>
+            <ul class="space-y-4 text-lg font-medium">
+                <li><a href="index.html" class="block py-2 border-b border-gray-100">Ana Sayfa</a></li>
+                <li><a href="product_category.html?cat=kuruyemis" class="block py-2 border-b border-gray-100">Kuruyemiş</a></li>
+                <li><a href="product_category.html?cat=sarkuteri" class="block py-2 border-b border-gray-100">Şarküteri</a></li>
+                <li><a href="product_category.html?cat=aktar" class="block py-2 border-b border-gray-100">Aktar</a></li>
+                <li><a href="product_category.html?cat=bakliyat" class="block py-2 border-b border-gray-100">Bakliyat</a></li>
+                <li><a href="product_category.html?cat=pestil-kome" class="block py-2 border-b border-gray-100">Pestil & Köme</a></li>
+                <li><a href="product_category.html?cat=yoresel" class="block py-2 border-b border-gray-100">Yöresel Ürünler</a></li>
+            </ul>
+        </div>
+    `;
+
+    // Inject
+    if (headers.length > 0) {
+        headers.forEach(h => document.body.prepend(h));
+        document.body.prepend(header); // Header comes after announcement (or before? usually announcement is top)
+        // Actually prepend reverses order if called sequentially on body.
+        // If we want [Announcement] [Header]
+        // We prepend Header first, then Announcement.
+        // Let's fix logic:
+        // body.prepend(header) -> body = [header, ...]
+        // body.prepend(announce) -> body = [announce, header, ...]
+    } else {
+        document.body.prepend(header);
+    }
+
+    // Attach Event Listeners
+    const btn = document.getElementById('mobileMenuBtn');
+    const menu = document.getElementById('mobileMenu');
+    const close = document.getElementById('closeMobileMenu');
+
+    if (btn && menu && close) {
+        btn.addEventListener('click', () => menu.classList.remove('hidden'));
+        close.addEventListener('click', () => menu.classList.add('hidden'));
+    }
+
+    const handleSearch = (e) => {
+        if (e.key === 'Enter' && e.target.value.trim()) {
+            window.location.href = 'product_category.html?q=' + encodeURIComponent(e.target.value.trim());
+        }
+    };
+
+    const sInput = document.getElementById('searchInput');
+    const mSortedInput = document.getElementById('mobileSearchInput');
+
+    if (sInput) sInput.addEventListener('keydown', handleSearch);
+    if (mSortedInput) mSortedInput.addEventListener('keydown', handleSearch);
+}

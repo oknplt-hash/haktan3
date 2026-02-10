@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HAKTAN - Sipariş Yönetimi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-display min-h-screen flex h-screen overflow-hidden">
+
+    <!-- Sidebar injected via JS -->
+
+    <main class="flex-1 overflow-hidden flex flex-col w-full">
+        <header class="bg-white border-b border-gray-200 px-8 py-5 flex justify-between items-center shrink-0">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Sipariş Yönetimi</h2>
+                <p class="text-gray-500 text-sm">Gelen siparişleri görüntüleyin ve durumlarını güncelleyin.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <select id="statusFilter"
+                    class="rounded-lg border-gray-300 focus:border-primary focus:ring-primary text-sm min-w-[200px]">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="Beklemede">Beklemede</option>
+                    <option value="Hazırlanıyor">Hazırlanıyor</option>
+                    <option value="Kargoda">Kargoda</option>
+                    <option value="Teslim Edildi">Teslim Edildi</option>
+                </select>
+                <button id="refreshBtn"
+                    class="bg-white border border-gray-300 text-gray-700 p-2.5 rounded-lg hover:bg-gray-50 transition-colors">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Table View -->
+        <div class="p-8 overflow-y-auto flex-1 bg-gray-50">
+            <div class="max-w-7xl mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr
+                            class="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-bold tracking-wider">
+                            <th class="px-6 py-4">Sipariş No</th>
+                            <th class="px-6 py-4">Müşteri</th>
+                            <th class="px-6 py-4">Tarih</th>
+                            <th class="px-6 py-4">Ödeme</th>
+                            <th class="px-6 py-4">Tutar</th>
+                            <th class="px-6 py-4">Durum</th>
+                            <th class="px-6 py-4 text-right">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersList" class="divide-y divide-gray-100">
+                        <!-- Rows injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeOrderModal()"></div>
+        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl transform transition-transform translate-x-full duration-300 flex flex-col"
+            id="orderModalContent">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                <h3 class="font-bold text-lg text-gray-900">Sipariş Detayı</h3>
+                <button onclick="closeOrderModal()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white hover:shadow-sm transition-all">
+                    <span class="material-symbols-outlined text-gray-500">close</span>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 space-y-6" id="orderModalBody">
+                <!-- Content injected here -->
+            </div>
+            <div class="p-6 border-t border-gray-100 bg-gray-50" id="orderModalFooter">
+                <!-- Actions injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/admin-main.js"></script>
+    <script type="module">
+        import { getOrders, updateOrderStatus } from './src/modules/orders.js';
+        import { isAdminLoggedIn } from './src/modules/admin.js';
+        import { formatPrice, CATEGORY_NAMES } from './src/modules/utils.js';
+        import { showToast } from './src/modules/ui.js';
+
+        if (!isAdminLoggedIn()) {
+            window.location.href = 'admin.html';
+        }
+
+        // Render Sidebar
+        window.renderAdminSidebar('orders');
+
+        let allOrders = [];
+
+        function renderOrders() {
+            allOrders = getOrders();
+            const filter = document.getElementById('statusFilter').value;
+            const list = document.getElementById('ordersList');
+
+            let filteredOrders = allOrders;
+            if (filter) {
+                filteredOrders = filteredOrders.filter(o => o.status === filter);
+            }
+
+            if (filteredOrders.length === 0) {
+                list.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">Sipariş bulunamadı.</td></tr>`;
+                return;
+            }
+
+            list.innerHTML = filteredOrders.map(o => {
+                const date = new Date(o.date).toLocaleDateString('tr-TR');
+                let statusColor = 'bg-green-100 text-green-700 border-green-200';
+                if (o.status === 'Beklemede') statusColor = 'bg-yellow-100 text-yellow-700 border-yellow-200';
+                else if (o.status === 'Hazırlanıyor') statusColor = 'bg-blue-100 text-blue-700 border-blue-200';
+                else if (o.status === 'Kargoda') statusColor = 'bg-purple-100 text-purple-700 border-purple-200';
+
+                return `
+                    <tr class="hover:bg-gray-50 transition-colors group">
+                        <td class="px-6 py-4 font-mono font-bold text-gray-900">#${o.id}</td>
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-gray-900">${o.customer.name}</div>
+                            <div class="text-xs text-gray-500">${o.customer.phone}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">${date}</td>
+                        <td class="px-6 py-4">
+                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-bold border ${o.customer.paymentMethod === 'Havale/EFT' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-orange-50 text-orange-700 border-orange-100'}">
+                                ${o.customer.paymentMethod === 'Havale/EFT' ? 'Havale/EFT' : 'Kredi Kartı'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 font-bold text-gray-900">${formatPrice(o.total)}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold border ${statusColor}">
+                                ${o.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="openOrderModal('${o.id}')" class="text-primary hover:text-primary-light font-bold text-sm hover:underline">
+                                Detaylar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.openOrderModal = function (id) {
+            const order = allOrders.find(o => o.id === id);
+            if (!order) return;
+
+            const modal = document.getElementById('orderModal');
+            const content = document.getElementById('orderModalContent');
+            const body = document.getElementById('orderModalBody');
+            const footer = document.getElementById('orderModalFooter');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => content.classList.remove('translate-x-full'), 10);
+
+            body.innerHTML = `
+                <!-- Customer Info -->
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Müşteri Bilgileri</h4>
+                    <div class="flex items-start gap-3 mb-2">
+                        <span class="material-symbols-outlined text-gray-400">person</span>
+                        <div>
+                            <div class="font-bold text-sm text-gray-900">${order.customer.name}</div>
+                            <div class="text-xs text-gray-500">${order.customer.email}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 mb-2">
+                        <span class="material-symbols-outlined text-gray-400">call</span>
+                        <div class="text-sm text-gray-600 font-mono">${order.customer.phone}</div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-gray-400">home</span>
+                        <div class="text-sm text-gray-600 leading-relaxed">${order.customer.address}</div>
+                    </div>
+                </div>
+
+                <!-- Products -->
+                <div>
+                     <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Sipariş İçeriği</h4>
+                     <div class="space-y-3">
+                        ${order.items.map(item => `
+                            <div class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-100">
+                                <img src="${item.image}" class="w-12 h-12 rounded-lg object-cover border border-gray-100">
+                                <div class="flex-1">
+                                    <div class="font-bold text-sm text-gray-900 line-clamp-1">${item.name}</div>
+                                    <div class="text-xs text-gray-500">${item.qty} x ${formatPrice(item.price)}</div>
+                                </div>
+                                <div class="font-bold text-sm text-gray-900">${formatPrice(item.total)}</div>
+                            </div>
+                        `).join('')}
+                     </div>
+                     <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+                        <span class="text-sm font-bold text-gray-500">Toplam Tutar</span>
+                        <span class="text-xl font-black text-primary">${formatPrice(order.total)}</span>
+                     </div>
+                </div>
+            `;
+
+            footer.innerHTML = `
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Sipariş Durumu</label>
+                <select onchange="handleStatusUpdate('${order.id}', this.value)" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary text-sm font-bold mb-4">
+                    <option value="Beklemede" ${order.status === 'Beklemede' ? 'selected' : ''}>Beklemede</option>
+                    <option value="Hazırlanıyor" ${order.status === 'Hazırlanıyor' ? 'selected' : ''}>Hazırlanıyor</option>
+                    <option value="Kargoda" ${order.status === 'Kargoda' ? 'selected' : ''}>Kargoda</option>
+                    <option value="Teslim Edildi" ${order.status === 'Teslim Edildi' ? 'selected' : ''}>Teslim Edildi</option>
+                </select>
+                <button onclick="closeOrderModal()" class="w-full py-3 rounded-lg border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors">Kapat</button>
+            `;
+        }
+
+        window.closeOrderModal = function () {
+            const modal = document.getElementById('orderModal');
+            const content = document.getElementById('orderModalContent');
+
+            content.classList.add('translate-x-full');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        window.handleStatusUpdate = function (id, newStatus) {
+            if (confirm('Sipariş durumunu "' + newStatus + '" olarak güncellemek istiyor musunuz?')) {
+                updateOrderStatus(id, newStatus);
+                showToast('Sipariş durumu güncellendi.');
+                renderOrders();
+            } else {
+                renderOrders();
+            }
+        };
+
+        renderOrders();
+        document.getElementById('statusFilter').addEventListener('change', renderOrders);
+        document.getElementById('refreshBtn').addEventListener('click', renderOrders);
+
+    </script>
+</body>
+
+</html>

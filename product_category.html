@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HAKTAN - Ürünler</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body class="bg-white text-text-main font-display min-h-screen flex flex-col">
+    <!-- Header injected by main.js -->
+
+    <main class="flex-1 container mx-auto px-4 py-8 max-w-7xl">
+        <nav class="text-sm text-text-muted mb-6 flex items-center gap-2">
+            <a href="index.html" class="hover:text-primary">Ana Sayfa</a>
+            <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span id="breadcrumbCat" class="text-text-main font-semibold">Ürünler</span>
+        </nav>
+
+        <!-- Mobile Filter Button & Sort (Visible only on mobile) -->
+        <div
+            class="lg:hidden flex items-center justify-between gap-4 mb-6 sticky top-[70px] z-30 bg-white p-4 rounded-xl shadow-sm border border-border-light mx-[-16px] px-6">
+            <button onclick="toggleMobileFilters()"
+                class="flex items-center gap-2 text-sm font-bold text-text-main bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                <span class="material-symbols-outlined">tune</span> Filtrele
+            </button>
+            <div class="text-xs text-text-muted font-medium">
+                <span id="mobileProductCount">...</span>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8 relative">
+
+            <!-- Filter Sidebar / Drawer -->
+            <!-- Mobile: Fixed Drawer, Desktop: Sidebar -->
+            <div id="filterOverlay" onclick="toggleMobileFilters()"
+                class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity backdrop-blur-sm"></div>
+
+            <aside id="filterSidebar"
+                class="fixed inset-y-0 left-0 w-[280px] bg-white z-50 transform -translate-x-full lg:translate-x-0 lg:static lg:w-64 lg:block shrink-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none overflow-y-auto lg:overflow-visible h-full lg:h-auto">
+                <div class="p-5 lg:p-0 space-y-6 lg:sticky lg:top-28">
+
+                    <!-- Mobile Drawer Header -->
+                    <div class="flex items-center justify-between lg:hidden mb-2">
+                        <h3 class="font-black text-xl text-text-main">Filtreler</h3>
+                        <button onclick="toggleMobileFilters()"
+                            class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+
+                    <div
+                        class="bg-secondary/50 lg:bg-secondary rounded-xl p-5 border border-border-light lg:border-none">
+                        <div>
+                            <h3 class="font-bold text-sm uppercase tracking-wider text-text-main mb-3">Kategori</h3>
+                            <ul id="categoryFilter" class="space-y-2 text-sm text-text-muted"></ul>
+                        </div>
+                        <div class="border-t border-border-light pt-4 mt-4">
+                            <h3 class="font-bold text-sm uppercase tracking-wider text-text-main mb-3">Fiyat Aralığı
+                            </h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 cursor-pointer group"><input type="radio"
+                                        name="price" value="" checked
+                                        class="text-primary focus:ring-primary price-filter accent-primary"> <span
+                                        class="text-sm group-hover:text-primary transition-colors">Tümü</span></label>
+                                <label class="flex items-center gap-2 cursor-pointer group"><input type="radio"
+                                        name="price" value="0-100"
+                                        class="text-primary focus:ring-primary price-filter accent-primary"> <span
+                                        class="text-sm group-hover:text-primary transition-colors">0 -
+                                        100₺</span></label>
+                                <label class="flex items-center gap-2 cursor-pointer group"><input type="radio"
+                                        name="price" value="100-300"
+                                        class="text-primary focus:ring-primary price-filter accent-primary"> <span
+                                        class="text-sm group-hover:text-primary transition-colors">100 -
+                                        300₺</span></label>
+                                <label class="flex items-center gap-2 cursor-pointer group"><input type="radio"
+                                        name="price" value="300-500"
+                                        class="text-primary focus:ring-primary price-filter accent-primary"> <span
+                                        class="text-sm group-hover:text-primary transition-colors">300 -
+                                        500₺</span></label>
+                                <label class="flex items-center gap-2 cursor-pointer group"><input type="radio"
+                                        name="price" value="500+"
+                                        class="text-primary focus:ring-primary price-filter accent-primary"> <span
+                                        class="text-sm group-hover:text-primary transition-colors">500₺ ve
+                                        üzeri</span></label>
+                            </div>
+                        </div>
+                        <div class="border-t border-border-light pt-4 mt-4">
+                            <h3 class="font-bold text-sm uppercase tracking-wider text-text-main mb-3">Sıralama</h3>
+                            <select id="sortSelect"
+                                class="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary bg-white cursor-pointer hover:border-primary transition-colors">
+                                <option value="default">Varsayılan</option>
+                                <option value="price-asc">Fiyat: Düşükten Yükseğe</option>
+                                <option value="price-desc">Fiyat: Yüksekten Düşüğe</option>
+                                <option value="rating">En Yüksek Puan</option>
+                                <option value="name">İsme Göre (A-Z)</option>
+                            </select>
+                        </div>
+
+                        <!-- Mobile Apply Button -->
+                        <button onclick="toggleMobileFilters()"
+                            class="w-full mt-6 bg-primary text-white font-bold py-3 rounded-xl lg:hidden shadow-lg shadow-primary/20">
+                            Sonuçları Göster
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="flex-1">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 id="pageTitle" class="text-2xl lg:text-3xl font-black text-text-main">Ürünler</h1>
+                    <span id="productCount" class="text-text-muted text-sm font-medium"></span>
+                </div>
+                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+                <div id="emptyState" class="hidden text-center py-20">
+                    <span class="material-symbols-outlined text-6xl text-gray-300 mb-4">inventory_2</span>
+                    <p class="text-text-muted text-lg font-medium">Bu kriterlere uygun ürün bulunamadı.</p>
+                    <a href="product_category.html" class="mt-4 inline-block text-primary font-bold hover:underline">Tüm
+                        ürünleri göster</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer injected by main.js -->
+
+    <script type="module" src="/src/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Need to wait for main.js to initialize HaktanApp? 
+            // Since module scripts defer, and this is regular script... wait, DOMContentLoaded fires after defer scripts?
+            // Actually, type="module" scripts are deferred. 
+            // Standard scripts run immediately.
+            // HaktanApp might not be ready if main.js is module.
+            // We should make this a module script too or import from internal logic.
+            // But relying on window.HaktanApp from a module requires waiting.
+            // Better: use type="module" here too and import HaktanApp or wait.
+
+            // However, inline module scripts work.
+        });
+    </script>
+    <script type="module">
+        import { getProducts, getProductsByCategory, searchProducts } from './src/modules/products.js';
+        import { getUrlParam, getCategoryName, CATEGORY_NAMES } from './src/modules/utils.js';
+        import { renderProductCard } from './src/modules/ui.js';
+
+        // We can use the modules directly here!
+
+        var cat = getUrlParam('cat');
+        var query = getUrlParam('q');
+        var categoryName = cat ? getCategoryName(cat) : (query ? '"' + query + '" araması' : 'Tüm Ürünler');
+
+        document.getElementById('pageTitle').textContent = categoryName;
+        document.getElementById('breadcrumbCat').textContent = categoryName;
+        document.title = 'HAKTAN - ' + categoryName;
+
+        // Build category filter
+        var catFilter = document.getElementById('categoryFilter');
+        var allCats = [{ slug: '', name: 'Tümü' }];
+        Object.keys(CATEGORY_NAMES).forEach(function (k) {
+            allCats.push({ slug: k, name: CATEGORY_NAMES[k] });
+        });
+        allCats.forEach(function (c) {
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            a.href = c.slug ? 'product_category.html?cat=' + c.slug : 'product_category.html';
+            a.textContent = c.name;
+            a.className = 'block py-1.5 px-2 rounded hover:bg-white hover:text-primary transition-colors ' +
+                (cat === c.slug || (!cat && !c.slug && !query) ? 'text-primary font-bold bg-white' : '');
+            li.appendChild(a);
+            catFilter.appendChild(li);
+        });
+
+        // Fill search input if query (needs slight delay if header injected async? No, header injected in main.js synchronous execution of component)
+        // Actually main.js runs and prepends header.
+
+        function getFilteredProducts() {
+            var products;
+            if (query) {
+                products = searchProducts(query);
+            } else if (cat) {
+                products = getProductsByCategory(cat);
+            } else {
+                products = getProducts();
+            }
+
+            var priceVal = document.querySelector('.price-filter:checked');
+            if (priceVal && priceVal.value) {
+                var range = priceVal.value;
+                if (range === '500+') {
+                    products = products.filter(function (p) { return p.price >= 500; });
+                } else {
+                    var parts = range.split('-');
+                    var min = parseInt(parts[0]), max = parseInt(parts[1]);
+                    products = products.filter(function (p) { return p.price >= min && p.price <= max; });
+                }
+            }
+
+            var sort = document.getElementById('sortSelect').value;
+            if (sort === 'price-asc') products.sort(function (a, b) { return a.price - b.price; });
+            else if (sort === 'price-desc') products.sort(function (a, b) { return b.price - a.price; });
+            else if (sort === 'rating') products.sort(function (a, b) { return b.rating - a.rating; });
+            else if (sort === 'name') products.sort(function (a, b) { return a.name.localeCompare(b.name, 'tr'); });
+
+            return products;
+        }
+
+        // Mobile Filter Logic
+        window.toggleMobileFilters = function () {
+            const sidebar = document.getElementById('filterSidebar');
+            const overlay = document.getElementById('filterOverlay');
+            const body = document.body;
+
+            if (sidebar.classList.contains('-translate-x-full')) {
+                // Open
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                body.style.overflow = 'hidden'; // Prevent background scrolling
+            } else {
+                // Close
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                body.style.overflow = '';
+            }
+        }
+
+        function renderProducts() {
+            var products = getFilteredProducts();
+            var grid = document.getElementById('productsGrid');
+            var empty = document.getElementById('emptyState');
+            var count = document.getElementById('productCount');
+            var mobileCount = document.getElementById('mobileProductCount'); // New
+
+            var countText = products.length + ' ürün';
+            count.textContent = countText;
+            if (mobileCount) mobileCount.textContent = countText;
+
+            if (products.length === 0) {
+                grid.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
+            grid.classList.remove('hidden');
+            empty.classList.add('hidden');
+
+            grid.innerHTML = products.map(function (p) { return renderProductCard(p); }).join('');
+        }
+
+        renderProducts();
+
+        document.querySelectorAll('.price-filter').forEach(function (el) {
+            el.addEventListener('change', renderProducts);
+        });
+        document.getElementById('sortSelect').addEventListener('change', renderProducts);
+    </script>
+</body>
+
+</html>

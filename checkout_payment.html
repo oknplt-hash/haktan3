@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HAKTAN - Ödeme</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light text-text-main font-display min-h-screen flex flex-col">
+    <!-- Header injected by main.js -->
+
+    <main class="flex-1 container mx-auto px-4 py-8 lg:px-10 max-w-4xl">
+        <h1 class="text-3xl font-black mb-8 text-center">Ödeme ve Teslimat</h1>
+
+        <div class="flex flex-col md:flex-row gap-8">
+            <div class="flex-1">
+                <form id="checkoutForm" class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-border-light shadow-sm">
+                        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">person</span> Kişisel Bilgiler
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="fname" placeholder="Adınız" required
+                                class="w-full rounded-lg border-border-light focus:ring-primary focus:border-primary">
+                            <input type="text" id="lname" placeholder="Soyadınız" required
+                                class="w-full rounded-lg border-border-light focus:ring-primary focus:border-primary">
+                            <input type="email" id="email" placeholder="E-posta Adresi" required
+                                class="w-full rounded-lg border-border-light focus:ring-primary focus:border-primary md:col-span-2">
+                            <input type="tel" id="phone" placeholder="Telefon (5XX)" required
+                                class="w-full rounded-lg border-border-light focus:ring-primary focus:border-primary md:col-span-2">
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-border-light shadow-sm">
+                        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">home</span> Teslimat Adresi
+                        </h2>
+                        <div class="space-y-4">
+                            <textarea id="address" rows="3" placeholder="Açık Adres (Mahalle, Cadde, Sokak, No...)"
+                                required
+                                class="w-full rounded-lg border-border-light focus:ring-primary focus:border-primary"></textarea>
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" id="city" placeholder="İl" required
+                                    class="w-full rounded-lg border-border-light focus:ring-primary focus:border-primary">
+                                <input type="text" id="district" placeholder="İlçe" required
+                                    class="w-full rounded-lg border-border-light focus:ring-primary focus:border-primary">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-border-light shadow-sm">
+                        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">credit_card</span> Ödeme Yöntemi
+                        </h2>
+                        <div class="space-y-3">
+                            <!-- Credit Card Option -->
+                            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="radio" name="payment" value="credit_card" checked
+                                        class="text-primary focus:ring-primary" onclick="togglePaymentMethod()">
+                                    <div class="flex items-center justify-between w-full">
+                                        <span class="font-bold">Kredi / Banka Kartı</span>
+                                        <div class="flex gap-2 grayscale opacity-70">
+                                            <div
+                                                class="h-6 bg-gray-200 rounded text-[10px] flex items-center px-1 font-bold">
+                                                VISA</div>
+                                            <div
+                                                class="h-6 bg-gray-200 rounded text-[10px] flex items-center px-1 font-bold">
+                                                Master</div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <div id="ccDetails" class="mt-4 grid grid-cols-2 gap-4">
+                                    <input type="text" placeholder="Kart Numarası"
+                                        class="col-span-2 w-full rounded-lg border-border-light focus:ring-primary focus:border-primary">
+                                    <input type="text" placeholder="AA/YY"
+                                        class="w-full rounded-lg border-border-light focus:ring-primary focus:border-primary">
+                                    <input type="text" placeholder="CVC"
+                                        class="w-full rounded-lg border-border-light focus:ring-primary focus:border-primary">
+                                </div>
+                            </div>
+
+                            <!-- Bank Transfer Option -->
+                            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="radio" name="payment" value="havale"
+                                        class="text-primary focus:ring-primary" onclick="togglePaymentMethod()">
+                                    <div class="flex items-center justify-between w-full">
+                                        <span class="font-bold">Havale / EFT</span>
+                                        <span class="material-symbols-outlined text-gray-400">account_balance</span>
+                                    </div>
+                                </label>
+                                <div id="bankDetails"
+                                    class="mt-4 hidden text-sm text-gray-600 space-y-2 border-t border-gray-200 pt-3">
+                                    <p class="font-bold text-gray-900">Banka Hesap Bilgileri:</p>
+                                    <div class="bg-white p-3 rounded border border-gray-200">
+                                        <p><span class="font-bold">Banka:</span> Ziraat Bankası</p>
+                                        <p><span class="font-bold">Alıcı:</span> Haktan Kuruyemiş Ltd. Şti.</p>
+                                        <p class="font-mono text-xs mt-1 bg-gray-100 p-1 rounded">TR12 0001 0002 0003
+                                            0004 0005 06</p>
+                                    </div>
+                                    <p class="text-xs text-orange-600"><span class="font-bold">Önemli:</span>
+                                        Siparişinizi tamamladıktan sonra size verilecek olan <span
+                                            class="font-bold underline">Sipariş Numarasını</span> havale açıklama
+                                        kısmına yazmayı unutmayınız.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-primary hover:bg-[#d68311] text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/30 active:scale-95 transition-all">
+                        Ödemeyi Tamamla ve Sipariş Ver
+                    </button>
+                </form>
+            </div>
+
+            <div class="w-full md:w-80 shrink-0">
+                <div class="bg-card-light border border-border-light rounded-2xl p-6 shadow-sm sticky top-28">
+                    <h2 class="text-xl font-bold mb-6 pb-4 border-b border-border-light">Sipariş Özeti</h2>
+                    <div id="checkoutItems" class="space-y-3 mb-6 max-h-60 overflow-y-auto custom-scrollbar"></div>
+                    <div class="space-y-2 mb-6 text-sm">
+                        <div class="flex justify-between"><span class="text-text-secondary">Ara Toplam</span><span
+                                class="font-bold" id="checkoutSubtotal">0,00₺</span></div>
+                        <div class="flex justify-between"><span class="text-text-secondary">Kargo</span><span
+                                class="font-bold" id="checkoutShipping">0,00₺</span></div>
+                    </div>
+                    <div class="border-t border-border-light pt-4">
+                        <div class="flex justify-between items-center text-lg">
+                            <span class="font-bold text-text-main">Toplam</span>
+                            <span class="font-black text-primary text-xl" id="checkoutTotal">0,00₺</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div
+            class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl m-4 transform transition-all scale-100">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="material-symbols-outlined text-5xl text-green-600">check_circle</span>
+            </div>
+            <h2 class="text-2xl font-black text-gray-900 mb-2">Siparişiniz Alındı!</h2>
+            <p class="text-gray-500 mb-6">Sipariş numaranız: <span id="orderIdDisplay"
+                    class="font-bold text-text-main"></span>. Teşekkür ederiz.</p>
+            <a href="index.html"
+                class="block w-full bg-primary hover:bg-[#d68311] text-white py-3 rounded-lg font-bold">Alışverişe
+                Dön</a>
+        </div>
+    </div>
+
+    <!-- Footer injected by main.js -->
+
+    <script type="module" src="/src/main.js"></script>
+    <script type="module">
+        import { getCartItems, getCartTotal, clearCart } from './src/modules/cart.js';
+        import { createOrder } from './src/modules/orders.js';
+        import { formatPrice } from './src/modules/utils.js';
+
+        // Init
+        const items = getCartItems();
+        if (items.length === 0) {
+            window.location.href = 'index.html'; // Redirect empty cart
+        }
+
+        const subtotal = getCartTotal();
+        const shipping = subtotal >= 500 ? 0 : 39.90;
+        const total = subtotal + shipping;
+
+        document.getElementById('checkoutSubtotal').textContent = formatPrice(subtotal);
+        document.getElementById('checkoutShipping').textContent = shipping === 0 ? 'Ücretsiz' : formatPrice(shipping);
+        document.getElementById('checkoutTotal').textContent = formatPrice(total);
+
+        document.getElementById('checkoutItems').innerHTML = items.map(item => `
+            <div class="flex gap-3 text-sm">
+                <div class="w-12 h-12 bg-gray-50 rounded shrink-0 border border-border-light"><img src="${item.image}" class="w-full h-full object-cover"></div>
+                <div class="flex-1">
+                    <div class="font-bold line-clamp-1">${item.name}</div>
+                    <div class="text-xs text-text-secondary">${item.qty} adet x ${formatPrice(item.price)}</div>
+                </div>
+                <div class="font-bold">${formatPrice(item.total)}</div>
+            </div>
+        `).join('');
+
+        // Payment Method Toggle
+        window.togglePaymentMethod = function () {
+            const method = document.querySelector('input[name="payment"]:checked').value;
+            const ccDetails = document.getElementById('ccDetails');
+            const bankDetails = document.getElementById('bankDetails');
+
+            if (method === 'credit_card') {
+                ccDetails.classList.remove('hidden');
+                bankDetails.classList.add('hidden');
+            } else {
+                ccDetails.classList.add('hidden');
+                bankDetails.classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('checkoutForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            // Basic validation passed (HTML5 required)
+
+            // Simulate processing
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> İşleniyor...';
+            btn.disabled = true;
+
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+            setTimeout(() => {
+                const customer = {
+                    name: document.getElementById('fname').value + ' ' + document.getElementById('lname').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    address: document.getElementById('address').value + ', ' + document.getElementById('district').value + '/' + document.getElementById('city').value,
+                    paymentMethod: paymentMethod === 'havale' ? 'Havale/EFT' : 'Kredi Kartı'
+                };
+
+                const order = createOrder(customer);
+                if (order) {
+                    document.getElementById('orderIdDisplay').textContent = order.id;
+
+                    // Custom message for Havale/EFT
+                    const modalBody = document.querySelector('#successModal p');
+                    if (paymentMethod === 'havale') {
+                        modalBody.innerHTML = `Sipariş numaranız: <span id="orderIdDisplay" class="font-bold text-text-main text-xl">${order.id}</span>.<br><br>
+                        <span class="text-red-600 font-bold block mt-2">Lütfen ödeme yaparken açıklama kısmına bu numarayı yazınız.</span>`;
+                    } else {
+                        modalBody.innerHTML = `Sipariş numaranız: <span id="orderIdDisplay" class="font-bold text-text-main">${order.id}</span>. Teşekkür ederiz.`;
+                    }
+
+                    document.getElementById('successModal').classList.remove('hidden');
+                }
+            }, 1500);
+        });
+    </script>
+</body>
+
+</html>
