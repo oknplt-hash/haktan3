@@ -17,7 +17,7 @@
         rel="stylesheet" />
 </head>
 
-<body class="bg-white text-text-main font-display min-h-screen flex flex-col">
+<body class="bg-gray-50 text-text-main font-display min-h-screen flex flex-col">
     <!-- Header injected by main.js -->
 
     <main class="flex-1 container mx-auto px-4 py-8 max-w-7xl">
@@ -26,6 +26,402 @@
             <span class="material-symbols-outlined text-[14px]">chevron_right</span>
             <span id="breadcrumbCat" class="text-text-main font-semibold">Ürünler</span>
         </nav>
+
+        <!-- ===== Category Hero Carousel ===== -->
+        <section id="categoryCarousel" class="relative w-full rounded-2xl overflow-hidden mb-8 shadow-xl"
+            style="min-height: 340px;">
+            <style>
+                .cat-slide {
+                    position: absolute;
+                    inset: 0;
+                    opacity: 0;
+                    transition: opacity 1s ease-in-out;
+                    z-index: 0;
+                }
+
+                .cat-slide.active {
+                    opacity: 1;
+                    z-index: 1;
+                }
+
+                .cat-dot {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 9999px;
+                    background: rgba(255, 255, 255, 0.45);
+                    border: 2px solid rgba(255, 255, 255, 0.6);
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+                .cat-dot.active {
+                    background: #ec9213;
+                    border-color: #ec9213;
+                    width: 28px;
+                }
+
+                .cat-progress {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, #ec9213, #f5a623);
+                    z-index: 10;
+                    transition: width 0.1s linear;
+                }
+
+                .cat-slide .slide-content {
+                    transform: translateY(30px);
+                    opacity: 0;
+                    transition: all 0.8s ease 0.3s;
+                }
+
+                .cat-slide.active .slide-content {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+
+                .cat-arrow {
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    z-index: 5;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.15);
+                    backdrop-filter: blur(8px);
+                    border: 1px solid rgba(255, 255, 255, 0.25);
+                    color: white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    opacity: 0;
+                }
+
+                #categoryCarousel:hover .cat-arrow {
+                    opacity: 1;
+                }
+
+                .cat-arrow:hover {
+                    background: rgba(236, 146, 19, 0.85);
+                    border-color: rgba(236, 146, 19, 0.9);
+                    transform: translateY(-50%) scale(1.1);
+                }
+
+                .cat-arrow.left {
+                    left: 16px;
+                }
+
+                .cat-arrow.right {
+                    right: 16px;
+                }
+
+                @media (max-width: 768px) {
+                    #categoryCarousel {
+                        min-height: 280px;
+                    }
+
+                    .cat-arrow {
+                        opacity: 1;
+                        width: 36px;
+                        height: 36px;
+                    }
+                }
+            </style>
+
+            <!-- Slide 1: Kuruyemiş -->
+            <div class="cat-slide active" data-cat="kuruyemis">
+                <div
+                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1599599810694-b5b37304c041?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                </div>
+                <div
+                    style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(30,20,10,0.85) 0%, rgba(30,20,10,0.5) 50%, rgba(30,20,10,0.2) 100%);">
+                </div>
+                <div class="slide-content"
+                    style="position:absolute;inset:0;display:flex;align-items:center;padding:2rem 2.5rem;">
+                    <div style="max-width:520px;">
+                        <span
+                            style="display:inline-flex;align-items:center;gap:6px;background:rgba(236,146,19,0.2);border:1px solid rgba(236,146,19,0.4);color:#f5a623;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;margin-bottom:16px;backdrop-filter:blur(4px);">
+                            <span class="material-symbols-outlined" style="font-size:14px;">local_fire_department</span>
+                            En Çok Tercih Edilen
+                        </span>
+                        <h2
+                            style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;color:white;line-height:1.15;margin-bottom:12px;letter-spacing:-0.5px;">
+                            Taze Kavrulmuş<br>Kuruyemiş</h2>
+                        <p
+                            style="color:rgba(255,255,255,0.8);font-size:clamp(0.85rem,1.5vw,1.05rem);line-height:1.6;margin-bottom:24px;max-width:400px;">
+                            Antep fıstığından kaju cevizine, bademden fındığa… Taze kavrulmuş, birinci sınıf
+                            kuruyemişlerin en seçkinleri.</p>
+                        <a href="product_category.html?cat=kuruyemis"
+                            style="display:inline-flex;align-items:center;gap:8px;background:#ec9213;color:white;padding:12px 28px;border-radius:10px;font-weight:700;font-size:0.95rem;text-decoration:none;transition:all 0.3s;box-shadow:0 4px 20px rgba(236,146,19,0.35);">
+                            Keşfet <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Şarküteri -->
+            <div class="cat-slide" data-cat="sarkuteri">
+                <div
+                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                </div>
+                <div
+                    style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(50,15,15,0.85) 0%, rgba(40,15,15,0.5) 50%, rgba(40,15,15,0.2) 100%);">
+                </div>
+                <div class="slide-content"
+                    style="position:absolute;inset:0;display:flex;align-items:center;padding:2rem 2.5rem;">
+                    <div style="max-width:520px;">
+                        <span
+                            style="display:inline-flex;align-items:center;gap:6px;background:rgba(220,60,60,0.2);border:1px solid rgba(220,60,60,0.4);color:#f87171;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;margin-bottom:16px;backdrop-filter:blur(4px);">
+                            <span class="material-symbols-outlined" style="font-size:14px;">restaurant</span>
+                            Gurme Seçim
+                        </span>
+                        <h2
+                            style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;color:white;line-height:1.15;margin-bottom:12px;letter-spacing:-0.5px;">
+                            Premium<br>Şarküteri</h2>
+                        <p
+                            style="color:rgba(255,255,255,0.8);font-size:clamp(0.85rem,1.5vw,1.05rem);line-height:1.6;margin-bottom:24px;max-width:400px;">
+                            Sucuk, pastırma, kaşar peyniri ve daha fazlası… Geleneksel tariflerle hazırlanan şarküteri
+                            lezzetleri sofranızda.</p>
+                        <a href="product_category.html?cat=sarkuteri"
+                            style="display:inline-flex;align-items:center;gap:8px;background:#ec9213;color:white;padding:12px 28px;border-radius:10px;font-weight:700;font-size:0.95rem;text-decoration:none;transition:all 0.3s;box-shadow:0 4px 20px rgba(236,146,19,0.35);">
+                            Keşfet <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Aktar -->
+            <div class="cat-slide" data-cat="aktar">
+                <div
+                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                </div>
+                <div
+                    style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(20,40,20,0.85) 0%, rgba(20,40,20,0.5) 50%, rgba(20,40,20,0.15) 100%);">
+                </div>
+                <div class="slide-content"
+                    style="position:absolute;inset:0;display:flex;align-items:center;padding:2rem 2.5rem;">
+                    <div style="max-width:520px;">
+                        <span
+                            style="display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,0.2);border:1px solid rgba(34,197,94,0.4);color:#4ade80;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;margin-bottom:16px;backdrop-filter:blur(4px);">
+                            <span class="material-symbols-outlined" style="font-size:14px;">spa</span>
+                            Doğal & Şifalı
+                        </span>
+                        <h2
+                            style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;color:white;line-height:1.15;margin-bottom:12px;letter-spacing:-0.5px;">
+                            Şifalı Bitkiler<br>& Baharatlar</h2>
+                        <p
+                            style="color:rgba(255,255,255,0.8);font-size:clamp(0.85rem,1.5vw,1.05rem);line-height:1.6;margin-bottom:24px;max-width:400px;">
+                            Doğanın şifa deposu… Bitkisel çaylar, baharatlar ve aromatik bitkiler ile sağlıklı yaşamın
+                            kapısını aralayın.</p>
+                        <a href="product_category.html?cat=aktar"
+                            style="display:inline-flex;align-items:center;gap:8px;background:#ec9213;color:white;padding:12px 28px;border-radius:10px;font-weight:700;font-size:0.95rem;text-decoration:none;transition:all 0.3s;box-shadow:0 4px 20px rgba(236,146,19,0.35);">
+                            Keşfet <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Bakliyat -->
+            <div class="cat-slide" data-cat="bakliyat">
+                <div
+                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                </div>
+                <div
+                    style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(60,40,10,0.85) 0%, rgba(50,35,10,0.5) 50%, rgba(40,30,10,0.15) 100%);">
+                </div>
+                <div class="slide-content"
+                    style="position:absolute;inset:0;display:flex;align-items:center;padding:2rem 2.5rem;">
+                    <div style="max-width:520px;">
+                        <span
+                            style="display:inline-flex;align-items:center;gap:6px;background:rgba(234,179,8,0.2);border:1px solid rgba(234,179,8,0.4);color:#facc15;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;margin-bottom:16px;backdrop-filter:blur(4px);">
+                            <span class="material-symbols-outlined" style="font-size:14px;">grain</span>
+                            Doğal & Yerli
+                        </span>
+                        <h2
+                            style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;color:white;line-height:1.15;margin-bottom:12px;letter-spacing:-0.5px;">
+                            Doğal<br>Bakliyat</h2>
+                        <p
+                            style="color:rgba(255,255,255,0.8);font-size:clamp(0.85rem,1.5vw,1.05rem);line-height:1.6;margin-bottom:24px;max-width:400px;">
+                            Kırmızı mercimek, nohut, fasulye, bulgur… Anadolu'nun bereketli topraklarından sofralarınıza
+                            en taze bakliyatlar.</p>
+                        <a href="product_category.html?cat=bakliyat"
+                            style="display:inline-flex;align-items:center;gap:8px;background:#ec9213;color:white;padding:12px 28px;border-radius:10px;font-weight:700;font-size:0.95rem;text-decoration:none;transition:all 0.3s;box-shadow:0 4px 20px rgba(236,146,19,0.35);">
+                            Keşfet <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Pestil & Köme -->
+            <div class="cat-slide" data-cat="pestil">
+                <div
+                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                </div>
+                <div
+                    style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(80,20,50,0.85) 0%, rgba(60,15,40,0.5) 50%, rgba(50,10,30,0.15) 100%);">
+                </div>
+                <div class="slide-content"
+                    style="position:absolute;inset:0;display:flex;align-items:center;padding:2rem 2.5rem;">
+                    <div style="max-width:520px;">
+                        <span
+                            style="display:inline-flex;align-items:center;gap:6px;background:rgba(192,38,211,0.2);border:1px solid rgba(192,38,211,0.4);color:#e879f9;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;margin-bottom:16px;backdrop-filter:blur(4px);">
+                            <span class="material-symbols-outlined" style="font-size:14px;">star</span>
+                            Geleneksel Tatlar
+                        </span>
+                        <h2
+                            style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;color:white;line-height:1.15;margin-bottom:12px;letter-spacing:-0.5px;">
+                            Pestil &<br>Köme</h2>
+                        <p
+                            style="color:rgba(255,255,255,0.8);font-size:clamp(0.85rem,1.5vw,1.05rem);line-height:1.6;margin-bottom:24px;max-width:400px;">
+                            Gümüşhane'nin meşhur pestili, Kayseri'nin köme ve sucuğu… Nesilden nesile aktarılan
+                            geleneksel lezzetler.</p>
+                        <a href="product_category.html?cat=pestil"
+                            style="display:inline-flex;align-items:center;gap:8px;background:#ec9213;color:white;padding:12px 28px;border-radius:10px;font-weight:700;font-size:0.95rem;text-decoration:none;transition:all 0.3s;box-shadow:0 4px 20px rgba(236,146,19,0.35);">
+                            Keşfet <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: Yöresel Ürünler -->
+            <div class="cat-slide" data-cat="yoresel">
+                <div
+                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                </div>
+                <div
+                    style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(60,30,10,0.85) 0%, rgba(50,25,8,0.5) 50%, rgba(40,20,5,0.15) 100%);">
+                </div>
+                <div class="slide-content"
+                    style="position:absolute;inset:0;display:flex;align-items:center;padding:2rem 2.5rem;">
+                    <div style="max-width:520px;">
+                        <span
+                            style="display:inline-flex;align-items:center;gap:6px;background:rgba(249,115,22,0.2);border:1px solid rgba(249,115,22,0.4);color:#fb923c;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;margin-bottom:16px;backdrop-filter:blur(4px);">
+                            <span class="material-symbols-outlined" style="font-size:14px;">landscape</span>
+                            Anadolu'dan
+                        </span>
+                        <h2
+                            style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;color:white;line-height:1.15;margin-bottom:12px;letter-spacing:-0.5px;">
+                            Yöresel<br>Ürünler</h2>
+                        <p
+                            style="color:rgba(255,255,255,0.8);font-size:clamp(0.85rem,1.5vw,1.05rem);line-height:1.6;margin-bottom:24px;max-width:400px;">
+                            Bal, pekmez, tarhana, kurutulmuş meyveler… Anadolu'nun dört bir yanından el emeği, göz nuru
+                            yöresel lezzetler.</p>
+                        <a href="product_category.html?cat=yoresel"
+                            style="display:inline-flex;align-items:center;gap:8px;background:#ec9213;color:white;padding:12px 28px;border-radius:10px;font-weight:700;font-size:0.95rem;text-decoration:none;transition:all 0.3s;box-shadow:0 4px 20px rgba(236,146,19,0.35);">
+                            Keşfet <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Arrows -->
+            <button class="cat-arrow left" onclick="catCarousel.prev()">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <button class="cat-arrow right" onclick="catCarousel.next()">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+
+            <!-- Dot Indicators -->
+            <div
+                style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:5;display:flex;gap:8px;align-items:center;">
+                <button class="cat-dot active" onclick="catCarousel.goTo(0)"></button>
+                <button class="cat-dot" onclick="catCarousel.goTo(1)"></button>
+                <button class="cat-dot" onclick="catCarousel.goTo(2)"></button>
+                <button class="cat-dot" onclick="catCarousel.goTo(3)"></button>
+                <button class="cat-dot" onclick="catCarousel.goTo(4)"></button>
+                <button class="cat-dot" onclick="catCarousel.goTo(5)"></button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="cat-progress" id="catProgress"></div>
+        </section>
+
+        <script>
+            // Category Carousel Controller
+            var catCarousel = (function () {
+                var slides = document.querySelectorAll('.cat-slide');
+                var dots = document.querySelectorAll('.cat-dot');
+                var progress = document.getElementById('catProgress');
+                var current = 0;
+                var total = slides.length;
+                var interval = 5000; // 5 seconds per slide
+                var timer = null;
+                var progressTimer = null;
+                var progressStart = 0;
+
+                function goTo(index) {
+                    slides[current].classList.remove('active');
+                    dots[current].classList.remove('active');
+                    current = (index + total) % total;
+                    slides[current].classList.add('active');
+                    dots[current].classList.add('active');
+                    resetProgress();
+                }
+
+                function next() {
+                    goTo(current + 1);
+                }
+
+                function prev() {
+                    goTo(current - 1);
+                }
+
+                function resetProgress() {
+                    clearInterval(timer);
+                    cancelAnimationFrame(progressTimer);
+                    progressStart = Date.now();
+                    progress.style.width = '0%';
+                    animateProgress();
+                    timer = setTimeout(next, interval);
+                }
+
+                function animateProgress() {
+                    var elapsed = Date.now() - progressStart;
+                    var pct = Math.min((elapsed / interval) * 100, 100);
+                    progress.style.width = pct + '%';
+                    if (pct < 100) {
+                        progressTimer = requestAnimationFrame(animateProgress);
+                    }
+                }
+
+                // Pause on hover
+                var container = document.getElementById('categoryCarousel');
+                container.addEventListener('mouseenter', function () {
+                    clearInterval(timer);
+                    cancelAnimationFrame(progressTimer);
+                });
+                container.addEventListener('mouseleave', function () {
+                    resetProgress();
+                });
+
+                // Touch swipe support
+                var touchStartX = 0;
+                container.addEventListener('touchstart', function (e) {
+                    touchStartX = e.changedTouches[0].screenX;
+                    clearInterval(timer);
+                    cancelAnimationFrame(progressTimer);
+                }, { passive: true });
+                container.addEventListener('touchend', function (e) {
+                    var diff = e.changedTouches[0].screenX - touchStartX;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) prev();
+                        else next();
+                    } else {
+                        resetProgress();
+                    }
+                }, { passive: true });
+
+                // Start
+                resetProgress();
+
+                return { goTo: goTo, next: next, prev: prev };
+            })();
+        </script>
 
         <!-- Mobile Filter Button & Sort (Visible only on mobile) -->
         <div

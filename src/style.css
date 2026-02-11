@@ -43,6 +43,10 @@ body {
     transition: opacity 0.3s ease-in-out;
 }
 
+body.loaded {
+    opacity: 1;
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {
     display: none;

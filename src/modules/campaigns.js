@@ -6,9 +6,9 @@
 const DEFAULT_SLIDERS = [
     {
         id: 1,
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBRbRT4uCUMy71pVAF68JL8klMpz2HEjETfwpbfAfHMkn7Arow8eMZSgh7qeHmFdeRHSRnMfUtXobPaARQ-RtT1LqMT4lPooPN-cLyHRniv8dkh9JXo6nrd1hs7pzXI9ePATN0yMYxkw89em3hvA7SCSNAC2gTlYQw78EA4ID1rTGlp5hm5ksjgLo_3xa1AZrrlfhyLgBAmwpNgwyp_WYUzDbMNloiAKA0e30JIdWizgJZKJS4scRycxG4dl4rp0f3z5JdRmSn8GJ8",
-        title: "Haftasonu Antep Fıstığı İndirimi", // Changed for visual match
-        subtitle: "Tüm kuruyemişlerde geçerli %15 indirim fırsatı.",
+        image: "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?q=80&w=2000&auto=format&fit=crop",
+        title: "Saray Lezzetleri Kapınızda",
+        subtitle: "Lüks seçkilerimizin saraylara layık tadını deneyimleyin. Taptaze kavrulmuş Antep fıstığından egzotik kuru meyvelere kadar en iyisi burada.",
         buttonText: "Alışverişe Başla",
         buttonLink: "product_category.html",
         startDate: "2023-10-20",
@@ -45,16 +45,16 @@ const DEFAULT_ANNOUNCEMENTS = [
 // ---- Sliders ----
 
 export function getSliders() {
-    const sliders = JSON.parse(localStorage.getItem("haktan_sliders"));
+    const sliders = JSON.parse(localStorage.getItem("haktan_sliders_v2"));
     if (!sliders) {
-        localStorage.setItem("haktan_sliders", JSON.stringify(DEFAULT_SLIDERS));
+        localStorage.setItem("haktan_sliders_v2", JSON.stringify(DEFAULT_SLIDERS));
         return DEFAULT_SLIDERS;
     }
     return sliders;
 }
 
 export function saveSliders(sliders) {
-    localStorage.setItem("haktan_sliders", JSON.stringify(sliders));
+    localStorage.setItem("haktan_sliders_v2", JSON.stringify(sliders));
 }
 
 export function addSlider(slider) {
