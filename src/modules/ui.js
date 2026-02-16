@@ -40,7 +40,7 @@ export function renderProductCard(product) {
     // Note: Inline onclicks rely on HaktanApp being global
     return (
         '<div class="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-[#ec9213]/50 transition-all hover:shadow-lg flex flex-col h-full">' +
-        '<a href="product_detail.html?id=' + product.id + '" class="relative aspect-square overflow-hidden bg-gray-50 block">' +
+        '<a href="product_detail.html?id=' + product.id + '" class="relative aspect-[4/3] overflow-hidden bg-gray-50 block">' +
         (discount > 0
             ? '<span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded z-10 shadow-sm">-' + discount + "%</span>"
             : "") +
@@ -49,7 +49,7 @@ export function renderProductCard(product) {
         '<button onclick="event.stopPropagation();HaktanApp.addToCart(' + product.id + ');HaktanApp.showToast(\'Sepete eklendi!\')" ' +
         'class="absolute bottom-2 right-2 bg-white text-gray-800 p-2 rounded-full shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-[#ec9213] hover:text-white border border-gray-100 z-10" style="position:absolute">' +
         '<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span></button>' +
-        '<div class="p-2.5 md:p-3 flex flex-col flex-1">' +
+        '<div class="p-2 md:p-2.5 flex flex-col flex-1">' +
         '<div class="text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">' +
         (CATEGORY_NAMES[product.category] || product.category) +
         "</div>" +

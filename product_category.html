@@ -27,10 +27,10 @@
             <span id="breadcrumbCat" class="text-text-main font-semibold">Ürünler</span>
         </nav>
 
-        <!-- ===== Category Hero Carousel ===== -->
-        <section id="categoryCarousel" class="relative w-full rounded-2xl overflow-hidden mb-8 shadow-xl"
+        <!-- ===== Category Hero - Static Image ===== -->
+        <section id="categoryHero" class="relative w-full rounded-2xl overflow-hidden mb-8 shadow-xl"
             style="min-height: 340px;">
-            <style>
+            <!-- Hero content injected via JS based on category -->
                 .cat-slide {
                     position: absolute;
                     inset: 0;
@@ -101,7 +101,7 @@
                     opacity: 0;
                 }
 
-                #categoryCarousel:hover .cat-arrow {
+                #categoryHero:hover .cat-arrow {
                     opacity: 1;
                 }
 
@@ -120,7 +120,7 @@
                 }
 
                 @media (max-width: 768px) {
-                    #categoryCarousel {
+                    #categoryHero {
                         min-height: 280px;
                     }
 
@@ -135,7 +135,7 @@
             <!-- Slide 1: Kuruyemiş -->
             <div class="cat-slide active" data-cat="kuruyemis">
                 <div
-                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1599599810694-b5b37304c041?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                    style="position:absolute;inset:0;background:url('src/images/kuruyemis.png') center/cover no-repeat;">
                 </div>
                 <div
                     style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(30,20,10,0.85) 0%, rgba(30,20,10,0.5) 50%, rgba(30,20,10,0.2) 100%);">
@@ -166,7 +166,7 @@
             <!-- Slide 2: Şarküteri -->
             <div class="cat-slide" data-cat="sarkuteri">
                 <div
-                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                    style="position:absolute;inset:0;background:url('src/images/sarkuteri.jpg') center/cover no-repeat;">
                 </div>
                 <div
                     style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(50,15,15,0.85) 0%, rgba(40,15,15,0.5) 50%, rgba(40,15,15,0.2) 100%);">
@@ -197,7 +197,7 @@
             <!-- Slide 3: Aktar -->
             <div class="cat-slide" data-cat="aktar">
                 <div
-                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                    style="position:absolute;inset:0;background:url('src/images/aktar.png') center/cover no-repeat;">
                 </div>
                 <div
                     style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(20,40,20,0.85) 0%, rgba(20,40,20,0.5) 50%, rgba(20,40,20,0.15) 100%);">
@@ -228,7 +228,7 @@
             <!-- Slide 4: Bakliyat -->
             <div class="cat-slide" data-cat="bakliyat">
                 <div
-                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                    style="position:absolute;inset:0;background:url('src/images/bakliyat.jpg') center/cover no-repeat;">
                 </div>
                 <div
                     style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(60,40,10,0.85) 0%, rgba(50,35,10,0.5) 50%, rgba(40,30,10,0.15) 100%);">
@@ -259,7 +259,7 @@
             <!-- Slide 5: Pestil & Köme -->
             <div class="cat-slide" data-cat="pestil">
                 <div
-                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                    style="position:absolute;inset:0;background:url('src/images/pestilkome.jpg') center/cover no-repeat;">
                 </div>
                 <div
                     style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(80,20,50,0.85) 0%, rgba(60,15,40,0.5) 50%, rgba(50,10,30,0.15) 100%);">
@@ -290,7 +290,7 @@
             <!-- Slide 6: Yöresel Ürünler -->
             <div class="cat-slide" data-cat="yoresel">
                 <div
-                    style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;">
+                    style="position:absolute;inset:0;background:url('src/images/yoresel.png') center/cover no-repeat;">
                 </div>
                 <div
                     style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(60,30,10,0.85) 0%, rgba(50,25,8,0.5) 50%, rgba(40,20,5,0.15) 100%);">
@@ -318,110 +318,39 @@
                 </div>
             </div>
 
-            <!-- Navigation Arrows -->
-            <button class="cat-arrow left" onclick="catCarousel.prev()">
-                <span class="material-symbols-outlined">chevron_left</span>
-            </button>
-            <button class="cat-arrow right" onclick="catCarousel.next()">
-                <span class="material-symbols-outlined">chevron_right</span>
-            </button>
+            <!-- Show only the relevant category slide based on URL -->
+            <script>
+                (function() {
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var cat = urlParams.get('cat');
 
-            <!-- Dot Indicators -->
-            <div
-                style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:5;display:flex;gap:8px;align-items:center;">
-                <button class="cat-dot active" onclick="catCarousel.goTo(0)"></button>
-                <button class="cat-dot" onclick="catCarousel.goTo(1)"></button>
-                <button class="cat-dot" onclick="catCarousel.goTo(2)"></button>
-                <button class="cat-dot" onclick="catCarousel.goTo(3)"></button>
-                <button class="cat-dot" onclick="catCarousel.goTo(4)"></button>
-                <button class="cat-dot" onclick="catCarousel.goTo(5)"></button>
-            </div>
+                    // Map pestil-kome to pestil for compatibility
+                    if (cat === 'pestil-kome') cat = 'pestil';
 
-            <!-- Progress Bar -->
-            <div class="cat-progress" id="catProgress"></div>
+                    var valid = ['kuruyemis', 'sarkuteri', 'aktar', 'bakliyat', 'pestil', 'yoresel'];
+                    var selected = 'kuruyemis';
+                    if (cat && valid.includes(cat)) selected = cat;
+
+                    var slides = document.querySelectorAll('#categoryHero .cat-slide');
+                    slides.forEach(function(s) {
+                        if (s.getAttribute('data-cat') === selected) s.classList.add('active');
+                        else s.classList.remove('active');
+                    });
+
+                    // Update breadcrumb/title to match selected category
+                    var titles = {
+                        kuruyemis: 'Kuruyemiş',
+                        sarkuteri: 'Şarküteri',
+                        aktar: 'Aktar',
+                        bakliyat: 'Bakliyat',
+                        pestil: 'Pestil & Köme',
+                        yoresel: 'Yöresel Ürünler'
+                    };
+                    var bc = document.getElementById('breadcrumbCat');
+                    if (bc) bc.textContent = titles[selected] || 'Ürünler';
+                })();
+            </script>
         </section>
-
-        <script>
-            // Category Carousel Controller
-            var catCarousel = (function () {
-                var slides = document.querySelectorAll('.cat-slide');
-                var dots = document.querySelectorAll('.cat-dot');
-                var progress = document.getElementById('catProgress');
-                var current = 0;
-                var total = slides.length;
-                var interval = 5000; // 5 seconds per slide
-                var timer = null;
-                var progressTimer = null;
-                var progressStart = 0;
-
-                function goTo(index) {
-                    slides[current].classList.remove('active');
-                    dots[current].classList.remove('active');
-                    current = (index + total) % total;
-                    slides[current].classList.add('active');
-                    dots[current].classList.add('active');
-                    resetProgress();
-                }
-
-                function next() {
-                    goTo(current + 1);
-                }
-
-                function prev() {
-                    goTo(current - 1);
-                }
-
-                function resetProgress() {
-                    clearInterval(timer);
-                    cancelAnimationFrame(progressTimer);
-                    progressStart = Date.now();
-                    progress.style.width = '0%';
-                    animateProgress();
-                    timer = setTimeout(next, interval);
-                }
-
-                function animateProgress() {
-                    var elapsed = Date.now() - progressStart;
-                    var pct = Math.min((elapsed / interval) * 100, 100);
-                    progress.style.width = pct + '%';
-                    if (pct < 100) {
-                        progressTimer = requestAnimationFrame(animateProgress);
-                    }
-                }
-
-                // Pause on hover
-                var container = document.getElementById('categoryCarousel');
-                container.addEventListener('mouseenter', function () {
-                    clearInterval(timer);
-                    cancelAnimationFrame(progressTimer);
-                });
-                container.addEventListener('mouseleave', function () {
-                    resetProgress();
-                });
-
-                // Touch swipe support
-                var touchStartX = 0;
-                container.addEventListener('touchstart', function (e) {
-                    touchStartX = e.changedTouches[0].screenX;
-                    clearInterval(timer);
-                    cancelAnimationFrame(progressTimer);
-                }, { passive: true });
-                container.addEventListener('touchend', function (e) {
-                    var diff = e.changedTouches[0].screenX - touchStartX;
-                    if (Math.abs(diff) > 50) {
-                        if (diff > 0) prev();
-                        else next();
-                    } else {
-                        resetProgress();
-                    }
-                }, { passive: true });
-
-                // Start
-                resetProgress();
-
-                return { goTo: goTo, next: next, prev: prev };
-            })();
-        </script>
 
         <!-- Mobile Filter Button & Sort (Visible only on mobile) -->
         <div
@@ -517,7 +446,7 @@
                     <h1 id="pageTitle" class="text-2xl lg:text-3xl font-black text-text-main">Ürünler</h1>
                     <span id="productCount" class="text-text-muted text-sm font-medium"></span>
                 </div>
-                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+                <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
                 <div id="emptyState" class="hidden text-center py-20">
                     <span class="material-symbols-outlined text-6xl text-gray-300 mb-4">inventory_2</span>
                     <p class="text-text-muted text-lg font-medium">Bu kriterlere uygun ürün bulunamadı.</p>

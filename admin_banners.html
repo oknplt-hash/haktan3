@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HAKTAN - Banner Yönetimi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-display min-h-screen flex h-screen overflow-hidden">
+
+    <!-- Sidebar injected via JS -->
+
+    <main class="flex-1 overflow-hidden flex flex-col w-full">
+        <header class="bg-white border-b border-gray-200 px-8 py-5 flex justify-between items-center shrink-0">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Banner Yönetimi</h2>
+                <p class="text-gray-500 text-sm">Ana sayfa ve kategori bannerlarını yönetin.</p>
+            </div>
+            <button id="addBannerBtn"
+                class="bg-primary hover:bg-[#d68311] text-white px-5 py-2.5 rounded-lg font-bold shadow-lg shadow-primary/20 flex items-center gap-2 transition-all active:scale-95">
+                <span class="material-symbols-outlined">add</span> Yeni Banner Ekle
+            </button>
+        </header>
+
+        <div class="p-8 overflow-y-auto flex-1">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-500 uppercase tracking-wider text-xs font-semibold">
+                            <tr>
+                                <th class="px-6 py-4">ID</th>
+                                <th class="px-6 py-4">Görsel</th>
+                                <th class="px-6 py-4">Başlık</th>
+                                <th class="px-6 py-4">Alt Başlık</th>
+                                <th class="px-6 py-4">Link</th>
+                                <th class="px-6 py-4">Durum</th>
+                                <th class="px-6 py-4 text-right">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bannersTable" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Banner Modal -->
+    <div id="bannerModal"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl scale-0 transition-transform duration-300"
+            id="modalContent">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                <h3 class="text-xl font-bold" id="modalTitle">Yeni Banner Ekle</h3>
+                <button id="closeModalBtn" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="bannerForm" class="p-6 space-y-6">
+                <input type="hidden" name="id">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Banner Başlığı</label>
+                        <input type="text" name="title" required
+                            class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Alt Başlık / Açıklama</label>
+                        <input type="text" name="subtitle"
+                            class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Görsel URL</label>
+                        <input type="url" name="image" required placeholder="https://..."
+                            class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Yönlendirme Linki</label>
+                        <input type="text" name="link" placeholder="/product_category.html vs."
+                            class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="isActive" value="true" checked
+                                class="w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary">
+                            <span class="text-sm font-medium text-gray-700">Aktif</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" id="cancelModalBtn"
+                        class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors">İptal</button>
+                    <button type="submit"
+                        class="bg-primary hover:bg-[#d68311] text-white px-5 py-2.5 rounded-lg font-bold shadow-lg shadow-primary/20 transition-all active:scale-95">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="/src/admin-main.js"></script>
+    <script type="module">
+        import { getBanners, addBanner, updateBanner, deleteBanner, getBanner } from './src/modules/banners.js';
+        import { isAdminLoggedIn } from './src/modules/admin.js';
+
+        if (!isAdminLoggedIn()) window.location.href = 'admin.html';
+
+        window.renderAdminSidebar('banners');
+
+        let banners = getBanners();
+
+        function renderTable() {
+            const tbody = document.getElementById('bannersTable');
+
+            tbody.innerHTML = banners.map(b => `
+                <tr class="hover:bg-gray-50 transition-colors group">
+                    <td class="px-6 py-4 font-mono text-xs text-gray-500">#${b.id}</td>
+                    <td class="px-6 py-4"><img src="${b.image}" class="w-16 h-10 rounded object-cover border border-gray-200" onerror="this.src='https://placehold.co/100x60?text=Resim+Yok'"></td>
+                    <td class="px-6 py-4 font-medium text-gray-900">${b.title || '-'}</td>
+                    <td class="px-6 py-4 text-gray-600 text-xs">${b.subtitle || '-'}</td>
+                    <td class="px-6 py-4 text-blue-600 text-xs truncate max-w-[150px]" title="${b.link || ''}">${b.link || '-'}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded text-xs font-bold ${b.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
+                            ${b.isActive ? 'Aktif' : 'Pasif'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="window.editBanner(${b.id})" class="text-blue-500 hover:text-blue-700 p-1 rounded hover:bg-blue-50"><span class="material-symbols-outlined text-lg">edit</span></button>
+                        <button onclick="window.delBanner(${b.id})" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"><span class="material-symbols-outlined text-lg">delete</span></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Modal Logic
+        const modal = document.getElementById('bannerModal');
+        const modalContent = document.getElementById('modalContent');
+        const form = document.getElementById('bannerForm');
+
+        function openModal(id) {
+            modal.classList.remove('hidden');
+            setTimeout(() => modalContent.classList.remove('scale-0'), 10);
+
+            form.reset();
+            const title = document.getElementById('modalTitle');
+            if (id) {
+                title.textContent = 'Banner Düzenle';
+                const b = getBanner(id);
+                if (b) {
+                    form.id.value = b.id;
+                    form.title.value = b.title;
+                    form.subtitle.value = b.subtitle || '';
+                    form.image.value = b.image;
+                    form.link.value = b.link || '';
+                    form.isActive.checked = b.isActive;
+                }
+            } else {
+                title.textContent = 'Yeni Banner Ekle';
+                form.id.value = '';
+                form.isActive.checked = true;
+            }
+        }
+
+        function closeModal() {
+            modalContent.classList.add('scale-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        renderTable();
+
+        document.getElementById('addBannerBtn').addEventListener('click', () => openModal());
+        document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+        document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+
+        // Expose helpers
+        window.editBanner = openModal;
+        window.delBanner = function (id) {
+            if (confirm('Bu bannerı silmek istediğinize emin misiniz?')) {
+                deleteBanner(id);
+                banners = getBanners();
+                renderTable();
+            }
+        };
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((v, k) => data[k] = v);
+
+            // Handle checkbox
+            data.isActive = form.querySelector('input[name="isActive"]').checked;
+
+            if (data.id) {
+                updateBanner(data.id, data);
+            } else {
+                delete data.id;
+                addBanner(data);
+            }
+
+            banners = getBanners();
+            renderTable();
+            closeModal();
+        });
+    </script>
+</body>
+
+</html>

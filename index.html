@@ -11,12 +11,20 @@
         rel="stylesheet" />
     <style>
         body {
-            opacity: 1;
+            opacity: 0;
             transition: opacity 0.3s ease-in-out;
         }
 
         body.loaded {
             opacity: 1;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            animation: marquee 20s linear infinite;
         }
     </style>
 </head>
@@ -27,10 +35,10 @@
     <!-- Dynamic Header will be injected here by src/main.js -->
 
     <main class="flex-1 flex flex-col container mx-auto max-w-7xl px-4 md:px-12 lg:px-20">
-        <section class="p-2 lg:p-4 w-full" id="hero-slider-container">
+        <section class="p-2 pt-0 lg:p-4 lg:pt-0 w-full" id="hero-slider-container">
             <!-- ===== Category Hero Carousel ===== -->
             <div id="categoryCarousel" class="relative w-full rounded-2xl overflow-hidden shadow-xl"
-                style="min-height: 280px;">
+                style="min-height: 340px;">
                 <style>
                     .cat-slide {
                         position: absolute;
@@ -39,12 +47,10 @@
                         transition: opacity 1s ease-in-out;
                         z-index: 0;
                     }
-
                     .cat-slide.active {
                         opacity: 1;
                         z-index: 1;
                     }
-
                     .cat-dot {
                         width: 10px;
                         height: 10px;
@@ -54,13 +60,11 @@
                         cursor: pointer;
                         transition: all 0.3s ease;
                     }
-
                     .cat-dot.active {
                         background: #ec9213;
                         border-color: #ec9213;
                         width: 28px;
                     }
-
                     .cat-progress {
                         position: absolute;
                         bottom: 0;
@@ -70,18 +74,15 @@
                         z-index: 10;
                         transition: width 0.1s linear;
                     }
-
                     .cat-slide .slide-content {
                         transform: translateY(30px);
                         opacity: 0;
                         transition: all 0.8s ease 0.3s;
                     }
-
                     .cat-slide.active .slide-content {
                         transform: translateY(0);
                         opacity: 1;
                     }
-
                     .cat-arrow {
                         position: absolute;
                         top: 50%;
@@ -101,45 +102,23 @@
                         transition: all 0.3s ease;
                         opacity: 0;
                     }
-
                     #categoryCarousel:hover .cat-arrow {
                         opacity: 1;
                     }
-
                     .cat-arrow:hover {
                         background: rgba(236, 146, 19, 0.85);
                         border-color: rgba(236, 146, 19, 0.9);
                         transform: translateY(-50%) scale(1.1);
                     }
-
-                    .cat-arrow.left {
-                        left: 16px;
-                    }
-
-                    .cat-arrow.right {
-                        right: 16px;
-                    }
-
+                    .cat-arrow.left { left: 16px; }
+                    .cat-arrow.right { right: 16px; }
                     @media (max-width: 768px) {
-                        #categoryCarousel {
-                            min-height: 240px;
-                        }
-
-                        .cat-arrow {
-                            opacity: 1;
-                            width: 36px;
-                            height: 36px;
-                        }
+                        #categoryCarousel { min-height: 280px; }
+                        .cat-arrow { opacity: 1; width: 36px; height: 36px; }
                     }
                 </style>
-                <!-- Announcement Bar Overlay -->
-                <div id="announcementBar"
-                    class="absolute top-4 left-1/2 -translate-x-1/2 z-20 w-[90%] max-w-2xl transition-all duration-500 opacity-0 -translate-y-4">
-                    <!-- Injected via JS -->
-                </div>
-
                 <div id="heroSliderContainer" class="relative w-full h-full overflow-hidden bg-[#1a1510] shadow-inner"
-                    style="min-height: 280px;">
+                    style="min-height: 340px;">
                     <!-- Slides injected via JS -->
                     <div id="heroFallback"
                         class="absolute inset-0 flex flex-col items-center justify-center text-white/10 italic">
@@ -168,7 +147,6 @@
                 var catCarousel = (function () {
                     var slider = document.getElementById('heroSliderContainer');
                     var dotsContainer = document.getElementById('heroDotsContainer');
-                    var announcementBar = document.getElementById('announcementBar');
                     var current = 0, total = 0, interval = 5000, timer = null, progressTimer = null, progressStart = 0;
                     var progress = document.getElementById('catProgress');
 
@@ -188,26 +166,6 @@
                             // Remove fallback
                             const fallback = document.getElementById('heroFallback');
                             if (fallback) fallback.remove();
-
-                            // Render Announcement
-                            if (announcement) {
-                                announcementBar.innerHTML = `
-                                    <div class="bg-black/60 backdrop-blur-xl border border-white/20 rounded-full px-6 py-2.5 flex items-center justify-between gap-4 shadow-2xl">
-                                        <div class="flex items-center gap-3 text-white">
-                                            <span class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white shadow-lg">
-                                                <span class="material-symbols-outlined text-[18px]">notifications_active</span>
-                                            </span>
-                                            <p class="text-[13px] font-bold tracking-tight">${announcement.text}</p>
-                                        </div>
-                                        <button onclick="this.parentElement.parentElement.style.opacity='0';setTimeout(()=>this.parentElement.parentElement.remove(),500)" class="text-white/40 hover:text-white transition-colors">
-                                            <span class="material-symbols-outlined text-[18px]">close</span>
-                                        </button>
-                                    </div>
-                                `;
-                                setTimeout(() => {
-                                    announcementBar.classList.remove('opacity-0', '-translate-y-4');
-                                }, 500);
-                            }
 
                             // Render Sliders
                             total = sliders.length;
@@ -342,7 +300,7 @@
                         <div
                             class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
                             <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAeNPGn5ZKpT5u0ZMpP2iA8-sKnN_wT3qr1Rx7Vg01dFABezIlXgWmlI9EmM1UJGUclszCSP4YWPXWcKEWo59nAg4wt2uwiHt3alE4PtcCu0isSobI54dgh3Uw3r3Ugba_WYp6zfm1kwi1kSJYWJtDOAclFpoXSFBCGmepTM4qbBjZ93uljAG5W7cbNhwryg3-GQ59iAr3KVZrKb3D8mHJw2-PaorfHr5mvI2w_tR2QrJUzqUTMLmkvAMgFFY6HAzPe4Mbc005ED7M');">
+                                style="background-image: url('src/images/kuruyemis.png');">
                             </div>
                         </div>
                         <h3
@@ -355,7 +313,7 @@
                         <div
                             class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
                             <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAQJC22B122cg_g0zbJ1XGhfxg0JsvL3V9ksOAUBP-4e2pjSbwpBqV7vtayhkVTFco4-FSlsinxkCuzjShevJs3-FHc5MW1abKoPFLNhkBc_Zbz6sOOIQJM7HYygoiaoUGfeGeU7-LnMmD2hd8mvgbWTa62Q7TS5ese8KUDLyJYvY6jwIjg6n9HKAI4p_vyEPoTMQOpvMFVKNe_4G5VXBTMrt3ZJURgGGAflv5O89IW8JUBdeloUXWbMd4B9ytdlc251FAfXvx7HzM');">
+                                style="background-image: url('src/images/aktar.png');">
                             </div>
                         </div>
                         <h3
@@ -368,7 +326,7 @@
                         <div
                             class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
                             <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                style="background-image: url('https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=1000&auto=format&fit=crop');">
+                                style="background-image: url('src/images/bakliyat.jpg');">
                             </div>
                         </div>
                         <h3
@@ -381,7 +339,7 @@
                         <div
                             class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
                             <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                style="background-image: url('https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?q=80&w=1000&auto=format&fit=crop');">
+                                style="background-image: url('src/images/pestilkome.jpg');">
                             </div>
                         </div>
                         <h3
@@ -394,7 +352,7 @@
                         <div
                             class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
                             <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                style="background-image: url('https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1000&auto=format&fit=crop');">
+                                style="background-image: url('src/images/sarkuteri.jpg');">
                             </div>
                         </div>
                         <h3
@@ -407,7 +365,7 @@
                         <div
                             class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
                             <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                style="background-image: url('https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?q=80&w=1000&auto=format&fit=crop');">
+                                style="background-image: url('src/images/yoresel.png');">
                             </div>
                         </div>
                         <h3
@@ -437,21 +395,15 @@
                                 Edilenler</span>
                         </div>
                     </div>
-                    <div class="flex gap-2">
-                        <button id="bestSellerPrev"
-                            class="w-10 h-10 rounded-full border border-border-light bg-white flex items-center justify-center text-text-dark hover:bg-primary hover:border-primary hover:text-white transition-all shadow-sm">
-                            <span class="material-symbols-outlined">chevron_left</span>
-                        </button>
-                        <button id="bestSellerNext"
-                            class="w-10 h-10 rounded-full border border-border-light bg-white flex items-center justify-center text-text-dark hover:bg-primary hover:border-primary hover:text-white transition-all shadow-sm">
-                            <span class="material-symbols-outlined">chevron_right</span>
-                        </button>
-                    </div>
                 </div>
 
-                <div class="best-sellers-carousel flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar pb-3"
+                <div class="best-sellers-grid grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6"
                     id="bestSellersGrid">
-                    <!-- Best Sellers will be injected here -->
+                    <!-- Skeleton Loaders -->
+                    <div class="bg-white rounded-2xl p-3 animate-pulse"><div class="aspect-[4/3] bg-gray-200 rounded-xl mb-3"></div><div class="h-3 bg-gray-200 rounded w-1/3 mb-2"></div><div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div><div class="h-3 bg-gray-200 rounded w-1/4"></div></div>
+                    <div class="bg-white rounded-2xl p-3 animate-pulse"><div class="aspect-[4/3] bg-gray-200 rounded-xl mb-3"></div><div class="h-3 bg-gray-200 rounded w-1/3 mb-2"></div><div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div><div class="h-3 bg-gray-200 rounded w-1/4"></div></div>
+                    <div class="bg-white rounded-2xl p-3 animate-pulse hidden lg:block"><div class="aspect-[4/3] bg-gray-200 rounded-xl mb-3"></div><div class="h-3 bg-gray-200 rounded w-1/3 mb-2"></div><div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div><div class="h-3 bg-gray-200 rounded w-1/4"></div></div>
+                    <div class="bg-white rounded-2xl p-3 animate-pulse hidden lg:block"><div class="aspect-[4/3] bg-gray-200 rounded-xl mb-3"></div><div class="h-3 bg-gray-200 rounded w-1/3 mb-2"></div><div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div><div class="h-3 bg-gray-200 rounded w-1/4"></div></div>
                 </div>
             </div>
         </section>
@@ -466,29 +418,7 @@
                 const products = getBestSellers(10);
 
                 if (products.length > 0) {
-                    bestSellersGrid.innerHTML = products.map(p => {
-                        const cardHtml = renderProductCard(p);
-                        // Wrap in a div for layout - ultra compact
-                        return `<div class="min-w-[170px] md:min-w-[190px] snap-start">${cardHtml}</div>`;
-                    }).join('');
-                }
-
-                // Carousel Controls
-                const prevBtn = document.getElementById('bestSellerPrev');
-                const nextBtn = document.getElementById('bestSellerNext');
-
-                if (prevBtn && nextBtn && bestSellersGrid) {
-                    const getScrollAmount = () => {
-                        const card = bestSellersGrid.querySelector('div');
-                        return card ? card.offsetWidth + 16 : 240; // 16 is gap-4
-                    };
-
-                    prevBtn.addEventListener('click', () => {
-                        bestSellersGrid.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
-                    });
-                    nextBtn.addEventListener('click', () => {
-                        bestSellersGrid.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
-                    });
+                    bestSellersGrid.innerHTML = products.map(p => renderProductCard(p)).join('');
                 }
             });
         </script>
@@ -501,20 +431,14 @@
                             Sınırlı Süre Fırsat</div>
                         <h2 class="text-xl lg:text-2xl font-black text-text-dark">Haftanın Kampanyaları</h2>
                     </div>
-                    <div class="flex gap-2">
-                        <button id="campaignPrev"
-                            class="w-9 h-9 rounded-full border border-border-light bg-white flex items-center justify-center text-text-dark hover:bg-primary hover:border-primary hover:text-white transition-all shadow-sm">
-                            <span class="material-symbols-outlined text-xl">chevron_left</span>
-                        </button>
-                        <button id="campaignNext"
-                            class="w-9 h-9 rounded-full border border-border-light bg-white flex items-center justify-center text-text-dark hover:bg-primary hover:border-primary hover:text-white transition-all shadow-sm">
-                            <span class="material-symbols-outlined text-xl">chevron_right</span>
-                        </button>
-                    </div>
                 </div>
-                <div class="campaign-carousel flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-0 no-scrollbar"
+                <div class="campaigns-grid grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6"
                     id="weeklyCampaignsGrid">
-                    <!-- Dynamic Content -->
+                    <!-- Skeleton Loaders -->
+                    <div class="bg-white rounded-2xl p-3 animate-pulse"><div class="aspect-[4/3] bg-gray-200 rounded-xl mb-3"></div><div class="h-3 bg-gray-200 rounded w-1/3 mb-2"></div><div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div><div class="h-3 bg-gray-200 rounded w-1/4"></div></div>
+                    <div class="bg-white rounded-2xl p-3 animate-pulse"><div class="aspect-[4/3] bg-gray-200 rounded-xl mb-3"></div><div class="h-3 bg-gray-200 rounded w-1/3 mb-2"></div><div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div><div class="h-3 bg-gray-200 rounded w-1/4"></div></div>
+                    <div class="bg-white rounded-2xl p-3 animate-pulse hidden lg:block"><div class="aspect-[4/3] bg-gray-200 rounded-xl mb-3"></div><div class="h-3 bg-gray-200 rounded w-1/3 mb-2"></div><div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div><div class="h-3 bg-gray-200 rounded w-1/4"></div></div>
+                    <div class="bg-white rounded-2xl p-3 animate-pulse hidden lg:block"><div class="aspect-[4/3] bg-gray-200 rounded-xl mb-3"></div><div class="h-3 bg-gray-200 rounded w-1/3 mb-2"></div><div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div><div class="h-3 bg-gray-200 rounded w-1/4"></div></div>
                 </div>
             </div>
         </section>
@@ -538,8 +462,8 @@
 
                 if (products.length > 0) {
                     weeklyContainer.innerHTML = products.map(p => `
-                    <div class="group bg-white border border-border-light rounded-2xl overflow-hidden hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-gray-200 flex flex-col h-full min-w-[170px] md:min-w-[190px] snap-start">
-                        <div class="relative aspect-square overflow-hidden bg-gray-50">
+                    <div class="group bg-white border border-border-light rounded-2xl overflow-hidden hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-gray-200 flex flex-col h-full">
+                        <div class="relative aspect-[4/3] overflow-hidden bg-gray-50">
                             ${p.oldPrice ? `<span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded z-10 shadow-sm">-${Math.round((1 - p.price / p.oldPrice) * 100)}%</span>` : ''}
                             <img src="${p.image}" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
                             <button onclick="HaktanApp.addToCart(${p.id});HaktanApp.showToast('Sepete Eklendi')"
@@ -547,7 +471,7 @@
                                 <span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
                             </button>
                         </div>
-                        <div class="p-2.5 md:p-3 flex flex-col flex-1">
+                        <div class="p-2 md:p-2.5 flex flex-col flex-1">
                             <div class="text-text-muted text-[10px] font-bold uppercase tracking-wider mb-1">${CATEGORY_NAMES[p.category] || p.category}</div>
                             <h3 class="text-text-dark font-bold text-[13px] md:text-[14px] mb-1.5 line-clamp-2 leading-tight group-hover:text-primary transition-colors">${p.name}</h3>
                             <div class="mt-auto flex items-end justify-between border-t border-gray-100 pt-3">
