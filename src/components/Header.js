@@ -85,56 +85,89 @@ export function renderHeader() {
                 </ul>
             </div>
         </nav>
+    `;
 
-        <!-- Mobile Menu (Hidden default) -->
-        <div id="mobileMenu" class="hidden fixed inset-0 bg-white z-[60] overflow-y-auto">
-            <div class="flex flex-col min-h-screen">
-                <div class="flex justify-between items-center px-4 py-4 border-b border-gray-100 bg-white">
-                    <a href="index.html" class="flex items-center gap-2">
-                        <div class="bg-gradient-to-br from-primary to-[#d68311] p-1.5 rounded-lg">
-                            <span class="material-symbols-outlined text-white text-xl">nutrition</span>
-                        </div>
-                        <h2 class="text-xl font-black text-gray-900">HAKTAN</h2>
-                    </a>
-                    <button id="closeMobileMenu" class="text-gray-500 hover:text-red-500 p-2 rounded-lg hover:bg-gray-100">
-                        <span class="material-symbols-outlined text-3xl">close</span>
-                    </button>
-                </div>
-                <div class="p-4">
-                    <div class="mb-6">
-                        <input id="mobileSearchInput" type="text" placeholder="Ürün ara..." class="w-full p-3 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+    // Create mobile menu as a separate element outside header
+    const mobileMenuEl = document.createElement('div');
+    mobileMenuEl.id = 'mobileMenu';
+    mobileMenuEl.style.cssText = 'display:none; position:fixed; inset:0; z-index:9999;';
+    mobileMenuEl.innerHTML = `
+        <!-- Backdrop -->
+        <div id="mobileMenuBackdrop" style="position:absolute;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);"></div>
+        <!-- Drawer -->
+        <div style="position:absolute;left:0;top:0;bottom:0;width:300px;max-width:85vw;background:#fff;box-shadow:4px 0 30px rgba(0,0,0,0.15);overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid #f3f4f6;background:#fff;position:sticky;top:0;z-index:10;">
+                <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+                    <div style="background:linear-gradient(135deg,#ec9213,#d68311);padding:6px;border-radius:8px;">
+                        <span class="material-symbols-outlined" style="color:white;font-size:20px;">nutrition</span>
                     </div>
-                    <ul class="space-y-2 text-base font-medium">
-                        <li><a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-700 transition-colors">
-                            <span class="material-symbols-outlined text-primary">home</span>
-                            Ana Sayfa
-                        </a></li>
-                        <li><a href="product_category.html?cat=kuruyemis" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 text-gray-700 transition-colors">
-                            <span class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center"><span class="material-symbols-outlined text-orange-600">spa</span></span>
-                            Kuruyemiş
-                        </a></li>
-                        <li><a href="product_category.html?cat=sarkuteri" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 text-gray-700 transition-colors">
-                            <span class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center"><span class="material-symbols-outlined text-red-600">restaurant</span></span>
-                            Şarküteri
-                        </a></li>
-                        <li><a href="product_category.html?cat=aktar" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 transition-colors">
-                            <span class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center"><span class="material-symbols-outlined text-green-600">eco</span></span>
-                            Aktar
-                        </a></li>
-                        <li><a href="product_category.html?cat=bakliyat" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-yellow-50 text-gray-700 transition-colors">
-                            <span class="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center"><span class="material-symbols-outlined text-yellow-600">grain</span></span>
-                            Bakliyat
-                        </a></li>
-                        <li><a href="product_category.html?cat=pestil-kome" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-purple-50 text-gray-700 transition-colors">
-                            <span class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center"><span class="material-symbols-outlined text-purple-600">star</span></span>
-                            Pestil & Köme
-                        </a></li>
-                        <li><a href="product_category.html?cat=yoresel" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-amber-50 text-gray-700 transition-colors">
-                            <span class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center"><span class="material-symbols-outlined text-amber-600">landscape</span></span>
-                            Yöresel Ürünler
-                        </a></li>
-                    </ul>
+                    <span style="font-size:20px;font-weight:900;color:#111827;">HAKTAN</span>
+                </a>
+                <button id="closeMobileMenu" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;border:none;background:transparent;cursor:pointer;color:#6b7280;">
+                    <span class="material-symbols-outlined" style="font-size:24px;">close</span>
+                </button>
+            </div>
+            <div style="padding:16px;">
+                <div style="position:relative;margin-bottom:20px;">
+                    <span class="material-symbols-outlined" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:20px;">search</span>
+                    <input id="mobileSearchInput" type="text" placeholder="Ürün ara..." style="width:100%;padding:12px 12px 12px 42px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;font-size:14px;outline:none;box-sizing:border-box;">
                 </div>
+                <ul style="list-style:none;padding:0;margin:0;">
+                    <li>
+                        <a href="index.html" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;color:#374151;font-weight:600;font-size:15px;text-decoration:none;margin-bottom:4px;">
+                            <span class="material-symbols-outlined" style="color:#ec9213;font-size:22px;">home</span>
+                            Ana Sayfa
+                        </a>
+                    </li>
+                    <li>
+                        <a href="product_category.html?cat=kuruyemis" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;color:#374151;font-weight:600;font-size:15px;text-decoration:none;margin-bottom:4px;">
+                            <span style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fff7ed;">
+                                <span class="material-symbols-outlined" style="color:#ea580c;font-size:20px;">spa</span>
+                            </span>
+                            Kuruyemiş
+                        </a>
+                    </li>
+                    <li>
+                        <a href="product_category.html?cat=sarkuteri" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;color:#374151;font-weight:600;font-size:15px;text-decoration:none;margin-bottom:4px;">
+                            <span style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fef2f2;">
+                                <span class="material-symbols-outlined" style="color:#dc2626;font-size:20px;">restaurant</span>
+                            </span>
+                            Şarküteri
+                        </a>
+                    </li>
+                    <li>
+                        <a href="product_category.html?cat=aktar" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;color:#374151;font-weight:600;font-size:15px;text-decoration:none;margin-bottom:4px;">
+                            <span style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f0fdf4;">
+                                <span class="material-symbols-outlined" style="color:#16a34a;font-size:20px;">eco</span>
+                            </span>
+                            Aktar
+                        </a>
+                    </li>
+                    <li>
+                        <a href="product_category.html?cat=bakliyat" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;color:#374151;font-weight:600;font-size:15px;text-decoration:none;margin-bottom:4px;">
+                            <span style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fefce8;">
+                                <span class="material-symbols-outlined" style="color:#ca8a04;font-size:20px;">grain</span>
+                            </span>
+                            Bakliyat
+                        </a>
+                    </li>
+                    <li>
+                        <a href="product_category.html?cat=pestil-kome" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;color:#374151;font-weight:600;font-size:15px;text-decoration:none;margin-bottom:4px;">
+                            <span style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#faf5ff;">
+                                <span class="material-symbols-outlined" style="color:#9333ea;font-size:20px;">star</span>
+                            </span>
+                            Pestil & Köme
+                        </a>
+                    </li>
+                    <li>
+                        <a href="product_category.html?cat=yoresel" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;color:#374151;font-weight:600;font-size:15px;text-decoration:none;margin-bottom:4px;">
+                            <span style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fffbeb;">
+                                <span class="material-symbols-outlined" style="color:#d97706;font-size:20px;">landscape</span>
+                            </span>
+                            Yöresel Ürünler
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     `;
@@ -146,15 +179,28 @@ export function renderHeader() {
         document.body.prepend(header);
     }
 
+    // Append mobile menu directly to body (outside header)
+    document.body.appendChild(mobileMenuEl);
+
     // Attach Event Listeners
     const btn = document.getElementById('mobileMenuBtn');
     const menu = document.getElementById('mobileMenu');
-    const close = document.getElementById('closeMobileMenu');
+    const closeBtn = document.getElementById('closeMobileMenu');
+    const backdrop = document.getElementById('mobileMenuBackdrop');
 
-    if (btn && menu && close) {
-        btn.addEventListener('click', () => menu.classList.remove('hidden'));
-        close.addEventListener('click', () => menu.classList.add('hidden'));
-    }
+    const openMenu = () => {
+        menu.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeMenu = () => {
+        menu.style.display = 'none';
+        document.body.style.overflow = '';
+    };
+
+    if (btn) btn.addEventListener('click', openMenu);
+    if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+    if (backdrop) backdrop.addEventListener('click', closeMenu);
 
     const handleSearch = (e) => {
         if (e.key === 'Enter' && e.target.value.trim()) {

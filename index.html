@@ -281,12 +281,15 @@
                 </div>
             </div>
         </section>
-        <section id="collections" class="px-2 py-4 lg:py-8 bg-white">
+        <section id="collections" class="px-2 py-6 lg:py-10">
             <div class="container mx-auto max-w-7xl">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-8 px-2">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-3">
                         <span class="w-8 h-[2px] bg-primary"></span>
-                        <span class="text-primary font-bold text-sm uppercase tracking-widest">Kategorilerimiz</span>
+                        <div class="flex flex-col">
+                            <span class="text-primary font-bold text-sm uppercase tracking-widest">Kategorilerimiz</span>
+                            <span class="text-text-muted text-xs">Lezzet dünyasını keşfet</span>
+                        </div>
                     </div>
                     <a class="hidden md:flex items-center gap-2 text-[#ec9213] text-sm font-bold hover:underline transition-all"
                         href="product_category.html">
@@ -294,83 +297,95 @@
                     </a>
                 </div>
 
-                <div class="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6 px-2">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6 px-2">
                     <!-- 1. Kuruyemiş -->
-                    <a href="product_category.html?cat=kuruyemis" class="group block text-center">
-                        <div
-                            class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
-                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                    <a href="product_category.html?cat=kuruyemis" class="category-card group">
+                        <div class="category-card-media">
+                            <div class="category-card-image"
                                 style="background-image: url('src/images/kuruyemis.png');">
                             </div>
+                            <div class="category-card-glow"></div>
+                            <div class="category-card-ring"></div>
                         </div>
-                        <h3
-                            class="text-[10px] md:text-xs font-black text-text-dark uppercase tracking-widest group-hover:text-primary transition-colors leading-tight">
-                            Kuruyemiş</h3>
+                        <div class="category-card-body">
+                            <h3 class="category-card-title">Kuruyemiş</h3>
+                            <span class="category-card-cta">Keşfet</span>
+                        </div>
                     </a>
 
                     <!-- 2. Aktar -->
-                    <a href="product_category.html?cat=aktar" class="group block text-center">
-                        <div
-                            class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
-                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                    <a href="product_category.html?cat=aktar" class="category-card group">
+                        <div class="category-card-media">
+                            <div class="category-card-image"
                                 style="background-image: url('src/images/aktar.png');">
                             </div>
+                            <div class="category-card-glow"></div>
+                            <div class="category-card-ring"></div>
                         </div>
-                        <h3
-                            class="text-[10px] md:text-xs font-black text-text-dark uppercase tracking-widest group-hover:text-primary transition-colors leading-tight">
-                            Aktar</h3>
+                        <div class="category-card-body">
+                            <h3 class="category-card-title">Aktar</h3>
+                            <span class="category-card-cta">Keşfet</span>
+                        </div>
                     </a>
 
                     <!-- 3. Bakliyat -->
-                    <a href="product_category.html?cat=bakliyat" class="group block text-center">
-                        <div
-                            class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
-                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                    <a href="product_category.html?cat=bakliyat" class="category-card group">
+                        <div class="category-card-media">
+                            <div class="category-card-image"
                                 style="background-image: url('src/images/bakliyat.jpg');">
                             </div>
+                            <div class="category-card-glow"></div>
+                            <div class="category-card-ring"></div>
                         </div>
-                        <h3
-                            class="text-[10px] md:text-xs font-black text-text-dark uppercase tracking-widest group-hover:text-primary transition-colors leading-tight">
-                            Bakliyat</h3>
+                        <div class="category-card-body">
+                            <h3 class="category-card-title">Bakliyat</h3>
+                            <span class="category-card-cta">Keşfet</span>
+                        </div>
                     </a>
 
                     <!-- 4. Pestil & Köme -->
-                    <a href="product_category.html?cat=pestil" class="group block text-center">
-                        <div
-                            class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
-                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                    <a href="product_category.html?cat=pestil" class="category-card group">
+                        <div class="category-card-media">
+                            <div class="category-card-image"
                                 style="background-image: url('src/images/pestilkome.jpg');">
                             </div>
+                            <div class="category-card-glow"></div>
+                            <div class="category-card-ring"></div>
                         </div>
-                        <h3
-                            class="text-[10px] md:text-xs font-black text-text-dark uppercase tracking-widest group-hover:text-primary transition-colors leading-tight">
-                            Pestil & Köme</h3>
+                        <div class="category-card-body">
+                            <h3 class="category-card-title">Pestil & Köme</h3>
+                            <span class="category-card-cta">Keşfet</span>
+                        </div>
                     </a>
 
                     <!-- 5. Şarküteri -->
-                    <a href="product_category.html?cat=sarkuteri" class="group block text-center">
-                        <div
-                            class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
-                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                    <a href="product_category.html?cat=sarkuteri" class="category-card group">
+                        <div class="category-card-media">
+                            <div class="category-card-image"
                                 style="background-image: url('src/images/sarkuteri.jpg');">
                             </div>
+                            <div class="category-card-glow"></div>
+                            <div class="category-card-ring"></div>
                         </div>
-                        <h3
-                            class="text-[10px] md:text-xs font-black text-text-dark uppercase tracking-widest group-hover:text-primary transition-colors leading-tight">
-                            Şarküteri</h3>
+                        <div class="category-card-body">
+                            <h3 class="category-card-title">Şarküteri</h3>
+                            <span class="category-card-cta">Keşfet</span>
+                        </div>
                     </a>
 
                     <!-- 6. Yöresel Ürünler -->
-                    <a href="product_category.html?cat=yoresel" class="group block text-center">
-                        <div
-                            class="relative aspect-square overflow-hidden rounded-full mb-3 shadow-sm border-2 border-transparent group-hover:border-primary transition-all duration-500 bg-gray-50">
-                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                    <a href="product_category.html?cat=yoresel" class="category-card group">
+                        <div class="category-card-media">
+                            <div class="category-card-image"
                                 style="background-image: url('src/images/yoresel.png');">
                             </div>
+                            <div class="category-card-glow"></div>
+                            <div class="category-card-ring"></div>
                         </div>
-                        <h3
-                            class="text-[10px] md:text-xs font-black text-text-dark uppercase tracking-widest group-hover:text-primary transition-colors leading-tight">
-                            Yöresel</h3>
+                        <div class="category-card-body">
+                            <h3 class="category-card-title">Yöresel</h3>
+                            <span class="category-card-cta">Keşfet</span>
+                        </div>
                     </a>
                 </div>
 
