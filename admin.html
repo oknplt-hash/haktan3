@@ -148,14 +148,15 @@
             }
         }
 
-        function loadStats() {
-            const stats = getAdminStats();
+        async function loadStats() {
+            const stats = await getAdminStats();
             document.getElementById('statOrders').textContent = stats.totalOrders;
             document.getElementById('statProducts').textContent = stats.totalProducts;
             document.getElementById('statPending').textContent = stats.pendingOrders;
             document.getElementById('statRevenue').textContent = formatPrice(stats.totalRevenue);
 
-            const orders = getOrders().slice(0, 5);
+            const allOrders = await getOrders();
+            const orders = allOrders.slice(0, 5);
             document.getElementById('recentOrdersTable').innerHTML = orders.map(o => {
                 let statusColor = 'bg-green-100 text-green-700';
                 if (o.status === 'Beklemede') statusColor = 'bg-yellow-100 text-yellow-700';

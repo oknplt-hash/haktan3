@@ -20,14 +20,18 @@ export function adminLogin(password) {
 export function adminLogout() {
     sessionStorage.removeItem("haktan_admin");
 }
-export function getAdminStats() {
-    const products = getProducts();
-    const orders = getOrders();
-    const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
-    const pendingOrders = orders.filter((o) => o.status === "Beklemede").length;
+export async function getAdminStats() {
+    const products = await getProducts();
+    const orders = await getOrders();
+    // Default to empty array if null/undefined to prevent reduce errors
+    const safeOrders = Array.isArray(orders) ? orders : [];
+    const safeProducts = Array.isArray(products) ? products : [];
+
+    const totalRevenue = safeOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+    const pendingOrders = safeOrders.filter((o) => o.status === "Beklemede").length;
     return {
-        totalProducts: products.length,
-        totalOrders: orders.length,
+        totalProducts: safeProducts.length,
+        totalOrders: safeOrders.length,
         pendingOrders: pendingOrders,
         totalRevenue: totalRevenue,
     };

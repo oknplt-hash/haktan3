@@ -62,15 +62,19 @@ window.renderAdminSidebar = function (activePage) {
     updatePendingCount();
 };
 
-function updatePendingCount() {
-    const stats = Admin.getAdminStats();
-    const badges = document.querySelectorAll('#navPendingCount');
-    badges.forEach(badge => {
-        if (stats.pendingOrders > 0) {
-            badge.textContent = stats.pendingOrders;
-            badge.classList.remove('hidden');
-        } else {
-            badge.classList.add('hidden');
-        }
-    });
+async function updatePendingCount() {
+    try {
+        const stats = await Admin.getAdminStats();
+        const badges = document.querySelectorAll('#navPendingCount');
+        badges.forEach(badge => {
+            if (stats.pendingOrders > 0) {
+                badge.textContent = stats.pendingOrders;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        });
+    } catch (e) {
+        console.error("Error updating pending count:", e);
+    }
 }
