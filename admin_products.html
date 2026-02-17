@@ -171,7 +171,7 @@
 
             tbody.innerHTML = filtered.map(p => `
                 <tr class="hover:bg-gray-50 transition-colors group">
-                    <td class="px-6 py-4 font-mono text-[10px] text-gray-400 truncate max-w-[80px]" title="${p.id}">#${p.id.substring(0, 8)}...</td>
+                    <td class="px-6 py-4 font-mono text-[10px] text-gray-400 truncate max-w-[80px]" title="${p.id}">#${String(p.id).substring(0, 8)}...</td>
                     <td class="px-6 py-4"><img src="${p.image}" class="w-10 h-10 rounded object-cover border border-gray-200"></td>
                     <td class="px-6 py-4 font-medium text-gray-900">${p.name}</td>
                     <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs bg-gray-100 text-gray-600 font-bold">${CATEGORY_NAMES[p.category] || p.category}</span></td>
