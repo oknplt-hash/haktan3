@@ -44,12 +44,13 @@
                 <div class="mb-6 border-b border-border-light pb-6">
                     <a href="#" id="productCategoryLink"
                         class="text-primary text-xs font-bold uppercase tracking-wider mb-2 block"></a>
-                    <h1 id="productName" class="text-xl md:text-2xl lg:text-3xl font-bold md:font-black text-gray-800 mb-3 leading-tight"></h1>
+                    <h1 id="productName"
+                        class="text-xl md:text-2xl lg:text-3xl font-bold md:font-black text-gray-800 mb-3 leading-tight">
+                    </h1>
                     <div class="flex items-center gap-3 text-xs">
                         <div class="flex items-center gap-1" id="starRating"></div>
                         <span class="text-text-muted">•</span>
-                        <a href="#reviews"
-                            class="text-text-muted hover:text-primary underline decoration-dotted"><span
+                        <a href="#reviews" class="text-text-muted hover:text-primary underline decoration-dotted"><span
                                 id="reviewCount">0</span> Değerlendirme</a>
                     </div>
                 </div>
@@ -58,8 +59,10 @@
                     <p id="productDescription" class="text-gray-500 text-sm md:text-base leading-relaxed mb-6"></p>
                     <div class="flex items-end gap-3 mb-6">
                         <span id="oldPrice" class="text-gray-400 text-lg line-through hidden"></span>
-                        <span id="currentPrice" class="text-primary text-2xl md:text-3xl font-bold md:font-black"></span>
-                        <span class="text-gray-500 text-xs md:text-sm mb-1 font-medium ml-1">/ <span id="weight"></span></span>
+                        <span id="currentPrice"
+                            class="text-primary text-2xl md:text-3xl font-bold md:font-black"></span>
+                        <span class="text-gray-500 text-xs md:text-sm mb-1 font-medium ml-1">/ <span
+                                id="weight"></span></span>
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-3">
@@ -131,53 +134,60 @@
         if (!id) {
             window.location.href = 'index.html';
         } else {
-            const product = getProduct(id);
-            if (!product) {
-                document.querySelector('main').innerHTML = '<div class="text-center py-20"><h1 class="text-2xl font-bold">Ürün Bulunamadı</h1><a href="index.html" class="text-primary underline mt-4 block">Ana Sayfaya Dön</a></div>';
-            } else {
-                document.title = product.name + ' - HAKTAN';
-                document.getElementById('mainImage').src = product.image;
-                document.getElementById('productName').textContent = product.name;
-                document.getElementById('productDescription').textContent = product.description;
-                document.getElementById('currentPrice').textContent = formatPrice(product.price);
-                document.getElementById('weight').textContent = product.weight;
-                document.getElementById('reviewCount').textContent = product.reviews;
-                document.getElementById('starRating').innerHTML = renderStars(product.rating);
+            async function loadProduct() {
+                try {
+                    const product = await getProduct(id);
+                    if (!product) {
+                        document.querySelector('main').innerHTML = '<div class="text-center py-20"><h1 class="text-2xl font-bold">Ürün Bulunamadı</h1><a href="index.html" class="text-primary underline mt-4 block">Ana Sayfaya Dön</a></div>';
+                        return;
+                    }
 
-                const catName = CATEGORY_NAMES[product.category];
-                document.getElementById('productCategoryLink').textContent = catName;
-                document.getElementById('productCategoryLink').href = 'product_category.html?cat=' + product.category;
-                document.getElementById('crumbCategory').textContent = catName;
-                document.getElementById('crumbCategory').href = 'product_category.html?cat=' + product.category;
-                document.getElementById('crumbProduct').textContent = product.name;
+                    document.title = product.name + ' - HAKTAN';
+                    document.getElementById('mainImage').src = product.image;
+                    document.getElementById('productName').textContent = product.name;
+                    document.getElementById('productDescription').textContent = product.description;
+                    document.getElementById('currentPrice').textContent = formatPrice(product.price);
+                    document.getElementById('weight').textContent = product.weight;
+                    document.getElementById('reviewCount').textContent = product.reviews;
+                    document.getElementById('starRating').innerHTML = renderStars(product.rating);
 
-                if (product.oldPrice) {
-                    const oldEl = document.getElementById('oldPrice');
-                    oldEl.textContent = formatPrice(product.oldPrice);
-                    oldEl.classList.remove('hidden');
+                    const catName = CATEGORY_NAMES[product.category];
+                    document.getElementById('productCategoryLink').textContent = catName;
+                    document.getElementById('productCategoryLink').href = 'product_category.html?cat=' + product.category;
+                    document.getElementById('crumbCategory').textContent = catName;
+                    document.getElementById('crumbCategory').href = 'product_category.html?cat=' + product.category;
+                    document.getElementById('crumbProduct').textContent = product.name;
 
-                    const discount = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
-                    const badge = document.getElementById('discountBadge');
-                    badge.textContent = '-' + discount + '%';
-                    badge.classList.remove('hidden');
-                }
+                    if (product.oldPrice) {
+                        const oldEl = document.getElementById('oldPrice');
+                        oldEl.textContent = formatPrice(product.oldPrice);
+                        oldEl.classList.remove('hidden');
 
-                document.getElementById('addToCartBtn').addEventListener('click', () => {
-                    const qty = parseInt(qtyInput.value);
-                    addToCart(product.id, qty);
-                    showToast('Sepete ' + qty + ' adet eklendi!');
-                });
+                        const discount = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
+                        const badge = document.getElementById('discountBadge');
+                        badge.textContent = '-' + discount + '%';
+                        badge.classList.remove('hidden');
+                    }
 
-                const related = getProductsByCategory(product.category)
-                    .filter(p => p.id !== product.id)
-                    .slice(0, 4);
+                    document.getElementById('addToCartBtn').addEventListener('click', () => {
+                        const qty = parseInt(qtyInput.value);
+                        addToCart(product.id, qty);
+                        showToast('Sepete ' + qty + ' adet eklendi!');
+                    });
 
-                if (related.length > 0) {
-                    document.getElementById('relatedGrid').innerHTML = related.map(renderProductCard).join('');
-                } else {
-                    document.querySelector('section').classList.add('hidden');
+                    const allRelated = await getProductsByCategory(product.category);
+                    const related = allRelated.filter(p => p.id !== product.id).slice(0, 4);
+
+                    if (related.length > 0) {
+                        document.getElementById('relatedGrid').innerHTML = related.map(renderProductCard).join('');
+                    } else {
+                        document.querySelector('section').classList.add('hidden');
+                    }
+                } catch (e) {
+                    console.error("Product load error:", e);
                 }
             }
+            loadProduct();
         }
     </script>
 </body>

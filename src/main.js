@@ -1,6 +1,8 @@
 
 import './style.css';
 import { seedProducts } from './modules/products.js';
+import { seedBanners } from './modules/banners.js';
+
 import * as Products from './modules/products.js';
 import * as Cart from './modules/cart.js';
 import * as Orders from './modules/orders.js';
@@ -12,42 +14,46 @@ import { renderHeader } from './components/Header.js';
 import { renderFooter } from './components/Footer.js';
 
 // Initialize
-seedProducts();
+async function initApp() {
+    try {
+        await seedProducts();
+        await seedBanners();
 
-// Render Layout
-// We only render header/footer if they don't exist (in case of transition state)
-// But for Vite migration, we are removing them from HTML, so we always render.
-if (!document.querySelector('header')) {
-    renderHeader();
-}
-// Footer is appended to end of body
-if (!document.querySelector('footer')) {
-    renderFooter();
-}
 
-// Expose HaktanApp to window for backward compatibility with inline scripts
-// and for event handlers in HTML attributes (onclick="HaktanApp.addToCart(...)")
-window.HaktanApp = {
-    ...Products,
-    ...Cart,
-    ...Orders,
-    ...Utils,
-    ...UI,
-    ...Admin,
-    ...Campaigns,
-    CATEGORY_NAMES: Utils.CATEGORY_NAMES // Explicitly expose constant
-};
+        // Render Layout
+        if (!document.querySelector('header')) {
+            renderHeader();
+        }
+        if (!document.querySelector('footer')) {
+            renderFooter();
+        }
 
-// Remove loading state
-// Remove loading state
-document.addEventListener('DOMContentLoaded', () => {
-    requestAnimationFrame(() => {
+        // Expose HaktanApp to window
+        window.HaktanApp = {
+            ...Products,
+            ...Cart,
+            ...Orders,
+            ...Utils,
+            ...UI,
+            ...Admin,
+            ...Campaigns,
+            CATEGORY_NAMES: Utils.CATEGORY_NAMES
+        };
+
+        // Initial badge update
+        UI.updateCartBadge();
+
+        // Remove loading state
         document.body.classList.add('loaded');
-    });
-});
+    } catch (error) {
+        console.error("Failed to initialize app:", error);
+        document.body.classList.add('loaded'); // Show anyway
+    }
+}
 
-// Initial badge update
-// Wait for DOM to be ready just in case
-document.addEventListener('DOMContentLoaded', () => {
-    UI.updateCartBadge();
-});
+// Start
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}

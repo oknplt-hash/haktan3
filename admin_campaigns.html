@@ -212,147 +212,158 @@
     </main>
 
     <script type="module" src="/src/admin-main.js"></script>
+    <script type="module" src="/src/admin-main.js"></script>
     <script type="module">
         import { getSliders, addSlider, updateSlider, deleteSlider, getAnnouncements, addAnnouncement, updateAnnouncement, deleteAnnouncement, getCampaignProducts, addCampaignProduct, removeCampaignProduct } from './src/modules/campaigns.js';
         import { getProducts, searchProducts, seedProducts } from './src/modules/products.js';
         import { isAdminLoggedIn } from './src/modules/admin.js';
 
-        // Ensure products are seeded
-        seedProducts();
-
         if (!isAdminLoggedIn()) window.location.href = 'admin.html';
-
-        // Correct renderSidebar call already handled via admin-main?
-        // We need to ensure we call it. In previous admin-main.js it might expose it or setup auto-load.
-        // admin-main.js exposes HaktanApp.
-        // We will manually inject sidebar logic helper or use what we have.
-        // Actually src/admin-main.js sets window.HaktanApp but doesn't auto render sidebar unless we call it.
-        // Wait, admin.html calls renderSidebar('dashboard'). We should call renderSidebar('campaigns').
 
         // Basic sidebar injection
         import { renderSidebar } from './src/components/AdminSidebar.js';
         document.body.prepend(renderSidebar('campaigns'));
 
+        let currentManagementMode = 'banners';
 
-        let currentManagementMode = 'banners'; // 'banners' or 'announcements'
-
-        function renderStats() {
-            const sliders = getSliders();
-            const active = sliders.filter(s => s.active).length;
-            const planned = sliders.filter(s => s.status === 'planned' || (!s.active && s.startDate > new Date().toISOString().split('T')[0])).length;
-            const clicks = sliders.reduce((acc, curr) => acc + (curr.clicks || 0), 0);
-
-            document.getElementById('statActive').innerText = active;
-            document.getElementById('statPlanned').innerText = planned;
-            document.getElementById('statClicks').innerText = clicks.toLocaleString();
+        async function refreshAll() {
+            await renderStats();
+            await renderList();
         }
 
-        function renderList(filter = 'all') {
+        async function renderStats() {
+            try {
+                const sliders = await getSliders();
+                const active = sliders.filter(s => s.active).length;
+                const planned = sliders.filter(s => !s.active && s.startDate && new Date(s.startDate) > new Date()).length;
+                const clicks = sliders.reduce((acc, curr) => acc + (curr.clicks || 0), 0);
+
+                document.getElementById('statActive').innerText = active;
+                document.getElementById('statPlanned').innerText = planned;
+                document.getElementById('statClicks').innerText = clicks.toLocaleString();
+            } catch (e) {
+                console.error("Stats load error:", e);
+            }
+        }
+
+        async function renderList(filter = 'all') {
             const list = document.getElementById('campaignList');
             const annList = document.getElementById('announcementList');
 
             if (currentManagementMode === 'banners') {
                 list.classList.remove('hidden');
                 annList.classList.add('hidden');
-                let items = getSliders();
+                list.innerHTML = '<p class="text-center py-10 text-gray-400 italic">Yükleniyor...</p>';
 
-                if (filter === 'active') items = items.filter(i => i.active);
-                if (filter === 'planned') items = items.filter(i => !i.active && i.startDate);
+                try {
+                    let items = await getSliders();
+                    if (filter === 'active') items = items.filter(i => i.active);
+                    if (filter === 'planned') items = items.filter(i => !i.active && i.startDate);
 
-                list.innerHTML = items.map(item => `
-                    <div class="flex items-center p-4 hover:bg-gray-50 group transition-colors">
-                        <div class="w-24 aspect-video rounded-lg overflow-hidden bg-gray-200 shrink-0 border border-gray-100 relative">
-                            <img src="${item.image}" class="w-full h-full object-cover">
-                        </div>
-                        <div class="ml-4 flex-1">
-                            <h3 class="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">${item.title}</h3>
-                            <div class="flex items-center gap-4 mt-1">
-                                <div class="flex items-center gap-1 text-[10px] text-gray-500 font-medium">
-                                    <span class="material-symbols-outlined text-[14px]">calendar_today</span>
-                                    ${item.startDate || '-'}
+                    if (items.length === 0) {
+                        list.innerHTML = '<p class="text-center py-10 text-gray-400 italic">Banner bulunamadı.</p>';
+                        return;
+                    }
+
+                    list.innerHTML = items.map(item => `
+                        <div class="flex items-center p-4 hover:bg-gray-50 group transition-colors">
+                            <div class="w-24 aspect-video rounded-lg overflow-hidden bg-gray-200 shrink-0 border border-gray-100 relative">
+                                <img src="${item.image}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <h3 class="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">${item.title}</h3>
+                                <div class="flex items-center gap-4 mt-1">
+                                    <div class="flex items-center gap-1 text-[10px] text-gray-500 font-medium">
+                                        <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                                        ${item.startDate || '-'}
+                                    </div>
+                                    <div class="flex items-center gap-1 text-[10px] text-gray-500 font-medium">
+                                        <span class="material-symbols-outlined text-[14px]">touch_app</span>
+                                        ${item.clicks || 0} tıklama
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-1 text-[10px] text-gray-500 font-medium">
-                                    <span class="material-symbols-outlined text-[14px]">touch_app</span>
-                                    ${item.clicks || 0} tıklama
+                            </div>
+                            
+                            <div class="flex items-center gap-4">
+                                ${getStatusBadge(item)}
+                                <div class="flex items-center gap-1 text-gray-300">
+                                    <button onclick="window.editItem('${item.id}')" class="p-2 hover:bg-white hover:text-blue-500 hover:shadow-sm rounded-full transition-all"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+                                    <button onclick="window.delItem('${item.id}')" class="p-2 hover:bg-white hover:text-red-500 hover:shadow-sm rounded-full transition-all"><span class="material-symbols-outlined text-[18px]">delete</span></button>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="flex items-center gap-4">
-                            ${getStatusBadge(item)}
-                            <div class="flex items-center gap-1 text-gray-300">
-                                <button onclick="window.editItem(${item.id})" class="p-2 hover:bg-white hover:text-blue-500 hover:shadow-sm rounded-full transition-all"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                                <button onclick="window.delItem(${item.id})" class="p-2 hover:bg-white hover:text-red-500 hover:shadow-sm rounded-full transition-all"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                    `).join('');
+                } catch (e) {
+                    list.innerHTML = '<p class="text-center py-10 text-red-500 italic">Yükleme hatası.</p>';
+                }
             } else {
                 list.classList.add('hidden');
                 annList.classList.remove('hidden');
-                let items = getAnnouncements();
+                annList.innerHTML = '<p class="text-center py-10 text-gray-400 italic">Yükleniyor...</p>';
 
-                annList.innerHTML = items.map(item => `
-                    <div class="flex items-center p-4 hover:bg-gray-50 group transition-colors">
-                        <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined">campaign</span>
-                        </div>
-                        <div class="ml-4 flex-1">
-                            <p class="text-sm font-medium text-gray-900 line-clamp-2">${item.text}</p>
-                            <div class="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-wider">${item.type}</div>
-                        </div>
-                        
-                        <div class="flex items-center gap-4">
-                            ${item.active ? '<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full">Aktif</span>' : '<span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-1 rounded-full">Pasif</span>'}
-                            <div class="flex items-center gap-1 text-gray-300">
-                                <button onclick="window.editItem(${item.id})" class="p-2 hover:bg-white hover:text-blue-500 hover:shadow-sm rounded-full transition-all"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                                <button onclick="window.delItem(${item.id})" class="p-2 hover:bg-white hover:text-red-500 hover:shadow-sm rounded-full transition-all"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+                try {
+                    let items = await getAnnouncements();
+                    if (items.length === 0) {
+                        annList.innerHTML = '<p class="text-center py-10 text-gray-400 italic">Duyuru bulunamadı.</p>';
+                        return;
+                    }
+                    annList.innerHTML = items.map(item => `
+                        <div class="flex items-center p-4 hover:bg-gray-50 group transition-colors">
+                            <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined">campaign</span>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-900 line-clamp-2">${item.text}</p>
+                                <div class="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-wider">${item.type}</div>
+                            </div>
+                            
+                            <div class="flex items-center gap-4">
+                                ${item.active ? '<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full">Aktif</span>' : '<span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-1 rounded-full">Pasif</span>'}
+                                <div class="flex items-center gap-1 text-gray-300">
+                                    <button onclick="window.editItem('${item.id}')" class="p-2 hover:bg-white hover:text-blue-500 hover:shadow-sm rounded-full transition-all"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+                                    <button onclick="window.delItem('${item.id}')" class="p-2 hover:bg-white hover:text-red-500 hover:shadow-sm rounded-full transition-all"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `).join('');
+                    `).join('');
+                } catch (e) {
+                    annList.innerHTML = '<p class="text-center py-10 text-red-500 italic">Yükleme hatası.</p>';
+                }
             }
         }
 
         function getStatusBadge(item) {
             if (item.active) return `<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full">Aktif</span>`;
-            if (item.status === 'planned') return `<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-full">Planlı</span>`;
+            if (item.startDate && new Date(item.startDate) > new Date()) return `<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-full">Planlı</span>`;
             return `<span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded-full">Pasif</span>`;
         }
 
-        // --- Weekly Products Logic ---
-
-        window.switchManagementView = (mode) => {
+        window.switchManagementView = async (mode) => {
             currentManagementMode = mode;
             const btns = document.querySelectorAll('.tab-btn');
 
-            // Toggle visual state of tabs
             if (mode === 'banners') {
                 btns[0].className = "px-4 py-1.5 rounded-md text-sm font-bold bg-white shadow-sm text-gray-900 tab-btn";
                 btns[1].className = "px-4 py-1.5 rounded-md text-sm font-bold text-gray-500 hover:text-gray-900 tab-btn";
                 btns[2].className = "px-4 py-1.5 rounded-md text-sm font-bold text-gray-500 hover:text-gray-900 tab-btn";
-
                 document.getElementById('formTitle').innerText = 'Banner Oluştur';
                 document.getElementById('formIcon').innerText = 'add_photo_alternate';
             } else {
                 btns[0].className = "px-4 py-1.5 rounded-md text-sm font-bold text-gray-500 hover:text-gray-900 tab-btn";
                 btns[1].className = "px-4 py-1.5 rounded-md text-sm font-bold bg-white shadow-sm text-gray-900 tab-btn";
                 btns[2].className = "px-4 py-1.5 rounded-md text-sm font-bold text-gray-500 hover:text-gray-900 tab-btn";
-
                 document.getElementById('formTitle').innerText = 'Duyuru Oluştur';
                 document.getElementById('formIcon').innerText = 'campaign';
             }
 
-            // Switch content view
             document.getElementById('campaignList').classList.toggle('hidden', mode !== 'banners');
             document.getElementById('announcementList').classList.toggle('hidden', mode !== 'announcements');
             document.getElementById('weeklyProductsView').classList.add('hidden');
 
-            renderList();
+            await renderList();
         }
 
-        window.switchView = (view) => {
-            const listContainer = document.getElementById('campaignContent');
+        window.switchView = async (view) => {
             const productsView = document.getElementById('weeklyProductsView');
             const btns = document.querySelectorAll('.tab-btn');
 
@@ -360,10 +371,9 @@
                 document.getElementById('campaignList').classList.add('hidden');
                 document.getElementById('announcementList').classList.add('hidden');
                 productsView.classList.remove('hidden');
-                renderWeeklyProducts();
-                renderAvailableProducts();
+                await renderWeeklyProducts();
+                await renderAvailableProducts();
 
-                // Update tabs
                 btns[0].classList.remove('bg-white', 'shadow-sm', 'text-gray-900');
                 btns[0].classList.add('text-gray-500');
                 btns[1].classList.remove('bg-white', 'shadow-sm', 'text-gray-900');
@@ -371,112 +381,124 @@
                 btns[2].className = "px-4 py-1.5 rounded-md text-sm font-bold bg-white shadow-sm text-gray-900 tab-btn";
             } else {
                 productsView.classList.add('hidden');
-                window.switchManagementView(currentManagementMode);
+                await window.switchManagementView(currentManagementMode);
             }
         };
 
-        function renderWeeklyProducts() {
-            const selectedIds = getCampaignProducts();
-            const allProducts = getProducts();
-            const selected = allProducts.filter(p => selectedIds.includes(p.id));
+        async function renderWeeklyProducts() {
             const container = document.getElementById('selectedProductsList');
+            container.innerHTML = '<p class="text-xs text-gray-400 italic">Yükleniyor...</p>';
 
-            if (selected.length === 0) {
-                container.innerHTML = '<p class="text-sm text-gray-400 italic">Henüz ürün seçilmedi.</p>';
-                return;
+            try {
+                const selectedIds = await getCampaignProducts();
+                const allProducts = await getProducts();
+                const selected = allProducts.filter(p => selectedIds.includes(p.id));
+
+                if (selected.length === 0) {
+                    container.innerHTML = '<p class="text-sm text-gray-400 italic">Henüz ürün seçilmedi.</p>';
+                    return;
+                }
+
+                container.innerHTML = selected.map(p => `
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 group">
+                        <img src="${p.image}" class="w-12 h-12 rounded object-cover border border-gray-200">
+                        <div class="flex-1 ml-3">
+                            <div class="text-sm font-bold text-gray-900">${p.name}</div>
+                            <div class="text-xs text-gray-500">${p.price}₺</div>
+                        </div>
+                        <button onclick="window.removeProduct('${p.id}')" class="text-red-400 hover:text-red-600 p-2"><span class="material-symbols-outlined">close</span></button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p class="text-xs text-red-500">Hata!</p>';
             }
-
-            container.innerHTML = selected.map(p => `
-                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 group">
-                    <img src="${p.image}" class="w-12 h-12 rounded object-cover border border-gray-200">
-                    <div class="flex-1 ml-3">
-                        <div class="text-sm font-bold text-gray-900">${p.name}</div>
-                        <div class="text-xs text-gray-500">${p.price}₺</div>
-                    </div>
-                    <button onclick="window.removeProduct(${p.id})" class="text-red-400 hover:text-red-600 p-2"><span class="material-symbols-outlined">close</span></button>
-                </div>
-            `).join('');
         }
 
-        function renderAvailableProducts(query = '') {
+        async function renderAvailableProducts(query = '') {
             const container = document.getElementById('availableProductsList');
-            let products = query ? searchProducts(query) : getProducts();
-            // Exclude already selected
-            const selectedIds = getCampaignProducts();
-            products = products.filter(p => !selectedIds.includes(p.id)).slice(0, 20); // Limit results
+            try {
+                let products = query ? await searchProducts(query) : await getProducts();
+                const selectedIds = await getCampaignProducts();
+                products = products.filter(p => !selectedIds.includes(p.id)).slice(0, 20);
 
-            container.innerHTML = products.map(p => `
-                <div class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer group" onclick="window.addProduct(${p.id})">
-                    <img src="${p.image}" class="w-8 h-8 rounded object-cover border border-gray-200">
-                    <div class="flex-1 ml-2 overflow-hidden">
-                        <div class="text-xs font-bold text-gray-900 truncate">${p.name}</div>
-                        <div class="text-[10px] text-gray-500">${p.price}₺</div>
+                if (products.length === 0) {
+                    container.innerHTML = '<p class="text-[10px] text-gray-400 italic">Ürün bulunamadı.</p>';
+                    return;
+                }
+
+                container.innerHTML = products.map(p => `
+                    <div class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer group" onclick="window.addProduct('${p.id}')">
+                        <img src="${p.image}" class="w-8 h-8 rounded object-cover border border-gray-200">
+                        <div class="flex-1 ml-2 overflow-hidden">
+                            <div class="text-xs font-bold text-gray-900 truncate">${p.name}</div>
+                            <div class="text-[10px] text-gray-500">${p.price}₺</div>
+                        </div>
+                        <span class="material-symbols-outlined text-gray-300 group-hover:text-primary text-sm">add_circle</span>
                     </div>
-                    <span class="material-symbols-outlined text-gray-300 group-hover:text-primary text-sm">add_circle</span>
-                </div>
-            `).join('');
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p class="text-[10px] text-red-500">Hata!</p>';
+            }
         }
 
-        window.addProduct = (id) => {
-            addCampaignProduct(id);
-            renderWeeklyProducts();
-            renderAvailableProducts(document.getElementById('productSearch').value);
+        window.addProduct = async (id) => {
+            await addCampaignProduct(id);
+            await renderWeeklyProducts();
+            await renderAvailableProducts(document.getElementById('productSearch').value);
         };
 
-        window.removeProduct = (id) => {
-            removeCampaignProduct(id);
-            renderWeeklyProducts();
-            renderAvailableProducts(document.getElementById('productSearch').value);
+        window.removeProduct = async (id) => {
+            await removeCampaignProduct(id);
+            await renderWeeklyProducts();
+            await renderAvailableProducts(document.getElementById('productSearch').value);
         };
 
         document.getElementById('productSearch').addEventListener('input', (e) => {
             renderAvailableProducts(e.target.value);
         });
 
-        // Form Handling
-        // Form Handling
         const form = document.getElementById('campaignForm');
 
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const data = Object.fromEntries(new FormData(form));
             data.active = form.active.checked;
 
-            if (currentManagementMode === 'banners') {
-                if (data.id) {
-                    const existing = getSliders().find(s => s.id == data.id);
-                    data.clicks = existing ? existing.clicks : 0;
-                    data.type = 'banner';
-                    updateSlider(data.id, data);
+            try {
+                if (currentManagementMode === 'banners') {
+                    if (data.id) {
+                        const id = data.id;
+                        delete data.id;
+                        await updateSlider(id, data);
+                    } else {
+                        delete data.id;
+                        await addSlider(data);
+                    }
                 } else {
-                    delete data.id;
-                    data.clicks = 0;
-                    data.type = 'banner';
-                    addSlider(data);
+                    const annData = {
+                        text: data.title,
+                        active: data.active,
+                        type: 'info'
+                    };
+                    if (data.id) {
+                        await updateAnnouncement(data.id, annData);
+                    } else {
+                        await addAnnouncement(annData);
+                    }
                 }
-            } else {
-                // For announcements, we use 'title' field as the text content for the form mapping
-                const annData = {
-                    text: data.title,
-                    active: data.active,
-                    type: 'info'
-                };
-                if (data.id) {
-                    updateAnnouncement(data.id, annData);
-                } else {
-                    addAnnouncement(annData);
-                }
-            }
 
-            renderList();
-            renderStats();
-            form.reset();
-            form.id.value = '';
+                await refreshAll();
+                form.reset();
+                form.id.value = '';
+            } catch (e) {
+                console.error("Form submit error:", e);
+            }
         });
 
-        window.editItem = (id) => {
+        window.editItem = async (id) => {
             if (currentManagementMode === 'banners') {
-                const item = getSliders().find(s => s.id == id);
+                const sliders = await getSliders();
+                const item = sliders.find(s => s.id == id);
                 if (item) {
                     form.id.value = item.id;
                     form.title.value = item.title;
@@ -487,7 +509,8 @@
                     form.active.checked = item.active;
                 }
             } else {
-                const item = getAnnouncements().find(a => a.id == id);
+                const anns = await getAnnouncements();
+                const item = anns.find(a => a.id == id);
                 if (item) {
                     form.id.value = item.id;
                     form.title.value = item.text;
@@ -496,15 +519,14 @@
             }
         };
 
-        window.delItem = (id) => {
+        window.delItem = async (id) => {
             if (confirm('Silmek istediğinize emin misiniz?')) {
                 if (currentManagementMode === 'banners') {
-                    deleteSlider(id);
+                    await deleteSlider(id);
                 } else {
-                    deleteAnnouncement(id);
+                    await deleteAnnouncement(id);
                 }
-                renderList();
-                renderStats();
+                await refreshAll();
             }
         };
 
@@ -513,27 +535,8 @@
             form.id.value = '';
         }
 
-        window.filterCampaigns = (filter) => {
-            const list = document.getElementById('campaignList');
-            const productsView = document.getElementById('weeklyProductsView');
-
-            list.classList.remove('hidden');
-            productsView.classList.add('hidden');
-
-            // Update UI tabs state
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                const onclick = btn.getAttribute('onclick');
-                if (onclick && onclick.includes(`'${filter}'`)) {
-                    btn.className = "px-4 py-1.5 rounded-md text-sm font-bold bg-white shadow-sm text-gray-900 tab-btn";
-                } else if (!onclick.includes('switchView')) {
-                    btn.className = "px-4 py-1.5 rounded-md text-sm font-bold text-gray-500 hover:text-gray-900 tab-btn";
-                }
-            });
-            renderList(filter);
-        }
-
-        renderStats();
-        renderList();
+        refreshAll();
+    </script>
 
     </script>
 </body>

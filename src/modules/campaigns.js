@@ -2,17 +2,17 @@
 // ============================================================
 // CAMPAIGNS & ANNOUNCEMENTS MODULE
 // ============================================================
+import { supabase } from './supabase.js';
 
 const DEFAULT_SLIDERS = [
     {
-        id: 1,
         image: "https://images.unsplash.com/photo-1599599810694-b5b37304c041?q=80&w=1600&auto=format&fit=crop",
         title: "Taze Kavrulmuş Kuruyemiş",
         subtitle: "Antep fıstığından kaju cevizine, bademden fındığa… Taze kavrulmuş, birinci sınıf kuruyemişlerin en seçkinleri.",
-        buttonText: "Keşfet",
-        buttonLink: "product_category.html?cat=kuruyemis",
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: "2026-12-31",
+        button_text: "Keşfet",
+        button_link: "product_category.html?cat=kuruyemis",
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: "2026-12-31",
         clicks: 0,
         active: true,
         type: "banner",
@@ -20,162 +20,155 @@ const DEFAULT_SLIDERS = [
         icon: "local_fire_department"
     },
     {
-        id: 2,
         image: "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1600&auto=format&fit=crop",
         title: "Premium Şarküteri",
         subtitle: "Sucuk, pastırma, kaşar peyniri ve daha fazlası… Geleneksel tariflerle hazırlanan şarküteri lezzetleri sofranızda.",
-        buttonText: "Keşfet",
-        buttonLink: "product_category.html?cat=sarkuteri",
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: "2026-12-31",
+        button_text: "Keşfet",
+        button_link: "product_category.html?cat=sarkuteri",
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: "2026-12-31",
         clicks: 0,
         active: true,
         type: "banner",
         tag: "Gurme Seçim",
         icon: "restaurant"
-    },
-    {
-        id: 3,
-        image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1600&auto=format&fit=crop",
-        title: "Şifalı Bitkiler & Baharatlar",
-        subtitle: "Doğanın şifa deposu… Bitkisel çaylar, baharatlar ve aromatik bitkiler ile sağlıklı yaşamın kapısını aralayın.",
-        buttonText: "Keşfet",
-        buttonLink: "product_category.html?cat=aktar",
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: "2026-12-31",
-        clicks: 0,
-        active: true,
-        type: "banner",
-        tag: "Doğal & Şifalı",
-        icon: "spa"
     }
 ];
 
 const DEFAULT_ANNOUNCEMENTS = [
     {
-        id: 1,
         text: "🎉 Açılışa özel tüm ürünlerde %10 indirim! Kod: HAKTAN10",
         active: true,
         type: "info"
-    },
-    {
-        id: 2,
-        text: "🚚 500 TL ve üzeri alışverişlerinizde kargo ücretsiz!",
-        active: false,
-        type: "success"
     }
 ];
 
-const STORAGE_KEY_SLIDERS = "haktan_sliders_v4";
-const STORAGE_KEY_ANN = "haktan_announcements_v4";
-
-export function getSliders() {
-    try {
-        let sliders = JSON.parse(localStorage.getItem(STORAGE_KEY_SLIDERS));
-        if (!sliders || !Array.isArray(sliders) || sliders.length === 0) {
-            console.log("HaktanApp: Initializing Sliders (v4)...");
-            localStorage.setItem(STORAGE_KEY_SLIDERS, JSON.stringify(DEFAULT_SLIDERS));
-            return DEFAULT_SLIDERS;
-        }
-        return sliders;
-    } catch (e) {
-        console.error("HaktanApp: Error loading sliders:", e);
-        return DEFAULT_SLIDERS;
+export async function getSliders() {
+    const { data, error } = await supabase.from('sliders').select('*').order('created_at', { ascending: false });
+    if (error) {
+        console.error("Error fetching sliders:", error);
+        return [];
     }
-}
-
-export function saveSliders(sliders) {
-    localStorage.setItem(STORAGE_KEY_SLIDERS, JSON.stringify(sliders));
-}
-
-export function addSlider(slider) {
-    const sliders = getSliders();
-    slider.id = Date.now();
-    sliders.push(slider);
-    saveSliders(sliders);
-}
-
-export function updateSlider(id, updates) {
-    const sliders = getSliders();
-    const idx = sliders.findIndex(s => s.id == id);
-    if (idx !== -1) {
-        sliders[idx] = { ...sliders[idx], ...updates };
-        saveSliders(sliders);
+    if (data.length === 0) {
+        console.log("Seeding sliders...");
+        await supabase.from('sliders').insert(DEFAULT_SLIDERS);
+        return getSliders();
     }
+    return data.map(s => ({
+        ...s,
+        buttonText: s.button_text,
+        buttonLink: s.button_link,
+        startDate: s.start_date,
+        endDate: s.end_date
+    }));
 }
 
-export function deleteSlider(id) {
-    const sliders = getSliders().filter(s => s.id != id);
-    saveSliders(sliders);
+export async function addSlider(slider) {
+    const { data, error } = await supabase.from('sliders').insert([{
+        image: slider.image,
+        title: slider.title,
+        subtitle: slider.subtitle,
+        button_text: slider.buttonText,
+        button_link: slider.buttonLink,
+        start_date: slider.startDate,
+        end_date: slider.endDate,
+        active: slider.active,
+        type: slider.type,
+        tag: slider.tag,
+        icon: slider.icon
+    }]).select().single();
+
+    if (error) console.error("Error adding slider:", error);
+    return data;
+}
+
+export async function updateSlider(id, updates) {
+    const dbUpdates = { ...updates };
+    if (updates.buttonText) dbUpdates.button_text = updates.buttonText;
+    if (updates.buttonLink) dbUpdates.button_link = updates.buttonLink;
+    if (updates.startDate) dbUpdates.start_date = updates.startDate;
+    if (updates.endDate) dbUpdates.end_date = updates.endDate;
+
+    delete dbUpdates.buttonText;
+    delete dbUpdates.buttonLink;
+    delete dbUpdates.startDate;
+    delete dbUpdates.endDate;
+
+    const { error } = await supabase.from('sliders').update(dbUpdates).eq('id', id);
+    if (error) console.error("Error updating slider:", error);
+}
+
+export async function deleteSlider(id) {
+    const { error } = await supabase.from('sliders').delete().eq('id', id);
+    if (error) console.error("Error deleting slider:", error);
 }
 
 // ---- Announcements ----
 
-export function getAnnouncements() {
-    try {
-        let announcements = JSON.parse(localStorage.getItem(STORAGE_KEY_ANN));
-        if (!announcements || !Array.isArray(announcements) || announcements.length === 0) {
-            console.log("HaktanApp: Initializing Announcements (v4)...");
-            localStorage.setItem(STORAGE_KEY_ANN, JSON.stringify(DEFAULT_ANNOUNCEMENTS));
-            return DEFAULT_ANNOUNCEMENTS;
-        }
-        return announcements;
-    } catch (e) {
-        console.error("HaktanApp: Error loading announcements:", e);
-        return DEFAULT_ANNOUNCEMENTS;
+export async function getAnnouncements() {
+    const { data, error } = await supabase.from('announcements').select('*').order('created_at', { ascending: false });
+    if (error) {
+        console.error("Error fetching announcements:", error);
+        return [];
     }
-}
-
-export function saveAnnouncements(list) {
-    localStorage.setItem(STORAGE_KEY_ANN, JSON.stringify(list));
-}
-
-export function addAnnouncement(item) {
-    const list = getAnnouncements();
-    item.id = Date.now();
-    list.push(item);
-    saveAnnouncements(list);
-}
-
-export function updateAnnouncement(id, updates) {
-    const list = getAnnouncements();
-    const idx = list.findIndex(a => a.id == id);
-    if (idx !== -1) {
-        list[idx] = { ...list[idx], ...updates };
-        saveAnnouncements(list);
+    if (data.length === 0) {
+        console.log("Seeding announcements...");
+        await supabase.from('announcements').insert(DEFAULT_ANNOUNCEMENTS);
+        return getAnnouncements();
     }
+    return data;
 }
 
-export function deleteAnnouncement(id) {
-    const list = getAnnouncements().filter(a => a.id != id);
-    saveAnnouncements(list);
+export async function addAnnouncement(item) {
+    const { data, error } = await supabase.from('announcements').insert([item]).select().single();
+    if (error) console.error("Error adding announcement:", error);
+    return data;
 }
 
-export function getActiveAnnouncement() {
-    return getAnnouncements().find(a => a.active);
+export async function updateAnnouncement(id, updates) {
+    const { error } = await supabase.from('announcements').update(updates).eq('id', id);
+    if (error) console.error("Error updating announcement:", error);
+}
+
+export async function deleteAnnouncement(id) {
+    const { error } = await supabase.from('announcements').delete().eq('id', id);
+    if (error) console.error("Error deleting announcement:", error);
+}
+
+export async function getActiveAnnouncement() {
+    const list = await getAnnouncements();
+    return list.find(a => a.active);
 }
 
 // ---- Weekly Campaign Products ----
 
-export function getCampaignProducts() {
-    return JSON.parse(localStorage.getItem("haktan_campaign_products")) || [];
-}
+export async function getCampaignProducts() {
+    const { data, error } = await supabase
+        .from('products')
+        .select('id')
+        .eq('is_campaign', true);
 
-export function setCampaignProducts(productIds) {
-    localStorage.setItem("haktan_campaign_products", JSON.stringify(productIds));
-}
-
-export function addCampaignProduct(productId) {
-    const ids = getCampaignProducts();
-    const id = Number(productId);
-    if (!ids.includes(id)) {
-        ids.push(id);
-        setCampaignProducts(ids);
+    if (error) {
+        console.error("Error fetching campaign products:", error);
+        return [];
     }
+    return data.map(p => p.id);
 }
 
-export function removeCampaignProduct(productId) {
-    const id = Number(productId);
-    const ids = getCampaignProducts().filter(existingId => existingId !== id);
-    setCampaignProducts(ids);
+export async function addCampaignProduct(productId) {
+    const { error } = await supabase
+        .from('products')
+        .update({ is_campaign: true })
+        .eq('id', productId);
+
+    if (error) console.error("Error adding campaign product:", error);
+}
+
+export async function removeCampaignProduct(productId) {
+    const { error } = await supabase
+        .from('products')
+        .update({ is_campaign: false })
+        .eq('id', productId);
+
+    if (error) console.error("Error removing campaign product:", error);
 }

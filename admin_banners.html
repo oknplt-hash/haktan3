@@ -108,22 +108,42 @@
     </div>
 
     <script type="module" src="/src/admin-main.js"></script>
+    <script type="module" src="/src/admin-main.js"></script>
     <script type="module">
-        import { getBanners, addBanner, updateBanner, deleteBanner, getBanner } from './src/modules/banners.js';
+        import { getBanners, addBanner, updateBanner, deleteBanner, getBanner, seedBanners } from './src/modules/banners.js';
         import { isAdminLoggedIn } from './src/modules/admin.js';
 
         if (!isAdminLoggedIn()) window.location.href = 'admin.html';
 
         window.renderAdminSidebar('banners');
 
-        let banners = getBanners();
+        let banners = [];
+
+        async function refreshData() {
+            const tbody = document.getElementById('bannersTable');
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 font-medium text-gray-400 italic">Yükleniyor...</td></tr>';
+
+            try {
+                await seedBanners();
+                banners = await getBanners();
+                renderTable();
+            } catch (e) {
+                console.error("Data load error:", e);
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 text-red-500 italic">Hata oluştu.</td></tr>';
+            }
+        }
 
         function renderTable() {
             const tbody = document.getElementById('bannersTable');
 
+            if (banners.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 font-medium text-gray-400 italic">Banner bulunamadı.</td></tr>';
+                return;
+            }
+
             tbody.innerHTML = banners.map(b => `
                 <tr class="hover:bg-gray-50 transition-colors group">
-                    <td class="px-6 py-4 font-mono text-xs text-gray-500">#${b.id}</td>
+                    <td class="px-6 py-4 font-mono text-[10px] text-gray-400 truncate max-w-[80px]" title="${b.id}">#${b.id.substring(0, 8)}...</td>
                     <td class="px-6 py-4"><img src="${b.image}" class="w-16 h-10 rounded object-cover border border-gray-200" onerror="this.src='https://placehold.co/100x60?text=Resim+Yok'"></td>
                     <td class="px-6 py-4 font-medium text-gray-900">${b.title || '-'}</td>
                     <td class="px-6 py-4 text-gray-600 text-xs">${b.subtitle || '-'}</td>
@@ -134,8 +154,8 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 text-right space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="window.editBanner(${b.id})" class="text-blue-500 hover:text-blue-700 p-1 rounded hover:bg-blue-50"><span class="material-symbols-outlined text-lg">edit</span></button>
-                        <button onclick="window.delBanner(${b.id})" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"><span class="material-symbols-outlined text-lg">delete</span></button>
+                        <button onclick="window.editBanner('${b.id}')" class="text-blue-500 hover:text-blue-700 p-1 rounded hover:bg-blue-50"><span class="material-symbols-outlined text-lg">edit</span></button>
+                        <button onclick="window.delBanner('${b.id}')" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"><span class="material-symbols-outlined text-lg">delete</span></button>
                     </td>
                 </tr>
             `).join('');
@@ -146,7 +166,7 @@
         const modalContent = document.getElementById('modalContent');
         const form = document.getElementById('bannerForm');
 
-        function openModal(id) {
+        window.openModal = async function (id) {
             modal.classList.remove('hidden');
             setTimeout(() => modalContent.classList.remove('scale-0'), 10);
 
@@ -154,7 +174,7 @@
             const title = document.getElementById('modalTitle');
             if (id) {
                 title.textContent = 'Banner Düzenle';
-                const b = getBanner(id);
+                const b = await getBanner(id);
                 if (b) {
                     form.id.value = b.id;
                     form.title.value = b.title;
@@ -168,47 +188,46 @@
                 form.id.value = '';
                 form.isActive.checked = true;
             }
-        }
+        };
 
         function closeModal() {
             modalContent.classList.add('scale-0');
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        renderTable();
+        refreshData();
 
-        document.getElementById('addBannerBtn').addEventListener('click', () => openModal());
+        document.getElementById('addBannerBtn').addEventListener('click', () => window.openModal());
         document.getElementById('closeModalBtn').addEventListener('click', closeModal);
         document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
 
         // Expose helpers
-        window.editBanner = openModal;
-        window.delBanner = function (id) {
+        window.editBanner = window.openModal;
+        window.delBanner = async function (id) {
             if (confirm('Bu bannerı silmek istediğinize emin misiniz?')) {
-                deleteBanner(id);
-                banners = getBanners();
-                renderTable();
+                await deleteBanner(id);
+                await refreshData();
             }
         };
 
-        form.addEventListener('submit', function (e) {
+        form.addEventListener('submit', async function (e) {
             e.preventDefault();
             const formData = new FormData(this);
             const data = {};
             formData.forEach((v, k) => data[k] = v);
 
-            // Handle checkbox
             data.isActive = form.querySelector('input[name="isActive"]').checked;
 
             if (data.id) {
-                updateBanner(data.id, data);
+                const id = data.id;
+                delete data.id;
+                await updateBanner(id, data);
             } else {
                 delete data.id;
-                addBanner(data);
+                await addBanner(data);
             }
 
-            banners = getBanners();
-            renderTable();
+            await refreshData();
             closeModal();
         });
     </script>

@@ -3,19 +3,27 @@
 // ORDERS MODULE
 // ============================================================
 import { getCartItems, getCartTotal, clearCart } from './cart.js';
+import { supabase } from './supabase.js';
 
-export function getOrders() {
-    return JSON.parse(localStorage.getItem("haktan_orders")) || [];
+export async function getOrders() {
+    const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('date', { ascending: false });
+
+    if (error) {
+        console.error("Error fetching orders:", error);
+        return [];
+    }
+    return data;
 }
-export function setOrders(orders) {
-    localStorage.setItem("haktan_orders", JSON.stringify(orders));
-}
-export function createOrder(customerInfo) {
-    const orders = getOrders();
+
+export async function createOrder(customerInfo) {
     const cartItems = getCartItems();
     if (cartItems.length === 0) return null;
     const subtotal = getCartTotal();
     const shipping = subtotal >= 500 ? 0 : 39.90;
+
     const order = {
         id: "HKT-" + Date.now().toString(36).toUpperCase(),
         date: new Date().toISOString(),
@@ -26,22 +34,44 @@ export function createOrder(customerInfo) {
         total: subtotal + shipping,
         status: "Beklemede",
     };
-    orders.unshift(order);
-    setOrders(orders);
-    clearCart();
-    return order;
-}
-export function updateOrderStatus(orderId, status) {
-    const orders = getOrders();
-    const order = orders.find((o) => o.id === orderId);
-    if (order) {
-        order.status = status;
-        setOrders(orders);
-        return order;
+
+    const { data, error } = await supabase
+        .from('orders')
+        .insert([order])
+        .select()
+        .single();
+
+    if (error) {
+        console.error("Error creating order:", error);
+        return null;
     }
-    return null;
+
+    clearCart();
+    return data;
 }
-export function deleteOrder(orderId) {
-    const orders = getOrders().filter((o) => o.id !== orderId);
-    setOrders(orders);
+
+export async function updateOrderStatus(orderId, status) {
+    const { data, error } = await supabase
+        .from('orders')
+        .update({ status })
+        .eq('id', orderId)
+        .select()
+        .single();
+
+    if (error) {
+        console.error("Error updating order status:", error);
+        return null;
+    }
+    return data;
+}
+
+export async function deleteOrder(orderId) {
+    const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId);
+
+    if (error) {
+        console.error("Error deleting order:", error);
+    }
 }

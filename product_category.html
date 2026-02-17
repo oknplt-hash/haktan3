@@ -197,8 +197,7 @@
 
             <!-- Slide 3: Aktar -->
             <div class="cat-slide" data-cat="aktar">
-                <div
-                    style="position:absolute;inset:0;background:url('src/images/aktar.png') center/cover no-repeat;">
+                <div style="position:absolute;inset:0;background:url('src/images/aktar.png') center/cover no-repeat;">
                 </div>
                 <div
                     style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(20,40,20,0.85) 0%, rgba(20,40,20,0.5) 50%, rgba(20,40,20,0.15) 100%);">
@@ -290,8 +289,7 @@
 
             <!-- Slide 6: Yöresel Ürünler -->
             <div class="cat-slide" data-cat="yoresel">
-                <div
-                    style="position:absolute;inset:0;background:url('src/images/yoresel.png') center/cover no-repeat;">
+                <div style="position:absolute;inset:0;background:url('src/images/yoresel.png') center/cover no-repeat;">
                 </div>
                 <div
                     style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(60,30,10,0.85) 0%, rgba(50,25,8,0.5) 50%, rgba(40,20,5,0.15) 100%);">
@@ -321,7 +319,7 @@
 
             <!-- Show only the relevant category slide based on URL -->
             <script>
-                (function() {
+                (function () {
                     var urlParams = new URLSearchParams(window.location.search);
                     var rawCat = urlParams.get('cat');
                     var cat = rawCat === 'pestil' ? 'pestil-kome' : rawCat;
@@ -331,7 +329,7 @@
                     if (cat && valid.includes(cat)) selected = cat;
 
                     var slides = document.querySelectorAll('#categoryHero .cat-slide');
-                    slides.forEach(function(s) {
+                    slides.forEach(function (s) {
                         if (s.getAttribute('data-cat') === selected) s.classList.add('active');
                         else s.classList.remove('active');
                     });
@@ -478,8 +476,6 @@
         import { getUrlParam, getCategoryName, CATEGORY_NAMES } from './src/modules/utils.js';
         import { renderProductCard } from './src/modules/ui.js';
 
-        // We can use the modules directly here!
-
         var rawCat = getUrlParam('cat');
         var cat = rawCat === 'pestil' ? 'pestil-kome' : rawCat;
         var query = getUrlParam('q');
@@ -506,38 +502,40 @@
             catFilter.appendChild(li);
         });
 
-        // Fill search input if query (needs slight delay if header injected async? No, header injected in main.js synchronous execution of component)
-        // Actually main.js runs and prepends header.
-
-        function getFilteredProducts() {
+        async function getFilteredProducts() {
             var products;
-            if (query) {
-                products = searchProducts(query);
-            } else if (cat) {
-                products = getProductsByCategory(cat);
-            } else {
-                products = getProducts();
-            }
-
-            var priceVal = document.querySelector('.price-filter:checked');
-            if (priceVal && priceVal.value) {
-                var range = priceVal.value;
-                if (range === '500+') {
-                    products = products.filter(function (p) { return p.price >= 500; });
+            try {
+                if (query) {
+                    products = await searchProducts(query);
+                } else if (cat) {
+                    products = await getProductsByCategory(cat);
                 } else {
-                    var parts = range.split('-');
-                    var min = parseInt(parts[0]), max = parseInt(parts[1]);
-                    products = products.filter(function (p) { return p.price >= min && p.price <= max; });
+                    products = await getProducts();
                 }
+
+                var priceVal = document.querySelector('.price-filter:checked');
+                if (priceVal && priceVal.value) {
+                    var range = priceVal.value;
+                    if (range === '500+') {
+                        products = products.filter(function (p) { return p.price >= 500; });
+                    } else {
+                        var parts = range.split('-');
+                        var min = parseInt(parts[0]), max = parseInt(parts[1]);
+                        products = products.filter(function (p) { return p.price >= min && p.price <= max; });
+                    }
+                }
+
+                var sort = document.getElementById('sortSelect').value;
+                if (sort === 'price-asc') products.sort(function (a, b) { return a.price - b.price; });
+                else if (sort === 'price-desc') products.sort(function (a, b) { return b.price - a.price; });
+                else if (sort === 'rating') products.sort(function (a, b) { return b.rating - a.rating; });
+                else if (sort === 'name') products.sort(function (a, b) { return a.name.localeCompare(b.name, 'tr'); });
+
+                return products;
+            } catch (e) {
+                console.error("Filter error:", e);
+                return [];
             }
-
-            var sort = document.getElementById('sortSelect').value;
-            if (sort === 'price-asc') products.sort(function (a, b) { return a.price - b.price; });
-            else if (sort === 'price-desc') products.sort(function (a, b) { return b.price - a.price; });
-            else if (sort === 'rating') products.sort(function (a, b) { return b.rating - a.rating; });
-            else if (sort === 'name') products.sort(function (a, b) { return a.name.localeCompare(b.name, 'tr'); });
-
-            return products;
         }
 
         // Mobile Filter Logic
@@ -547,24 +545,26 @@
             const body = document.body;
 
             if (sidebar.classList.contains('-translate-x-full')) {
-                // Open
                 sidebar.classList.remove('-translate-x-full');
                 overlay.classList.remove('hidden');
-                body.style.overflow = 'hidden'; // Prevent background scrolling
+                body.style.overflow = 'hidden';
             } else {
-                // Close
                 sidebar.classList.add('-translate-x-full');
                 overlay.classList.add('hidden');
                 body.style.overflow = '';
             }
         }
 
-        function renderProducts() {
-            var products = getFilteredProducts();
+        async function renderProducts() {
             var grid = document.getElementById('productsGrid');
             var empty = document.getElementById('emptyState');
             var count = document.getElementById('productCount');
-            var mobileCount = document.getElementById('mobileProductCount'); // New
+            var mobileCount = document.getElementById('mobileProductCount');
+
+            // Show loading
+            grid.innerHTML = '<p class="col-span-full text-center py-20 text-gray-400 italic">Yükleniyor...</p>';
+
+            var products = await getFilteredProducts();
 
             var countText = products.length + ' ürün';
             count.textContent = countText;

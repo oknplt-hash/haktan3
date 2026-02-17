@@ -128,6 +128,7 @@
     </div>
 
     <script type="module" src="/src/admin-main.js"></script>
+    <script type="module" src="/src/admin-main.js"></script>
     <script type="module">
         import { getProducts, addProduct, updateProduct, deleteProduct, getProduct } from './src/modules/products.js';
         import { isAdminLoggedIn } from './src/modules/admin.js';
@@ -137,7 +138,19 @@
 
         window.renderAdminSidebar('products');
 
-        let products = getProducts();
+        let products = [];
+
+        async function refreshData() {
+            const tbody = document.getElementById('productsTable');
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 font-medium text-gray-400 italic">Yükleniyor...</td></tr>';
+
+            try {
+                products = await getProducts();
+                renderTable();
+            } catch (e) {
+                console.error("Data load error:", e);
+            }
+        }
 
         function renderTable() {
             const tbody = document.getElementById('productsTable');
@@ -150,17 +163,22 @@
                 return matchName && matchCat;
             });
 
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 font-medium text-gray-400 italic">Ürün bulunamadı.</td></tr>';
+                return;
+            }
+
             tbody.innerHTML = filtered.map(p => `
                 <tr class="hover:bg-gray-50 transition-colors group">
-                    <td class="px-6 py-4 font-mono text-xs text-gray-500">#${p.id}</td>
+                    <td class="px-6 py-4 font-mono text-[10px] text-gray-400 truncate max-w-[80px]" title="${p.id}">#${p.id.substring(0, 8)}...</td>
                     <td class="px-6 py-4"><img src="${p.image}" class="w-10 h-10 rounded object-cover border border-gray-200"></td>
                     <td class="px-6 py-4 font-medium text-gray-900">${p.name}</td>
-                    <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs bg-gray-100 text-gray-600 font-bold">${CATEGORY_NAMES[p.category]}</span></td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs bg-gray-100 text-gray-600 font-bold">${CATEGORY_NAMES[p.category] || p.category}</span></td>
                     <td class="px-6 py-4 font-bold text-gray-900">${formatPrice(p.price)}</td>
                     <td class="px-6 py-4 text-green-600 font-medium text-xs">Stokta</td>
                     <td class="px-6 py-4 text-right space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="window.editProduct(${p.id})" class="text-blue-500 hover:text-blue-700 p-1 rounded hover:bg-blue-50"><span class="material-symbols-outlined text-lg">edit</span></button>
-                        <button onclick="window.delProduct(${p.id})" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"><span class="material-symbols-outlined text-lg">delete</span></button>
+                        <button onclick="window.editProduct('${p.id}')" class="text-blue-500 hover:text-blue-700 p-1 rounded hover:bg-blue-50"><span class="material-symbols-outlined text-lg">edit</span></button>
+                        <button onclick="window.delProduct('${p.id}')" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"><span class="material-symbols-outlined text-lg">delete</span></button>
                     </td>
                 </tr>
             `).join('');
@@ -171,7 +189,7 @@
         const modalContent = document.getElementById('modalContent');
         const form = document.getElementById('productForm');
 
-        function openModal(id) {
+        window.openModal = async function (id) {
             modal.classList.remove('hidden');
             setTimeout(() => modalContent.classList.remove('scale-0'), 10);
 
@@ -179,7 +197,7 @@
             const title = document.getElementById('modalTitle');
             if (id) {
                 title.textContent = 'Ürün Düzenle';
-                const p = getProduct(id);
+                const p = await getProduct(id);
                 if (p) {
                     form.id.value = p.id;
                     form.name.value = p.name;
@@ -194,7 +212,7 @@
                 title.textContent = 'Yeni Ürün Ekle';
                 form.id.value = '';
             }
-        }
+        };
 
         function closeModal() {
             modalContent.classList.add('scale-0');
@@ -212,25 +230,24 @@
             modalCatSelect.appendChild(opt);
         });
 
-        renderTable();
+        refreshData();
 
         document.getElementById('productSearch').addEventListener('keyup', renderTable);
         document.getElementById('categoryFilter').addEventListener('change', renderTable);
-        document.getElementById('addProductBtn').addEventListener('click', () => openModal());
+        document.getElementById('addProductBtn').addEventListener('click', () => window.openModal());
         document.getElementById('closeModalBtn').addEventListener('click', closeModal);
         document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
 
         // Expose helpers
-        window.editProduct = openModal;
-        window.delProduct = function (id) {
+        window.editProduct = window.openModal;
+        window.delProduct = async function (id) {
             if (confirm('Bu ürünü silmek istediğinize emin misiniz?')) {
-                deleteProduct(id);
-                products = getProducts();
-                renderTable();
+                await deleteProduct(id);
+                await refreshData();
             }
         };
 
-        form.addEventListener('submit', function (e) {
+        form.addEventListener('submit', async function (e) {
             e.preventDefault();
             const formData = new FormData(this);
             const data = {};
@@ -238,20 +255,18 @@
 
             data.price = parseFloat(data.price);
             if (data.oldPrice) data.oldPrice = parseFloat(data.oldPrice);
-            else delete data.oldPrice; // or null
-
-            data.rating = 5.0;
-            data.reviews = 0;
+            else data.oldPrice = null;
 
             if (data.id) {
-                updateProduct(data.id, data);
+                const id = data.id;
+                delete data.id;
+                await updateProduct(id, data);
             } else {
                 delete data.id;
-                addProduct(data);
+                await addProduct(data);
             }
 
-            products = getProducts();
-            renderTable();
+            await refreshData();
             closeModal();
         });
     </script>
