@@ -130,7 +130,7 @@
     <script type="module" src="/src/admin-main.js"></script>
     <script type="module" src="/src/admin-main.js"></script>
     <script type="module">
-        import { getProducts, addProduct, updateProduct, deleteProduct, getProduct } from './src/modules/products.js';
+        import { getProducts, addProduct, updateProduct, deleteProduct, getProduct, seedProducts } from './src/modules/products.js';
         import { isAdminLoggedIn } from './src/modules/admin.js';
         import { formatPrice, CATEGORY_NAMES } from './src/modules/utils.js';
 
@@ -145,10 +145,12 @@
             tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 font-medium text-gray-400 italic">Yükleniyor...</td></tr>';
 
             try {
+                await seedProducts();
                 products = await getProducts();
                 renderTable();
             } catch (e) {
                 console.error("Data load error:", e);
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 text-red-500 italic">Hata oluştu.</td></tr>';
             }
         }
 
