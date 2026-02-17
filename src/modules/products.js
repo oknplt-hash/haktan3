@@ -56,20 +56,6 @@ export async function seedProducts() {
     }
 }
 
-export async function forceSeedProducts() {
-    console.log("Force seeding products to Supabase...");
-    await supabase.from('products').insert(DEFAULT_PRODUCTS.map(p => ({
-        name: p.name,
-        category: p.category,
-        price: p.price,
-        old_price: p.oldPrice,
-        weight: p.weight,
-        rating: p.rating,
-        reviews: p.reviews,
-        image: p.image,
-        description: p.description
-    })));
-}
 
 export async function getProducts() {
     const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });

@@ -27,16 +27,10 @@
                 <h2 class="text-2xl font-bold text-gray-900">Ürün Yönetimi</h2>
                 <p class="text-gray-500 text-sm">Katalogdaki ürünleri ekleyin, düzenleyin veya silin.</p>
             </div>
-            <div class="flex gap-3">
-                <button id="seedDataBtn"
-                    class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-5 py-2.5 rounded-lg font-bold shadow-sm flex items-center gap-2 transition-all active:scale-95">
-                    <span class="material-symbols-outlined text-primary">database</span> Veri Yükle
-                </button>
-                <button id="addProductBtn"
-                    class="bg-primary hover:bg-[#d68311] text-white px-5 py-2.5 rounded-lg font-bold shadow-lg shadow-primary/20 flex items-center gap-2 transition-all active:scale-95">
-                    <span class="material-symbols-outlined">add</span> Yeni Ürün Ekle
-                </button>
-            </div>
+            <button id="addProductBtn"
+                class="bg-primary hover:bg-[#d68311] text-white px-5 py-2.5 rounded-lg font-bold shadow-lg shadow-primary/20 flex items-center gap-2 transition-all active:scale-95">
+                <span class="material-symbols-outlined">add</span> Yeni Ürün Ekle
+            </button>
         </header>
 
         <div class="p-8 overflow-y-auto flex-1">
@@ -134,9 +128,8 @@
     </div>
 
     <script type="module" src="/src/admin-main.js"></script>
-    <script type="module" src="/src/admin-main.js"></script>
     <script type="module">
-        import { getProducts, addProduct, updateProduct, deleteProduct, getProduct, seedProducts, forceSeedProducts } from './src/modules/products.js';
+        import { getProducts, addProduct, updateProduct, deleteProduct, getProduct, seedProducts } from './src/modules/products.js';
         import { isAdminLoggedIn } from './src/modules/admin.js';
         import { formatPrice, CATEGORY_NAMES } from './src/modules/utils.js';
 
@@ -246,26 +239,6 @@
         document.getElementById('closeModalBtn').addEventListener('click', closeModal);
         document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
 
-        document.getElementById('seedDataBtn').addEventListener('click', async (e) => {
-            const btn = e.currentTarget;
-            const originalHtml = btn.innerHTML;
-            if (!confirm('Varsayılan ürünler veritabanına eklenecektir. Onaylıyor musunuz?')) return;
-
-            btn.disabled = true;
-            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Yükleniyor...';
-
-            try {
-                await forceSeedProducts();
-                await refreshData();
-                alert('Veriler başarıyla eklendi!');
-            } catch (err) {
-                console.error(err);
-                alert('Yükleme sırasında hata oluştu.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalHtml;
-            }
-        });
 
         // Expose helpers
         window.editProduct = window.openModal;
