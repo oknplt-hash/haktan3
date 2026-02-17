@@ -103,14 +103,14 @@
         // I will use window.HaktanApp for the items rendered via string concatenation, as it's cleaner than adding listeners to N items manually after render.
         // HaktanApp IS exposed in main.js.
 
-        window.renderCartPage = function () {
-            const items = getCartItems();
+        window.renderCartPage = async function () {
+            const items = await getCartItems();
             const empty = document.getElementById('emptyCart');
             const content = document.getElementById('cartContent');
             const list = document.getElementById('cartItemsList');
             const countEl = document.getElementById('cartTotalCount');
 
-            const totalQty = getCartCount();
+            const totalQty = getCartCount(); // still sync
             countEl.textContent = totalQty;
 
             if (items.length === 0) {
@@ -130,8 +130,8 @@
                     <div class="flex-1 flex flex-col md:flex-row justify-between gap-3">
                         <div class="flex-1">
                             <a href="product_detail.html?id=${item.id}" class="text-text-main font-bold hover:text-primary transition-colors line-clamp-2 text-sm md:text-base mb-0.5">${item.name}</a>
-                            <p class="text-[10px] text-text-secondary font-medium uppercase tracking-wide mb-0.5">${CATEGORY_NAMES[item.category]}</p>
-                            <p class="text-xs text-text-secondary">${item.weight}</p>
+                            <p class="text-[10px] text-text-secondary font-medium uppercase tracking-wide mb-0.5">${CATEGORY_NAMES[item.category] || item.category}</p>
+                            <p class="text-xs text-text-secondary">${item.weight || ''}</p>
                         </div>
                         <div class="flex items-center gap-4 md:gap-8">
                             <div class="flex items-center border border-border-light rounded-lg h-8 w-20 bg-card-light">
@@ -151,7 +151,8 @@
                 </div>
             `).join('');
 
-            const subtotal = getCartTotal();
+            // Calculate totals from items we already fetched instead of re-fetching
+            const subtotal = items.reduce((sum, i) => sum + i.total, 0);
             const shipping = subtotal >= 500 ? 0 : 39.90;
             const total = subtotal + shipping;
 

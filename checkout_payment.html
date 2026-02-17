@@ -173,29 +173,32 @@
         import { formatPrice } from './src/modules/utils.js';
 
         // Init
-        const items = getCartItems();
-        if (items.length === 0) {
-            window.location.href = 'index.html'; // Redirect empty cart
-        }
+        (async () => {
+            const items = await getCartItems();
+            if (items.length === 0) {
+                window.location.href = 'index.html'; // Redirect empty cart
+                return;
+            }
 
-        const subtotal = getCartTotal();
-        const shipping = subtotal >= 500 ? 0 : 39.90;
-        const total = subtotal + shipping;
+            const subtotal = await getCartTotal();
+            const shipping = subtotal >= 500 ? 0 : 39.90;
+            const total = subtotal + shipping;
 
-        document.getElementById('checkoutSubtotal').textContent = formatPrice(subtotal);
-        document.getElementById('checkoutShipping').textContent = shipping === 0 ? 'Ücretsiz' : formatPrice(shipping);
-        document.getElementById('checkoutTotal').textContent = formatPrice(total);
+            document.getElementById('checkoutSubtotal').textContent = formatPrice(subtotal);
+            document.getElementById('checkoutShipping').textContent = shipping === 0 ? 'Ücretsiz' : formatPrice(shipping);
+            document.getElementById('checkoutTotal').textContent = formatPrice(total);
 
-        document.getElementById('checkoutItems').innerHTML = items.map(item => `
-            <div class="flex gap-3 text-sm">
-                <div class="w-12 h-12 bg-gray-50 rounded shrink-0 border border-border-light"><img src="${item.image}" class="w-full h-full object-cover"></div>
-                <div class="flex-1">
-                    <div class="font-bold line-clamp-1">${item.name}</div>
-                    <div class="text-xs text-text-secondary">${item.qty} adet x ${formatPrice(item.price)}</div>
+            document.getElementById('checkoutItems').innerHTML = items.map(item => `
+                <div class="flex gap-3 text-sm">
+                    <div class="w-12 h-12 bg-gray-50 rounded shrink-0 border border-border-light"><img src="${item.image}" class="w-full h-full object-cover"></div>
+                    <div class="flex-1">
+                        <div class="font-bold line-clamp-1">${item.name}</div>
+                        <div class="text-xs text-text-secondary">${item.qty} adet x ${formatPrice(item.price)}</div>
+                    </div>
+                    <div class="font-bold">${formatPrice(item.total)}</div>
                 </div>
-                <div class="font-bold">${formatPrice(item.total)}</div>
-            </div>
-        `).join('');
+            `).join('');
+        })();
 
         // Payment Method Toggle
         window.togglePaymentMethod = function () {
@@ -224,7 +227,7 @@
 
             const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
 
-            setTimeout(() => {
+            setTimeout(async () => {
                 const customer = {
                     name: document.getElementById('fname').value + ' ' + document.getElementById('lname').value,
                     email: document.getElementById('email').value,
@@ -233,7 +236,7 @@
                     paymentMethod: paymentMethod === 'havale' ? 'Havale/EFT' : 'Kredi Kartı'
                 };
 
-                const order = createOrder(customer);
+                const order = await createOrder(customer);
                 if (order) {
                     document.getElementById('orderIdDisplay').textContent = order.id;
 
@@ -248,7 +251,7 @@
 
                     document.getElementById('successModal').classList.remove('hidden');
                 }
-            }, 1500);
+            }, 1000);
         });
     </script>
 </body>

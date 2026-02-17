@@ -19,9 +19,9 @@ export async function getOrders() {
 }
 
 export async function createOrder(customerInfo) {
-    const cartItems = getCartItems();
+    const cartItems = await getCartItems();
     if (cartItems.length === 0) return null;
-    const subtotal = getCartTotal();
+    const subtotal = await getCartTotal();
     const shipping = subtotal >= 500 ? 0 : 39.90;
 
     const order = {

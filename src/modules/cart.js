@@ -44,22 +44,35 @@ export function clearCart() {
 export function getCartCount() {
     return getCart().reduce((sum, item) => sum + item.qty, 0);
 }
-export function getCartTotal() {
-    const cart = getCart();
-    let subtotal = 0;
-    cart.forEach((item) => {
-        const product = getProduct(item.productId);
-        if (product) subtotal += product.price * item.qty;
-    });
-    return subtotal;
+export async function getCartTotal() {
+    const items = await getCartItems();
+    return items.reduce((sum, item) => sum + item.total, 0);
 }
-export function getCartItems() {
+
+export async function getCartItems() {
     const cart = getCart();
-    return cart
-        .map((item) => {
-            const product = getProduct(item.productId);
-            if (!product) return null;
-            return { ...product, qty: item.qty, total: product.price * item.qty };
-        })
-        .filter(Boolean);
+    if (cart.length === 0) return [];
+
+    const productIds = cart.map((item) => item.productId);
+
+    // Import supabase dynamically to avoid circular dependency issues if any,
+    // though here it is imported at top in other files.
+    // Better to use getProducts logic or direct supabase call.
+    // Since we can't change imports easily here, let's assume getProduct can be optimized or we do manual fetch.
+    // Actually, let's just use supabase directly here if possible or add a bulk fetch in products.js.
+    // But to keep it simple and contained in cart.js for now without changing products.js signature too much:
+
+    // We need to fetch products. Let's rely on the imported supabase client if available, 
+    // BUT cart.js imports getProduct from products.js, which imports supabase.
+    // Let's use getProduct but in parallel with Promise.all for now, or better:
+    // Update products.js to have getProductsByIds? No, let's just do Promise.all(cart.map(...))
+    // It's not the most efficient but it's correct and easy to implement right now.
+
+    const products = await Promise.all(cart.map(item => getProduct(item.productId)));
+
+    return cart.map((item, index) => {
+        const product = products[index];
+        if (!product) return null;
+        return { ...product, qty: item.qty, total: product.price * item.qty };
+    }).filter(Boolean);
 }
