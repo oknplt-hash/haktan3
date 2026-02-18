@@ -1,16 +1,30 @@
 
 export function renderSidebar(activePage) {
+    // Backdrop for mobile
+    const backdrop = document.createElement('div');
+    backdrop.id = 'sidebarBackdrop';
+    backdrop.className = 'fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0';
+    document.body.appendChild(backdrop);
+
     const sidebar = document.createElement('aside');
-    sidebar.className = 'w-64 bg-white border-r border-border-light flex flex-col shrink-0 h-screen sticky top-0 font-display';
+    sidebar.id = 'adminSidebar';
+    // Sidebar: Hidden on mobile (translateX), visible on desktop (static)
+    sidebar.className = 'fixed lg:sticky top-0 left-0 z-50 w-64 bg-white border-r border-border-light flex flex-col shrink-0 h-screen font-display transition-transform duration-300 -translate-x-full lg:translate-x-0 shadow-xl lg:shadow-none';
+
     sidebar.innerHTML = `
-        <div class="p-6 flex items-center gap-3 border-b border-border-light/50">
-            <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden shrink-0">
-                <img src="https://ui-avatars.com/api/?name=Haktan+Admin&background=random" alt="Admin" class="w-full h-full object-cover">
+        <div class="p-6 flex items-center justify-between border-b border-border-light/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden shrink-0">
+                    <img src="https://ui-avatars.com/api/?name=Haktan+Admin&background=random" alt="Admin" class="w-full h-full object-cover">
+                </div>
+                <div class="flex flex-col text-left">
+                    <h3 class="text-sm font-bold text-gray-900 leading-tight">HAKTAN Admin</h3>
+                    <span class="text-[10px] text-gray-500 font-medium">Mağaza Müdürü</span>
+                </div>
             </div>
-            <div class="flex flex-col">
-                <h3 class="text-sm font-bold text-gray-900 leading-tight">HAKTAN Admin</h3>
-                <span class="text-[10px] text-gray-500 font-medium">Mağaza Müdürü</span>
-            </div>
+            <button class="lg:hidden text-gray-400 hover:text-gray-900" onclick="window.toggleAdminSidebar()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
         </div>
         
         <nav class="flex-1 p-4 space-y-1">
@@ -53,5 +67,22 @@ export function renderSidebar(activePage) {
             </button>
         </div>
     `;
+
+    // Toggle function
+    window.toggleAdminSidebar = function () {
+        const isOpen = !sidebar.classList.contains('-translate-x-full');
+        if (isOpen) {
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.add('hidden');
+            backdrop.classList.remove('opacity-100');
+        } else {
+            sidebar.classList.remove('-translate-x-full');
+            backdrop.classList.remove('hidden');
+            setTimeout(() => backdrop.classList.add('opacity-100'), 10);
+        }
+    };
+
+    backdrop.onclick = window.toggleAdminSidebar;
+
     return sidebar;
 }

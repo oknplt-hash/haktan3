@@ -59,3 +59,54 @@ export async function updateSettings(updates) {
         if (error) throw error;
     }
 }
+// Bank Account Management
+export async function getBankAccounts() {
+    try {
+        const { data, error } = await supabase
+            .from('bank_accounts')
+            .select('*')
+            .eq('is_active', true)
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    } catch (e) {
+        console.error("Bank accounts load fail:", e);
+        return [];
+    }
+}
+
+export async function getAllBankAccounts() {
+    const { data, error } = await supabase
+        .from('bank_accounts')
+        .select('*')
+        .order('id', { ascending: true });
+    if (error) throw error;
+    return data || [];
+}
+
+export async function addBankAccount(account) {
+    const { data, error } = await supabase
+        .from('bank_accounts')
+        .insert([account])
+        .select()
+        .single();
+    if (error) throw error;
+    return data;
+}
+
+export async function updateBankAccount(id, updates) {
+    const { error } = await supabase
+        .from('bank_accounts')
+        .update(updates)
+        .eq('id', id);
+    if (error) throw error;
+}
+
+export async function deleteBankAccount(id) {
+    const { error } = await supabase
+        .from('bank_accounts')
+        .delete()
+        .eq('id', id);
+    if (error) throw error;
+}

@@ -20,7 +20,7 @@
 <body class="bg-background-light text-text-main font-display min-h-screen flex flex-col">
     <!-- Header injected by main.js -->
 
-    <main class="flex-1 container mx-auto px-4 md:px-12 lg:px-20 py-4 lg:py-8 max-w-4xl">
+    <main class="flex-1 container mx-auto px-4 md:px-12 lg:px-20 py-4 lg:py-8 max-w-6xl">
         <h1 class="text-2xl font-black mb-6 text-center">Ödeme ve Teslimat</h1>
 
         <div class="flex flex-col md:flex-row gap-8">
@@ -67,7 +67,7 @@
                             <!-- Credit Card Option -->
                             <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
                                 <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="radio" name="payment" value="credit_card" checked
+                                    <input type="radio" name="payment" value="credit_card"
                                         class="text-primary focus:ring-primary" onclick="togglePaymentMethod()">
                                     <div class="flex items-center justify-between w-full">
                                         <span class="font-bold">Kredi / Banka Kartı</span>
@@ -81,7 +81,7 @@
                                         </div>
                                     </div>
                                 </label>
-                                <div id="ccDetails" class="mt-4 grid grid-cols-2 gap-4">
+                                <div id="ccDetails" class="mt-4 hidden grid grid-cols-2 gap-4">
                                     <input type="text" placeholder="Kart Numarası"
                                         class="col-span-2 w-full rounded-lg border-border-light focus:ring-primary focus:border-primary">
                                     <input type="text" placeholder="AA/YY"
@@ -94,7 +94,7 @@
                             <!-- Bank Transfer Option -->
                             <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
                                 <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="radio" name="payment" value="havale"
+                                    <input type="radio" name="payment" value="havale" checked
                                         class="text-primary focus:ring-primary" onclick="togglePaymentMethod()">
                                     <div class="flex items-center justify-between w-full">
                                         <span class="font-bold">Havale / EFT</span>
@@ -102,18 +102,19 @@
                                     </div>
                                 </label>
                                 <div id="bankDetails"
-                                    class="mt-4 hidden text-sm text-gray-600 space-y-2 border-t border-gray-200 pt-3">
+                                    class="mt-4 text-sm text-gray-600 space-y-3 border-t border-gray-200 pt-3">
                                     <p class="font-bold text-gray-900">Banka Hesap Bilgileri:</p>
-                                    <div class="bg-white p-3 rounded border border-gray-200">
-                                        <p><span class="font-bold">Banka:</span> Ziraat Bankası</p>
-                                        <p><span class="font-bold">Alıcı:</span> Haktan Kuruyemiş Ltd. Şti.</p>
-                                        <p class="font-mono text-xs mt-1 bg-gray-100 p-1 rounded">TR12 0001 0002 0003
-                                            0004 0005 06</p>
+                                    <div id="bankAccountsContainer" class="space-y-2">
+                                        <!-- Bank accounts will be loaded here -->
+                                        <div class="animate-pulse bg-gray-100 h-16 rounded-lg"></div>
                                     </div>
-                                    <p class="text-xs text-orange-600"><span class="font-bold">Önemli:</span>
+                                    <p
+                                        class="text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-100">
+                                        <span class="font-bold">Önemli:</span>
                                         Siparişinizi tamamladıktan sonra size verilecek olan <span
                                             class="font-bold underline">Sipariş Numarasını</span> havale açıklama
-                                        kısmına yazmayı unutmayınız.</p>
+                                        kısmına yazmayı unutmayınız.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -198,6 +199,29 @@
                     <div class="font-bold">${formatPrice(item.total)}</div>
                 </div>
             `).join('');
+
+            // Load Bank Accounts
+            try {
+                const { getBankAccounts } = await import('./src/modules/settings.js');
+                const accounts = await getBankAccounts();
+                const container = document.getElementById('bankAccountsContainer');
+                if (accounts.length > 0) {
+                    container.innerHTML = accounts.map(acc => `
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                            <p class="text-sm md:text-base font-bold text-gray-900">${acc.bank_name}</p>
+                            <p class="text-xs md:text-sm text-gray-500 mt-0.5">${acc.account_holder}</p>
+                            <div class="flex items-center justify-between gap-2 mt-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <span class="font-mono text-xs md:text-sm font-bold text-gray-900 break-all">${acc.iban}</span>
+                                <button type="button" onclick="navigator.clipboard.writeText('${acc.iban.replace(/\s/g, '')}').then(() => alert('IBAN kopyalandı!'))" class="text-primary hover:text-[#c57910] material-symbols-outlined text-lg md:text-xl transition-colors">content_copy</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p class="text-xs text-red-500 italic">Banka hesabı bulunamadı. Lütfen bizimle iletişime geçin.</p>';
+                }
+            } catch (err) {
+                console.error("Failed to load bank accounts:", err);
+            }
         })();
 
         // Payment Method Toggle
