@@ -31,47 +31,111 @@
             </button>
         </header>
 
-        <header class="bg-white border-b border-gray-200 px-8 py-5 flex justify-between items-center shrink-0">
+        <header
+            class="bg-white border-b border-gray-200 px-4 lg:px-8 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900">Sipariş Yönetimi</h2>
                 <p class="text-gray-500 text-sm">Gelen siparişleri görüntüleyin ve durumlarını güncelleyin.</p>
             </div>
-            <div class="flex items-center gap-4">
-                <select id="statusFilter"
-                    class="rounded-lg border-gray-300 focus:border-primary focus:ring-primary text-sm min-w-[200px]">
-                    <option value="">Tüm Durumlar</option>
-                    <option value="Beklemede">Beklemede</option>
-                    <option value="Hazırlanıyor">Hazırlanıyor</option>
-                    <option value="Kargoda">Kargoda</option>
-                    <option value="Teslim Edildi">Teslim Edildi</option>
-                </select>
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <button onclick="window.exportToCSV()"
+                    class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-sm transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-sm">download</span> Dışa Aktar
+                </button>
                 <button id="refreshBtn"
-                    class="bg-white border border-gray-300 text-gray-700 p-2.5 rounded-lg hover:bg-gray-50 transition-colors">
+                    class="bg-white border border-gray-300 text-gray-700 p-2.5 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
             </div>
         </header>
 
-        <!-- Table View -->
-        <div class="p-8 overflow-y-auto flex-1 bg-gray-50">
-            <div class="max-w-7xl mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr
-                            class="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-bold tracking-wider">
-                            <th class="px-6 py-4">Sipariş No</th>
-                            <th class="px-6 py-4">Müşteri</th>
-                            <th class="px-6 py-4">Tarih</th>
-                            <th class="px-6 py-4">Ödeme</th>
-                            <th class="px-6 py-4">Tutar</th>
-                            <th class="px-6 py-4">Durum</th>
-                            <th class="px-6 py-4 text-right">İşlemler</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ordersList" class="divide-y divide-gray-100">
-                        <!-- Rows injected here -->
-                    </tbody>
-                </table>
+        <!-- Main Content -->
+        <div class="p-4 lg:p-8 overflow-y-auto flex-1 bg-gray-50 space-y-6">
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Toplam Sipariş</p>
+                    <div class="flex items-end justify-between mt-1">
+                        <span class="text-2xl font-black text-gray-900" id="statTotalOrders">0</span>
+                        <span
+                            class="material-symbols-outlined text-blue-500 bg-blue-50 p-2 rounded-lg">shopping_cart</span>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Bekleyen Sipariş</p>
+                    <div class="flex items-end justify-between mt-1">
+                        <span class="text-2xl font-black text-orange-600" id="statPendingOrders">0</span>
+                        <span
+                            class="material-symbols-outlined text-orange-500 bg-orange-50 p-2 rounded-lg">pending_actions</span>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Bugünün Cirosu</p>
+                    <div class="flex items-end justify-between mt-1">
+                        <span class="text-2xl font-black text-green-600" id="statTodayRevenue">0,00₺</span>
+                        <span
+                            class="material-symbols-outlined text-green-500 bg-green-50 p-2 rounded-lg">payments</span>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Tamamlanan</p>
+                    <div class="flex items-end justify-between mt-1">
+                        <span class="text-2xl font-black text-purple-600" id="statCompletedOrders">0</span>
+                        <span
+                            class="material-symbols-outlined text-purple-500 bg-purple-50 p-2 rounded-lg">check_circle</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col min-h-0">
+                <!-- Filters Bar -->
+                <div class="p-4 border-b border-gray-100 flex flex-col md:flex-row gap-4 bg-white sticky top-0 z-10">
+                    <div class="relative flex-1">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl font-light">search</span>
+                        <input type="text" id="orderSearch" placeholder="Sipariş No, İsim veya Telefon Ara..."
+                            class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-primary focus:border-primary text-sm transition-all">
+                    </div>
+                    <div class="flex gap-2">
+                        <select id="statusFilter"
+                            class="rounded-xl border-gray-200 bg-gray-50 focus:border-primary focus:ring-primary text-sm font-medium pr-8">
+                            <option value="">Tüm Durumlar</option>
+                            <option value="Beklemede">Beklemede</option>
+                            <option value="Hazırlanıyor">Hazırlanıyor</option>
+                            <option value="Kargoda">Kargoda</option>
+                            <option value="Teslim Edildi">Teslim Edildi</option>
+                            <option value="İptal Edildi">İptal Edildi</option>
+                        </select>
+                        <select id="sortOrders"
+                            class="rounded-xl border-gray-200 bg-gray-50 focus:border-primary focus:ring-primary text-sm font-medium pr-8">
+                            <option value="date_desc">En Yeni</option>
+                            <option value="date_asc">En Eski</option>
+                            <option value="total_desc">En Yüksek Tutar</option>
+                            <option value="total_asc">En Düşük Tutar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50/50">
+                            <tr
+                                class="text-[10px] uppercase text-gray-400 font-black tracking-widest border-b border-gray-100">
+                                <th class="px-6 py-4">Sipariş No</th>
+                                <th class="px-6 py-4">Müşteri Detayları</th>
+                                <th class="px-6 py-4">Tarih</th>
+                                <th class="px-6 py-4">Ödeme</th>
+                                <th class="px-6 py-4">Toplam Tutar</th>
+                                <th class="px-6 py-4">Durum</th>
+                                <th class="px-6 py-4 text-right">Eylem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersList" class="divide-y divide-gray-50">
+                            <!-- Rows injected here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
@@ -114,62 +178,155 @@
 
         let allOrders = [];
 
-        async function renderOrders() {
-            const list = document.getElementById('ordersList');
-            list.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-400 italic font-medium">Yükleniyor...</td></tr>`;
-
+        async function refreshData() {
             try {
                 allOrders = await getOrders();
-                const filter = document.getElementById('statusFilter').value;
-
-                let filteredOrders = allOrders;
-                if (filter) {
-                    filteredOrders = filteredOrders.filter(o => o.status === filter);
-                }
-
-                if (filteredOrders.length === 0) {
-                    list.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">Sipariş bulunamadı.</td></tr>`;
-                    return;
-                }
-
-                list.innerHTML = filteredOrders.map(o => {
-                    const date = new Date(o.date).toLocaleDateString('tr-TR');
-                    let statusColor = 'bg-green-100 text-green-700 border-green-200';
-                    if (o.status === 'Beklemede') statusColor = 'bg-yellow-100 text-yellow-700 border-yellow-200';
-                    else if (o.status === 'Hazırlanıyor') statusColor = 'bg-blue-100 text-blue-700 border-blue-200';
-                    else if (o.status === 'Kargoda') statusColor = 'bg-purple-100 text-purple-700 border-purple-200';
-
-                    return `
-                        <tr class="hover:bg-gray-50 transition-colors group">
-                            <td class="px-6 py-4 font-mono font-bold text-gray-900">#${o.id.substring(0, 8)}...</td>
-                            <td class="px-6 py-4">
-                                <div class="font-bold text-gray-900">${o.customer.name}</div>
-                                <div class="text-xs text-gray-500">${o.customer.phone}</div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-500">${date}</td>
-                            <td class="px-6 py-4">
-                                 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-bold border ${o.customer.paymentMethod === 'Havale/EFT' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-orange-50 text-orange-700 border-orange-100'}">
-                                    ${o.customer.paymentMethod === 'Havale/EFT' ? 'Havale/EFT' : 'Kredi Kartı'}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 font-bold text-gray-900">${formatPrice(o.total)}</td>
-                            <td class="px-6 py-4">
-                                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold border ${statusColor}">
-                                    ${o.status}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <button onclick="window.openOrderModal('${o.id}')" class="text-primary hover:text-primary-light font-bold text-sm hover:underline">
-                                    Detaylar
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+                calculateStats();
+                renderOrders();
             } catch (e) {
                 console.error("Orders load error:", e);
-                list.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-red-500">Veri yüklenirken hata oluştu.</td></tr>`;
+                document.getElementById('ordersList').innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-red-500">Veri yüklenirken hata oluştu.</td></tr>`;
             }
+        }
+
+        function calculateStats() {
+            const total = allOrders.length;
+            const pending = allOrders.filter(o => o.status === 'Beklemede').length;
+            const completed = allOrders.filter(o => o.status === 'Teslim Edildi').length;
+
+            // Calculate today's revenue
+            const today = new Date().toLocaleDateString('tr-TR');
+            const todayRevenue = allOrders
+                .filter(o => new Date(o.date).toLocaleDateString('tr-TR') === today)
+                .reduce((sum, o) => sum + o.total, 0);
+
+            document.getElementById('statTotalOrders').textContent = total;
+            document.getElementById('statPendingOrders').textContent = pending;
+            document.getElementById('statCompletedOrders').textContent = completed;
+            document.getElementById('statTodayRevenue').textContent = formatPrice(todayRevenue);
+        }
+
+        async function renderOrders() {
+            const list = document.getElementById('ordersList');
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchQuery = document.getElementById('orderSearch').value.toLowerCase();
+            const sortBy = document.getElementById('sortOrders').value;
+
+            let filteredOrders = [...allOrders];
+
+            // Filter by status
+            if (statusFilter) {
+                filteredOrders = filteredOrders.filter(o => o.status === statusFilter);
+            }
+
+            // Filter by search
+            if (searchQuery) {
+                filteredOrders = filteredOrders.filter(o =>
+                    o.id.toLowerCase().includes(searchQuery) ||
+                    o.customer.name.toLowerCase().includes(searchQuery) ||
+                    o.customer.phone.includes(searchQuery)
+                );
+            }
+
+            // Sort
+            filteredOrders.sort((a, b) => {
+                if (sortBy === 'date_desc') return new Date(b.date) - new Date(a.date);
+                if (sortBy === 'date_asc') return new Date(a.date) - new Date(b.date);
+                if (sortBy === 'total_desc') return b.total - a.total;
+                if (sortBy === 'total_asc') return a.total - b.total;
+                return 0;
+            });
+
+            if (filteredOrders.length === 0) {
+                list.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">Sipariş bulunamadı.</td></tr>`;
+                return;
+            }
+
+            list.innerHTML = filteredOrders.map(o => {
+                const date = new Date(o.date).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                let statusColor = 'bg-stone-100 text-stone-600 border-stone-200'; // Default
+
+                if (o.status === 'Beklemede') statusColor = 'bg-amber-50 text-amber-700 border-amber-200';
+                else if (o.status === 'Hazırlanıyor') statusColor = 'bg-sky-50 text-sky-700 border-sky-200';
+                else if (o.status === 'Kargoda') statusColor = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+                else if (o.status === 'Teslim Edildi') statusColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                else if (o.status === 'İptal Edildi') statusColor = 'bg-rose-50 text-rose-700 border-rose-200';
+
+                return `
+                    <tr class="hover:bg-gray-50/80 transition-all group">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono font-black text-gray-400 text-xs">#</span>
+                                <span class="font-mono font-bold text-gray-900 text-sm tracking-tighter">${o.id.substring(4, 12)}...</span>
+                                <button onclick="navigator.clipboard.writeText('${o.id}').then(() => showToast('ID Kopyalandı'))" 
+                                    class="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-primary transition-colors opacity-0 group-hover:opacity-100">
+                                    <span class="material-symbols-outlined text-sm">content_copy</span>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-xs">
+                                    ${o.customer.name.split(' ').map(n => n[0]).join('')}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-900 text-sm">${o.customer.name}</div>
+                                    <div class="text-[10px] text-gray-500 font-medium">${o.customer.phone}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-xs font-bold text-gray-700">${date.split(' ')[0]}</div>
+                            <div class="text-[10px] text-gray-400 font-medium">${date.split(' ')[1]}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                             <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black border uppercase tracking-wider ${o.customer.paymentMethod === 'Havale/EFT' ? 'bg-blue-50 text-blue-800 border-blue-100' : 'bg-orange-50 text-orange-800 border-orange-100'}">
+                                <span class="w-1 h-1 rounded-full ${o.customer.paymentMethod === 'Havale/EFT' ? 'bg-blue-600' : 'bg-orange-600'}"></span>
+                                ${o.customer.paymentMethod === 'Havale/EFT' ? 'Havale/EFT' : 'Kredi Kartı'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 font-black text-gray-900 text-sm">${formatPrice(o.total)}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-block px-3 py-1 rounded-full text-[10px] font-black border uppercase tracking-widest ${statusColor} shadow-sm">
+                                ${o.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="window.openOrderModal('${o.id}')" 
+                                class="bg-gray-50 hover:bg-primary hover:text-white text-gray-600 px-3 py-1.5 rounded-lg text-xs font-black transition-all border border-gray-100 hover:border-primary shadow-sm">
+                                YÖNET
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.exportToCSV = function () {
+            if (allOrders.length === 0) return;
+
+            const headers = ['Sipariş No', 'Müşteri', 'Telefon', 'E-posta', 'Tarih', 'Ödeme Yöntemi', 'Tutar', 'Durum'];
+            const rows = allOrders.map(o => [
+                o.id,
+                o.customer.name,
+                o.customer.phone,
+                o.customer.email,
+                new Date(o.date).toLocaleString('tr-TR'),
+                o.customer.paymentMethod,
+                o.total.toFixed(2),
+                o.status
+            ]);
+
+            const csvContent = "\uFEFF" + [headers, ...rows].map(e => e.join(";")).join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `haktan_siparisler_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         window.openOrderModal = function (id) {
@@ -185,58 +342,133 @@
             setTimeout(() => content.classList.remove('translate-x-full'), 10);
 
             body.innerHTML = `
+                <!-- Header Info -->
+                <div class="flex justify-between items-center bg-gray-50 -m-6 mb-6 p-6 border-b border-gray-100">
+                    <div>
+                        <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sipariş No</div>
+                        <div class="font-black text-gray-900 text-lg">${order.id}</div>
+                    </div>
+                    <button onclick="window.printOrder()" class="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-bold hover:bg-gray-50 transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-sm">print</span> Yazdır
+                    </button>
+                </div>
+
                 <!-- Customer Info -->
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Müşteri Bilgileri</h4>
-                    <div class="flex items-start gap-3 mb-2">
-                        <span class="material-symbols-outlined text-gray-400">person</span>
-                        <div>
-                            <div class="font-bold text-sm text-gray-900">${order.customer.name}</div>
-                            <div class="text-xs text-gray-500">${order.customer.email}</div>
-                        </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Müşteri</h4>
+                        <div class="font-bold text-sm text-gray-900">${order.customer.name}</div>
+                        <div class="text-[10px] text-gray-500 font-medium">${order.customer.email}</div>
+                        <div class="text-[10px] text-gray-500 font-medium">${order.customer.phone}</div>
                     </div>
-                    <div class="flex items-start gap-3 mb-2">
-                        <span class="material-symbols-outlined text-gray-400">call</span>
-                        <div class="text-sm text-gray-600 font-mono">${order.customer.phone}</div>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="material-symbols-outlined text-gray-400">home</span>
-                        <div class="text-sm text-gray-600 leading-relaxed">${order.customer.address}</div>
+                    <div class="bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Teslimat</h4>
+                        <div class="text-[10px] text-gray-600 font-medium leading-relaxed">${order.customer.address}</div>
                     </div>
                 </div>
 
                 <!-- Products -->
                 <div>
-                     <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Sipariş İçeriği</h4>
-                     <div class="space-y-3">
+                     <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Ürünler</h4>
+                     <div class="space-y-2">
                         ${order.items.map(item => `
-                            <div class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-100">
-                                <img src="${item.image}" class="w-12 h-12 rounded-lg object-cover border border-gray-100">
+                            <div class="flex items-center gap-3 p-3 bg-white hover:bg-gray-50 rounded-xl transition-all border border-gray-100">
+                                <img src="${item.image}" class="w-10 h-10 rounded-lg object-cover border border-gray-100">
                                 <div class="flex-1">
-                                    <div class="font-bold text-sm text-gray-900 line-clamp-1">${item.name}</div>
-                                    <div class="text-xs text-gray-500">${item.qty} x ${formatPrice(item.price)}</div>
+                                    <div class="font-bold text-xs text-gray-900 line-clamp-1">${item.name}</div>
+                                    <div class="text-[10px] text-gray-400 font-medium">${item.qty} adet x ${formatPrice(item.price)}</div>
                                 </div>
-                                <div class="font-bold text-sm text-gray-900">${formatPrice(item.total)}</div>
+                                <div class="font-black text-xs text-gray-900">${formatPrice(item.total)}</div>
                             </div>
                         `).join('')}
                      </div>
-                     <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-                        <span class="text-sm font-bold text-gray-500">Toplam Tutar</span>
-                        <span class="text-xl font-black text-primary">${formatPrice(order.total)}</span>
-                     </div>
+                </div>
+
+                <!-- Totals -->
+                <div class="pt-4 border-t border-gray-100 space-y-2">
+                    <div class="flex justify-between text-xs font-bold text-gray-400">
+                        <span>Ara Toplam</span>
+                        <span>${formatPrice(order.subtotal)}</span>
+                    </div>
+                    <div class="flex justify-between text-xs font-bold text-gray-400">
+                        <span>Kargo</span>
+                        <span>${order.shipping === 0 ? 'Ücretsiz' : formatPrice(order.shipping)}</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2">
+                        <span class="text-sm font-black text-gray-900 uppercase">Toplam</span>
+                        <span class="text-2xl font-black text-primary">${formatPrice(order.total)}</span>
+                    </div>
                 </div>
             `;
 
             footer.innerHTML = `
-                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Sipariş Durumu</label>
-                <select onchange="window.handleStatusUpdate('${order.id}', this.value)" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary text-sm font-bold mb-4">
-                    <option value="Beklemede" ${order.status === 'Beklemede' ? 'selected' : ''}>Beklemede</option>
-                    <option value="Hazırlanıyor" ${order.status === 'Hazırlanıyor' ? 'selected' : ''}>Hazırlanıyor</option>
-                    <option value="Kargoda" ${order.status === 'Kargoda' ? 'selected' : ''}>Kargoda</option>
-                    <option value="Teslim Edildi" ${order.status === 'Teslim Edildi' ? 'selected' : ''}>Teslim Edildi</option>
-                </select>
-                <button onclick="window.closeOrderModal()" class="w-full py-3 rounded-lg border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors">Kapat</button>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Durumu Güncelle</label>
+                        <select onchange="window.handleStatusUpdate('${order.id}', this.value)" class="w-full rounded-xl border-gray-200 bg-white focus:border-primary focus:ring-primary text-sm font-black shadow-sm">
+                            <option value="Beklemede" ${order.status === 'Beklemede' ? 'selected' : ''}>BEKLEMEDE</option>
+                            <option value="Hazırlanıyor" ${order.status === 'Hazırlanıyor' ? 'selected' : ''}>HAZIRLANIYOR</option>
+                            <option value="Kargoda" ${order.status === 'Kargoda' ? 'selected' : ''}>KARGODA</option>
+                            <option value="Teslim Edildi" ${order.status === 'Teslim Edildi' ? 'selected' : ''}>TESLİM EDİLDİ</option>
+                            <option value="İptal Edildi" ${order.status === 'İptal Edildi' ? 'selected' : ''}>İPTAL EDİLDİ</option>
+                        </select>
+                    </div>
+                    <button onclick="window.closeOrderModal()" class="w-full py-3 rounded-xl border border-gray-200 text-gray-500 font-black text-xs hover:bg-gray-100 transition-all uppercase tracking-widest">Kapat</button>
+                </div>
             `;
+
+            // Expose active order for printing
+            window.activeOrderPrint = order;
+        }
+
+        window.printOrder = function () {
+            const o = window.activeOrderPrint;
+            if (!o) return;
+
+            const printWin = window.open('', '', 'width=800,height=600');
+            printWin.document.write(`
+                <html>
+                <head>
+                    <title>Sipariş #${o.id}</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 40px; color: #333; }
+                        .header { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
+                        .flex { display: flex; justify-content: space-between; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th { text-align: left; border-bottom: 1px solid #eee; padding: 10px 0; }
+                        td { padding: 10px 0; border-bottom: 1px solid #f9f9f9; }
+                        .total { text-align: right; margin-top: 30px; font-size: 1.2em; font-weight: bold; }
+                    </style>
+                </head>
+                <body onload="window.print()">
+                    <div class="header">
+                        <h1>HAKTAN Sipariş Formu</h1>
+                        <p>Sipariş No: <strong>${o.id}</strong></p>
+                        <p>Tarih: ${new Date(o.date).toLocaleString('tr-TR')}</p>
+                    </div>
+                    <div class="flex">
+                        <div>
+                            <h3>Müşteri</h3>
+                            <p>${o.customer.name}<br>${o.customer.phone}<br>${o.customer.email}</p>
+                        </div>
+                        <div style="text-align: right">
+                            <h3>Teslimat Adresi</h3>
+                            <p style="max-width: 300px">${o.customer.address}</p>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr><th>Ürün</th><th>Adet</th><th>Fiyat</th><th>Toplam</th></tr>
+                        </thead>
+                        <tbody>
+                            ${o.items.map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>${formatPrice(i.price)}</td><td>${formatPrice(i.total)}</td></tr>`).join('')}
+                        </tbody>
+                    </table>
+                    <div class="total">Genel Toplam: ${formatPrice(o.total)}</div>
+                </body>
+                </html>
+            `);
+            printWin.document.close();
         }
 
         window.closeOrderModal = function () {
@@ -251,18 +483,17 @@
             if (confirm('Sipariş durumunu "' + newStatus + '" olarak güncellemek istiyor musunuz?')) {
                 await updateOrderStatus(id, newStatus);
                 showToast('Sipariş durumu güncellendi.');
-                await renderOrders();
+                await refreshData();
             } else {
-                await renderOrders();
+                await refreshData();
             }
         };
 
-        renderOrders();
+        refreshData();
         document.getElementById('statusFilter').addEventListener('change', renderOrders);
-        document.getElementById('refreshBtn').addEventListener('click', renderOrders);
-
-    </script>
-
+        document.getElementById('orderSearch').addEventListener('input', renderOrders);
+        document.getElementById('sortOrders').addEventListener('change', renderOrders);
+        document.getElementById('refreshBtn').addEventListener('click', refreshData);
     </script>
 </body>
 
