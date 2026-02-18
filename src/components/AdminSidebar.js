@@ -9,21 +9,21 @@ export function renderSidebar(activePage) {
     const sidebar = document.createElement('aside');
     sidebar.id = 'adminSidebar';
     // Sidebar: Hidden on mobile (translateX), visible on desktop (static)
-    sidebar.className = 'fixed lg:sticky top-0 left-0 z-50 w-64 bg-white border-r border-border-light flex flex-col shrink-0 h-screen font-display transition-transform duration-300 -translate-x-full lg:translate-x-0 shadow-xl lg:shadow-none';
+    sidebar.className = 'fixed lg:sticky top-0 left-0 z-50 w-[280px] lg:w-64 bg-white border-r border-border-light flex flex-col shrink-0 h-[100dvh] font-display transition-transform duration-300 -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none';
 
     sidebar.innerHTML = `
-        <div class="p-6 flex items-center justify-between border-b border-border-light/50">
+        <div class="p-5 flex items-center justify-between border-b border-border-light/50 bg-gray-50/50">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden shrink-0">
-                    <img src="https://ui-avatars.com/api/?name=Haktan+Admin&background=random" alt="Admin" class="w-full h-full object-cover">
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <span class="material-symbols-outlined">shield_person</span>
                 </div>
                 <div class="flex flex-col text-left">
-                    <h3 class="text-sm font-bold text-gray-900 leading-tight">HAKTAN Admin</h3>
-                    <span class="text-[10px] text-gray-500 font-medium">Mağaza Müdürü</span>
+                    <h3 class="text-sm font-black text-gray-900 leading-tight">HAKTAN Admin</h3>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Yönetici Paneli</span>
                 </div>
             </div>
-            <button class="lg:hidden text-gray-400 hover:text-gray-900" onclick="window.toggleAdminSidebar()">
-                <span class="material-symbols-outlined">close</span>
+            <button class="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 hover:text-gray-900 active:scale-90 transition-all" onclick="window.toggleAdminSidebar()">
+                <span class="material-symbols-outlined text-xl font-bold">close</span>
             </button>
         </div>
         

@@ -32,78 +32,80 @@
             </button>
         </header>
 
-        <div class="p-4 lg:p-10 space-y-6">
-            <h1 class="text-3xl font-black text-gray-900">Site Ayarları</h1>
-            <p class="text-gray-500 mt-1">İletişim bilgilerini ve banka hesaplarını buradan güncelleyin.</p>
-        </div>
+        <header class="bg-white border-b border-gray-200 px-4 lg:px-10 py-5 lg:py-8 flex flex-col gap-1 shrink-0">
+            <h1 class="text-2xl lg:text-3xl font-black text-gray-900">Site Ayarları</h1>
+            <p class="text-gray-500 text-sm">İletişim bilgilerini ve banka hesaplarını buradan güncelleyin.</p>
+        </header>
 
-        <div
-            class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 max-w-2xl overflow-y-auto custom-scrollbar">
-            <form id="settingsForm" class="space-y-6">
-                <div class="space-y-4">
-                    <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">chat</span>
-                        İletişim Ayarları
-                    </h2>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">WhatsApp Numarası</label>
-                        <input type="text" name="whatsapp_number" id="whatsapp_number" placeholder="Örn: 905000000000"
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all">
-                        <p class="text-[10px] text-gray-400 mt-1">Numaranın başına ülke kodu (90) ekleyerek, boşluksuz
-                            yazın.</p>
-                    </div>
-                </div>
-
-                <div class="pt-6 border-t border-gray-100 space-y-4">
-                    <div class="flex justify-between items-center">
+        <div class="p-4 lg:p-10 flex-1 overflow-y-auto custom-scrollbar">
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 lg:p-10 max-w-3xl">
+                <form id="settingsForm" class="space-y-6">
+                    <div class="space-y-4">
                         <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary">account_balance</span>
-                            Banka Hesapları (Havale/EFT)
+                            <span class="material-symbols-outlined text-primary">chat</span>
+                            İletişim Ayarları
                         </h2>
-                        <button type="button" id="addBankBtn"
-                            class="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
-                            <span class="material-symbols-outlined text-sm">add_circle</span> Yeni Hesap Ekle
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">WhatsApp Numarası</label>
+                            <input type="text" name="whatsapp_number" id="whatsapp_number"
+                                placeholder="Örn: 905000000000"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all">
+                            <p class="text-[10px] text-gray-400 mt-1">Numaranın başına ülke kodu (90) ekleyerek,
+                                boşluksuz
+                                yazın.</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-100 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">account_balance</span>
+                                Banka Hesapları (Havale/EFT)
+                            </h2>
+                            <button type="button" id="addBankBtn"
+                                class="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
+                                <span class="material-symbols-outlined text-sm">add_circle</span> Yeni Hesap Ekle
+                            </button>
+                        </div>
+
+                        <div id="bankAccountsList" class="space-y-3">
+                            <div class="text-center py-4 text-gray-400 text-sm italic">Yükleniyor...</div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-100 space-y-4">
+                        <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">info</span>
+                            Genel Bilgiler
+                        </h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Site Adı</label>
+                                <input type="text" name="site_name" id="site_name"
+                                    class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">E-posta</label>
+                                <input type="email" name="contact_email" id="contact_email"
+                                    class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Adres</label>
+                            <input type="text" name="address" id="address"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all">
+                        </div>
+                    </div>
+
+                    <div class="pt-8">
+                        <button type="submit"
+                            class="w-full bg-primary hover:bg-[#c57910] text-white px-6 py-4 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">save</span>
+                            Ayarları Kaydet
                         </button>
                     </div>
-
-                    <div id="bankAccountsList" class="space-y-3">
-                        <div class="text-center py-4 text-gray-400 text-sm italic">Yükleniyor...</div>
-                    </div>
-                </div>
-
-                <div class="pt-6 border-t border-gray-100 space-y-4">
-                    <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">info</span>
-                        Genel Bilgiler
-                    </h2>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Site Adı</label>
-                            <input type="text" name="site_name" id="site_name"
-                                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">E-posta</label>
-                            <input type="email" name="contact_email" id="contact_email"
-                                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Adres</label>
-                        <input type="text" name="address" id="address"
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all">
-                    </div>
-                </div>
-
-                <div class="pt-8">
-                    <button type="submit"
-                        class="w-full bg-primary hover:bg-[#c57910] text-white px-6 py-4 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined">save</span>
-                        Ayarları Kaydet
-                    </button>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
         </div>
     </main>
 
@@ -145,18 +147,27 @@
                 }
 
                 bankListContainer.innerHTML = accounts.map(acc => `
-                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 group relative">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <input type="text" value="${acc.bank_name}" placeholder="Banka Adı" data-id="${acc.id}" data-field="bank_name" 
-                                class="bank-input bg-white border border-gray-100 rounded-lg px-3 py-2 text-xs focus:border-primary outline-none transition-all">
-                            <input type="text" value="${acc.account_holder}" placeholder="Hesap Sahibi" data-id="${acc.id}" data-field="account_holder"
-                                class="bank-input bg-white border border-gray-100 rounded-lg px-3 py-2 text-xs focus:border-primary outline-none transition-all">
-                            <input type="text" value="${acc.iban}" placeholder="IBAN" data-id="${acc.id}" data-field="iban"
-                                class="bank-input bg-white border border-gray-100 rounded-lg px-3 py-2 text-xs font-mono focus:border-primary outline-none transition-all">
+                    <div class="bg-gray-50/50 p-4 lg:p-5 rounded-2xl border border-gray-100 group relative hover:border-primary/30 transition-all">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Banka Adı</label>
+                                <input type="text" value="${acc.bank_name}" placeholder="Banka Adı" data-id="${acc.id}" data-field="bank_name" 
+                                    class="bank-input w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Hesap Sahibi</label>
+                                <input type="text" value="${acc.account_holder}" placeholder="Hesap Sahibi" data-id="${acc.id}" data-field="account_holder"
+                                    class="bank-input w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">IBAN</label>
+                                <input type="text" value="${acc.iban}" placeholder="IBAN" data-id="${acc.id}" data-field="iban"
+                                    class="bank-input w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-mono font-bold focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all">
+                            </div>
                         </div>
                         <button type="button" onclick="deleteAccount(${acc.id})" 
-                            class="absolute -right-2 -top-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-sm">
-                            <span class="material-symbols-outlined text-xs">close</span>
+                            class="absolute -right-2 -top-2 lg:opacity-0 group-hover:opacity-100 w-8 h-8 bg-red-500 text-white rounded-xl flex items-center justify-center transition-all shadow-lg active:scale-90 z-10">
+                            <span class="material-symbols-outlined text-sm font-bold">close</span>
                         </button>
                     </div>
                 `).join('');

@@ -90,17 +90,17 @@
 
             <div class="bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col min-h-0">
                 <!-- Filters Bar -->
-                <div class="p-4 border-b border-gray-100 flex flex-col md:flex-row gap-4 bg-white sticky top-0 z-10">
+                <div class="p-4 border-b border-gray-100 flex flex-col lg:flex-row gap-4 bg-white sticky top-0 z-10">
                     <div class="relative flex-1">
                         <span
                             class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl font-light">search</span>
-                        <input type="text" id="orderSearch" placeholder="Sipariş No, İsim veya Telefon Ara..."
-                            class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-primary focus:border-primary text-sm transition-all">
+                        <input type="text" id="orderSearch" placeholder="Sipariş No, İsim..."
+                            class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-primary focus:border-primary text-sm transition-all">
                     </div>
-                    <div class="flex gap-2">
+                    <div class="grid grid-cols-2 lg:flex gap-2">
                         <select id="statusFilter"
-                            class="rounded-xl border-gray-200 bg-gray-50 focus:border-primary focus:ring-primary text-sm font-medium pr-8">
-                            <option value="">Tüm Durumlar</option>
+                            class="rounded-xl border-gray-200 bg-gray-50 focus:border-primary focus:ring-primary text-sm font-bold pr-8 py-2.5">
+                            <option value="">Durumlar</option>
                             <option value="Beklemede">Beklemede</option>
                             <option value="Hazırlanıyor">Hazırlanıyor</option>
                             <option value="Kargoda">Kargoda</option>
@@ -108,33 +108,40 @@
                             <option value="İptal Edildi">İptal Edildi</option>
                         </select>
                         <select id="sortOrders"
-                            class="rounded-xl border-gray-200 bg-gray-50 focus:border-primary focus:ring-primary text-sm font-medium pr-8">
+                            class="rounded-xl border-gray-200 bg-gray-50 focus:border-primary focus:ring-primary text-sm font-bold pr-8 py-2.5">
                             <option value="date_desc">En Yeni</option>
                             <option value="date_asc">En Eski</option>
-                            <option value="total_desc">En Yüksek Tutar</option>
-                            <option value="total_asc">En Düşük Tutar</option>
+                            <option value="total_desc">₺ En Yüksek</option>
+                            <option value="total_asc">₺ En Düşük</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-gray-50/50">
-                            <tr
-                                class="text-[10px] uppercase text-gray-400 font-black tracking-widest border-b border-gray-100">
-                                <th class="px-6 py-4">Sipariş No</th>
-                                <th class="px-6 py-4">Müşteri Detayları</th>
-                                <th class="px-6 py-4">Tarih</th>
-                                <th class="px-6 py-4">Ödeme</th>
-                                <th class="px-6 py-4">Toplam Tutar</th>
-                                <th class="px-6 py-4">Durum</th>
-                                <th class="px-6 py-4 text-right">Eylem</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ordersList" class="divide-y divide-gray-50">
-                            <!-- Rows injected here -->
-                        </tbody>
-                    </table>
+                <div id="ordersContainer" class="divide-y divide-gray-100 lg:divide-y-0">
+                    <!-- Desktop Table -->
+                    <div class="hidden lg:block overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-50/50">
+                                <tr
+                                    class="text-[10px] uppercase text-gray-400 font-black tracking-widest border-b border-gray-100">
+                                    <th class="px-6 py-4">Sipariş No</th>
+                                    <th class="px-6 py-4">Müşteri Detayları</th>
+                                    <th class="px-6 py-4">Tarih</th>
+                                    <th class="px-6 py-4">Ödeme</th>
+                                    <th class="px-6 py-4">Toplam Tutar</th>
+                                    <th class="px-6 py-4">Durum</th>
+                                    <th class="px-6 py-4 text-right">Eylem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersList" class="divide-y divide-gray-50">
+                                <!-- Rows injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Mobile Cards -->
+                    <div id="ordersListMobile" class="lg:hidden divide-y divide-gray-100">
+                        <!-- Cards injected here -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -238,19 +245,16 @@
             });
 
             if (filteredOrders.length === 0) {
-                list.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">Sipariş bulunamadı.</td></tr>`;
+                const emptyHTML = `<div class="p-12 text-center text-gray-500 font-medium italic">Sipariş bulunamadı.</div>`;
+                document.getElementById('ordersList').innerHTML = `<tr><td colspan="7">${emptyHTML}</td></tr>`;
+                document.getElementById('ordersListMobile').innerHTML = emptyHTML;
                 return;
             }
 
-            list.innerHTML = filteredOrders.map(o => {
+            // Render Desktop Table
+            document.getElementById('ordersList').innerHTML = filteredOrders.map(o => {
                 const date = new Date(o.date).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                let statusColor = 'bg-stone-100 text-stone-600 border-stone-200'; // Default
-
-                if (o.status === 'Beklemede') statusColor = 'bg-amber-50 text-amber-700 border-amber-200';
-                else if (o.status === 'Hazırlanıyor') statusColor = 'bg-sky-50 text-sky-700 border-sky-200';
-                else if (o.status === 'Kargoda') statusColor = 'bg-indigo-50 text-indigo-700 border-indigo-200';
-                else if (o.status === 'Teslim Edildi') statusColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                else if (o.status === 'İptal Edildi') statusColor = 'bg-rose-50 text-rose-700 border-rose-200';
+                const statusColor = getStatusColor(o.status);
 
                 return `
                     <tr class="hover:bg-gray-50/80 transition-all group">
@@ -266,7 +270,7 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-xs">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-xs uppercase">
                                     ${o.customer.name.split(' ').map(n => n[0]).join('')}
                                 </div>
                                 <div>
@@ -293,13 +297,65 @@
                         </td>
                         <td class="px-6 py-4 text-right">
                             <button onclick="window.openOrderModal('${o.id}')" 
-                                class="bg-gray-50 hover:bg-primary hover:text-white text-gray-600 px-3 py-1.5 rounded-lg text-xs font-black transition-all border border-gray-100 hover:border-primary shadow-sm">
-                                YÖNET
+                                class="bg-gray-50 hover:bg-primary hover:text-white text-gray-600 px-3 py-1.5 rounded-lg text-xs font-black transition-all border border-gray-100 hover:border-primary shadow-sm uppercase">
+                                Yönet
                             </button>
                         </td>
                     </tr>
                 `;
             }).join('');
+
+            // Render Mobile Cards
+            document.getElementById('ordersListMobile').innerHTML = filteredOrders.map(o => {
+                const date = new Date(o.date).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const statusColor = getStatusColor(o.status);
+
+                return `
+                    <div class="p-5 hover:bg-gray-50/50 active:bg-gray-100 transition-colors" onclick="window.openOrderModal('${o.id}')">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 font-black text-xs uppercase border border-gray-100">
+                                    ${o.customer.name.split(' ').map(n => n[0]).join('')}
+                                </div>
+                                <div>
+                                    <div class="font-black text-gray-900 text-sm">${o.customer.name}</div>
+                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">#${o.id.substring(0, 8)}</div>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${statusColor} shadow-sm backdrop-blur-sm">
+                                ${o.status}
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-4 py-3 border-t border-dashed border-gray-100">
+                            <div class="flex flex-col gap-1">
+                                <div class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Tutar/Ödeme</div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-black text-gray-900 text-sm">${formatPrice(o.total)}</span>
+                                    <span class="text-[9px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded uppercase">${o.customer.paymentMethod === 'Havale/EFT' ? 'Havale' : 'Kart'}</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Tarih</div>
+                                <div class="text-[11px] font-black text-gray-700">${date.split(' ')[0]} <span class="text-gray-400 ml-1 font-bold">${date.split(' ')[1]}</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-2 flex items-center justify-center gap-1 text-[10px] font-black text-primary uppercase tracking-widest group">
+                            Detayları Yönet
+                            <span class="material-symbols-outlined text-xs group-active:translate-x-1 transition-transform">chevron_right</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getStatusColor(status) {
+            if (status === 'Beklemede') return 'bg-amber-50 text-amber-700 border-amber-200';
+            if (status === 'Hazırlanıyor') return 'bg-sky-50 text-sky-700 border-sky-200';
+            if (status === 'Kargoda') return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+            if (status === 'Teslim Edildi') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+            if (status === 'İptal Edildi') return 'bg-rose-50 text-rose-700 border-rose-200';
         }
 
         window.exportToCSV = function () {

@@ -5,7 +5,7 @@ export function renderFooter() {
     footer.innerHTML = `
         <div class="container mx-auto px-6 py-12">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <div>
+                 <div>
                      <h3 class="text-white text-lg font-bold mb-4 flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">diamond</span> HAKTAN
                     </h3>
