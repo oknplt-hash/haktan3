@@ -39,8 +39,8 @@ export function renderSidebar(activePage) {
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                     <span class="material-symbols-outlined text-[20px]">analytics</span> Analitik
                 </a>
-                <a href="#"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                <a href="admin_settings.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${activePage === 'settings' ? 'bg-primary/10 text-primary' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'} transition-colors">
                     <span class="material-symbols-outlined text-[20px]">settings</span> Ayarlar
                 </a>
             </div>

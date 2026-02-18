@@ -12,6 +12,7 @@ import * as Admin from './modules/admin.js';
 import * as Campaigns from './modules/campaigns.js';
 import { renderHeader } from './components/Header.js';
 import { renderFooter } from './components/Footer.js';
+import { initWhatsAppButton } from './components/WhatsAppButton.js';
 
 // Initialize
 async function initApp() {
@@ -27,6 +28,9 @@ async function initApp() {
         if (!document.querySelector('footer')) {
             renderFooter();
         }
+
+        // WhatsApp Button
+        initWhatsAppButton();
 
         // Expose HaktanApp to window
         window.HaktanApp = {

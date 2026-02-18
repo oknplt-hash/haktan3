@@ -14,6 +14,7 @@ export default defineConfig({
                 admin_campaigns: resolve(__dirname, 'admin_campaigns.html'),
                 admin_orders: resolve(__dirname, 'admin_orders.html'),
                 admin_products: resolve(__dirname, 'admin_products.html'),
+                admin_settings: resolve(__dirname, 'admin_settings.html'),
                 checkout_payment: resolve(__dirname, 'checkout_payment.html'),
                 product_category: resolve(__dirname, 'product_category.html'),
                 product_detail: resolve(__dirname, 'product_detail.html'),
