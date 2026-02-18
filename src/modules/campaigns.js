@@ -67,15 +67,16 @@ export async function addSlider(slider) {
     const { data, error } = await supabase.from('sliders').insert([{
         image: slider.image,
         title: slider.title,
-        subtitle: slider.subtitle,
-        button_text: slider.buttonText,
-        button_link: slider.buttonLink,
-        start_date: slider.startDate,
-        end_date: slider.endDate,
-        active: slider.active,
-        type: slider.type,
-        tag: slider.tag,
-        icon: slider.icon
+        subtitle: slider.subtitle || "Haktan'ın taze ve doğal lezzetlerini keşfedin.",
+        button_text: slider.buttonText || "Keşfet",
+        button_link: slider.buttonLink || "/shoping_page.html",
+        start_date: slider.startDate || new Date().toISOString().split('T')[0],
+        end_date: slider.endDate || "2026-12-31",
+        active: slider.active !== undefined ? slider.active : true,
+        type: slider.type || "banner",
+        tag: slider.tag || "Yeni",
+        icon: slider.icon || "star",
+        clicks: 0
     }]).select().single();
 
     if (error) console.error("Error adding slider:", error);
