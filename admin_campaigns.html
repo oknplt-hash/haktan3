@@ -16,6 +16,25 @@
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
         }
+
+        /* Mobile: fixed height + flex layout so the sticky footer works */
+        @media (max-width: 1023px) {
+            #formPanel:not(.hidden) {
+                display: flex !important;
+                flex-direction: column !important;
+                height: 92dvh !important;
+                max-height: 92dvh !important;
+                overflow: hidden !important;
+            }
+        }
+
+        /* Desktop: reset to auto so Tailwind handles it */
+        @media (min-width: 1024px) {
+            #formPanel {
+                height: auto !important;
+                max-height: none !important;
+            }
+        }
     </style>
 </head>
 
@@ -42,183 +61,203 @@
             </button>
 
             <!-- Form Panel (Bottom sheet on mobile, side panel on desktop) -->
-            <div id="formPanel" class="hidden lg:flex w-full lg:w-[400px] bg-white border border-gray-100 shadow-2xl lg:shadow-lg lg:rounded-2xl flex-col shrink-0 h-fit lg:order-2
-                       fixed bottom-0 left-0 right-0 z-20 rounded-t-3xl max-h-[90vh] overflow-y-auto
-                       lg:static lg:bottom-auto lg:left-auto lg:right-auto lg:z-auto lg:max-h-none">
+            <div id="formPanel" class="hidden lg:flex w-full lg:w-[380px] bg-white border border-gray-100 shadow-2xl lg:shadow-lg lg:rounded-2xl flex-col shrink-0 lg:h-full lg:overflow-hidden lg:order-2
+                       fixed bottom-0 left-0 right-0 z-20 rounded-t-3xl
+                       lg:static lg:bottom-auto lg:left-auto lg:right-auto lg:z-auto">
+
                 <!-- Drag Handle for mobile -->
-                <div class="lg:hidden flex justify-center pt-3 pb-1">
-                    <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
+                <div class="lg:hidden flex justify-center pt-3 pb-2 shrink-0">
+                    <div class="w-10 h-1.5 bg-gray-200 rounded-full"></div>
                 </div>
 
-                <div class="flex items-center justify-between gap-3 p-4 lg:p-6 lg:mb-2">
+                <!-- Panel Header (always visible) -->
+                <div
+                    class="flex items-center justify-between gap-3 px-4 lg:px-5 py-3 border-b border-gray-100 shrink-0 bg-white lg:rounded-t-2xl">
                     <div class="flex items-center gap-3">
-                        <span class="w-10 h-10 rounded-lg bg-[#fff4e5] text-primary flex items-center justify-center">
-                            <span class="material-symbols-outlined" id="formIcon">add_photo_alternate</span>
+                        <span
+                            class="w-9 h-9 rounded-xl bg-[#fff4e5] text-primary flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[20px]" id="formIcon">add_photo_alternate</span>
                         </span>
-                        <h2 class="text-xl font-black text-gray-900" id="formTitle">Banner Oluştur</h2>
+                        <div>
+                            <h2 class="text-sm font-black text-gray-900 leading-tight" id="formTitle">Banner Oluştur
+                            </h2>
+                            <p class="text-[11px] text-gray-400 leading-tight">Banner ve duyuruları yönetin</p>
+                        </div>
                     </div>
                     <button type="button" onclick="window.toggleMobileForm()"
-                        class="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
-                        <span class="material-symbols-outlined">close</span>
+                        class="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">close</span>
                     </button>
                 </div>
-                <div class="px-4 lg:px-6 pb-1">
-                    <p class="text-gray-500 text-sm">HAKTAN Sarayı için ana sayfa bannerlarını ve duyuru yazılarını
-                        yönetin.</p>
+
+                <!-- Scrollable Form Body — flex-1 so it fills remaining space -->
+                <div class="flex-1 overflow-y-auto">
+                    <form id="campaignForm">
+                        <input type="hidden" name="id">
+
+                        <!-- Section: Görsel -->
+                        <div class="px-4 lg:px-5 pt-4 pb-3">
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Görsel</p>
+                            <div class="border-2 border-dashed border-gray-200 rounded-xl p-3 flex items-center gap-3 hover:bg-gray-50 hover:border-primary/50 transition-all cursor-pointer group"
+                                onclick="document.getElementById('imgInput').focus()">
+                                <span
+                                    class="material-symbols-outlined text-3xl text-gray-300 group-hover:text-primary transition-colors shrink-0">cloud_upload</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-bold text-primary leading-tight">Yüklemek için tıkla</p>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">PNG, JPG · Max 5MB · 1920×600px</p>
+                                    <input type="url" name="image" id="imgInput" placeholder="Görsel URL giriniz..."
+                                        class="mt-2 w-full text-xs border border-gray-200 px-3 py-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                        onclick="event.stopPropagation()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mx-4 lg:mx-5 border-t border-gray-100"></div>
+
+                        <!-- Section: Kampanya Bilgileri -->
+                        <div class="px-4 lg:px-5 pt-3 pb-3 space-y-3">
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Kampanya Bilgileri
+                            </p>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1.5">Kampanya Adı</label>
+                                <input type="text" name="title" placeholder="Örn: Yaz Kuruyemiş Festivali"
+                                    class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1.5">Açıklama / Alt
+                                    Başlık</label>
+                                <textarea name="subtitle" placeholder="Örn: Haktan'ın taze lezzetleri..." rows="2"
+                                    class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1.5">Bağlantı</label>
+                                <div class="relative">
+                                    <span
+                                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">link</span>
+                                    <input type="text" name="buttonLink" placeholder="https://haktan.com/kampanya/..."
+                                        class="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mx-4 lg:mx-5 border-t border-gray-100"></div>
+
+                        <!-- Section: Zamanlama -->
+                        <div class="px-4 lg:px-5 pt-3 pb-4 space-y-3">
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Zamanlama</p>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Başlangıç</label>
+                                    <input type="date" name="startDate"
+                                        class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Bitiş</label>
+                                    <input type="date" name="endDate"
+                                        class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                </div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <div>
+                                    <span class="block text-sm font-bold text-gray-900 leading-tight">Aktif /
+                                        Pasif</span>
+                                    <span class="text-[11px] text-gray-400">Kaydettikten sonra aktif et</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="active" class="sr-only peer" checked>
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
-                <form id="campaignForm" class="space-y-4 p-4 lg:p-6 pt-3">
-                    <input type="hidden" name="id">
-
-                    <!-- Image Upload -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Görsel Yükle</label>
-                        <div class="border-2 border-dashed border-gray-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-gray-50 hover:border-primary/50 transition-all cursor-pointer group"
-                            onclick="document.getElementById('imgInput').focus()">
-                            <span
-                                class="material-symbols-outlined text-4xl text-gray-300 group-hover:text-primary transition-colors mb-2">cloud_upload</span>
-                            <p class="text-sm font-medium text-primary">Yüklemek için tıkla <span
-                                    class="text-gray-500 font-normal">veya sürükle bırak</span></p>
-                            <p class="text-[10px] text-gray-400 mt-1">PNG, JPG, GIF (Max 5MB - 1920x600px)</p>
-                            <input type="url" name="image" id="imgInput" placeholder="URL giriniz (Simülasyon)"
-                                class="mt-4 w-full text-xs border p-2 rounded bg-white">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Kampanya Adı</label>
-                        <input type="text" name="title" placeholder="Örn: Yaz Kuruyemiş Festivali"
-                            class="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Açıklama / Alt Başlık</label>
-                        <textarea name="subtitle" placeholder="Örn: Haktan'ın taze lezzetleri..." rows="2"
-                            class="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Bağlantı</label>
-                        <div class="relative">
-                            <span
-                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">link</span>
-                            <input type="text" name="buttonLink" placeholder="https://haktan.com/kampanya/..."
-                                class="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Başlangıç Tarihi</label>
-                            <input type="date" name="startDate"
-                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-3 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Bitiş Tarihi</label>
-                            <input type="date" name="endDate"
-                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-3 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between pt-2">
-                        <div>
-                            <span class="block text-sm font-bold text-gray-900">Aktif/Pasif</span>
-                            <span class="text-xs text-gray-400">Kaydettikten sonra aktif et</span>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" name="active" class="sr-only peer" checked>
-                            <div
-                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                            </div>
-                        </label>
-                    </div>
-
-                    <div class="flex gap-3 pt-2 pb-2">
-                        <button type="button" onclick="resetForm()"
-                            class="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors text-sm">İptal</button>
-                        <button type="submit"
-                            class="flex-1 bg-primary hover:bg-[#c57910] text-white px-4 py-3 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-95 text-sm">Kaydet</button>
-                    </div>
-                </form>
+                <!-- Sticky Footer with Action Buttons — ALWAYS VISIBLE -->
+                <div class="shrink-0 px-4 lg:px-5 py-3 bg-white border-t border-gray-100 flex gap-3 lg:rounded-b-2xl">
+                    <button type="button" onclick="resetForm()"
+                        class="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors text-sm">
+                        İptal
+                    </button>
+                    <button type="submit" form="campaignForm"
+                        class="flex-1 bg-primary hover:bg-[#c57910] text-white px-4 py-3 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-95 text-sm flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-[18px]">save</span>
+                        Kaydet
+                    </button>
+                </div>
             </div>
 
             <!-- Mobile overlay backdrop -->
-            <div id="formBackdrop" class="hidden lg:hidden fixed inset-0 bg-black/40 z-10"
+            <div id="formBackdrop" class="hidden lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-10"
                 onclick="window.toggleMobileForm()"></div>
 
             <!-- Left: Dashboard & List -->
             <div
-                class="flex-1 flex flex-col gap-4 lg:gap-6 overflow-y-auto lg:overflow-hidden lg:pr-2 custom-scrollbar lg:order-1 p-4 lg:p-0">
+                class="flex-1 flex flex-col gap-4 lg:gap-5 overflow-y-auto lg:overflow-hidden lg:pr-2 custom-scrollbar lg:order-1 p-4 lg:p-0">
 
                 <!-- Header -->
-                <div>
-                    <h1 class="text-2xl lg:text-3xl font-black text-gray-900">Admin Kampanya Yönetimi</h1>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl lg:text-3xl font-black text-gray-900">Kampanya Yönetimi</h1>
+                        <p class="text-sm text-gray-400 mt-0.5 hidden lg:block">Banner ve duyurularınızı yönetin</p>
+                    </div>
                 </div>
 
                 <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-3 gap-3">
                     <div
-                        class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Aktif Bannerlar</p>
-                            <div class="flex items-center gap-3 mt-1">
-                                <span class="text-3xl font-black text-gray-900" id="statActive">0</span>
-                                <span
-                                    class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">+1
-                                    bu hafta</span>
-                            </div>
+                        class="bg-white p-3 lg:p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between gap-2">
+                        <div class="w-9 h-9 rounded-full bg-[#fae8cc] flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary text-[18px]">view_carousel</span>
                         </div>
-                        <div class="w-12 h-12 rounded-full bg-[#fae8cc] flex items-center justify-center opacity-50">
-                            <span class="material-symbols-outlined text-primary text-2xl">view_carousel</span>
+                        <div>
+                            <p
+                                class="text-[9px] lg:text-[10px] font-bold text-gray-400 uppercase tracking-wide leading-tight">
+                                Aktif Banner</p>
+                            <span class="text-xl lg:text-3xl font-black text-gray-900" id="statActive">0</span>
                         </div>
                     </div>
                     <div
-                        class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Planlananlar</p>
-                            <div class="flex items-center gap-3 mt-1">
-                                <span class="text-3xl font-black text-gray-900" id="statPlanned">0</span>
-                                <span
-                                    class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Sıradaki:
-                                    1 Kas</span>
-                            </div>
+                        class="bg-white p-3 lg:p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between gap-2">
+                        <div class="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                            <span class="material-symbols-outlined text-[18px]">event</span>
                         </div>
-                        <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
-                            <span class="material-symbols-outlined text-2xl">event</span>
+                        <div>
+                            <p
+                                class="text-[9px] lg:text-[10px] font-bold text-gray-400 uppercase tracking-wide leading-tight">
+                                Planlanan</p>
+                            <span class="text-xl lg:text-3xl font-black text-gray-900" id="statPlanned">0</span>
                         </div>
                     </div>
                     <div
-                        class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Toplam Etkileşim</p>
-                            <div class="flex items-center gap-3 mt-1">
-                                <span class="text-3xl font-black text-gray-900" id="statClicks">0</span>
-                                <span
-                                    class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">+12%
-                                    geçen aya göre</span>
-                            </div>
+                        class="bg-white p-3 lg:p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between gap-2">
+                        <div class="w-9 h-9 rounded-full bg-purple-50 flex items-center justify-center text-purple-500">
+                            <span class="material-symbols-outlined text-[18px]">touch_app</span>
                         </div>
-                        <div
-                            class="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-500">
-                            <span class="material-symbols-outlined text-2xl">touch_app</span>
+                        <div>
+                            <p
+                                class="text-[9px] lg:text-[10px] font-bold text-gray-400 uppercase tracking-wide leading-tight">
+                                Etkileşim</p>
+                            <span class="text-xl lg:text-3xl font-black text-gray-900" id="statClicks">0</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- List Section -->
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm flex-1 flex flex-col min-h-[400px]">
-                    <!-- Tabs & Search -->
-                    <div class="p-6 border-b border-gray-100 flex flex-col gap-4">
-                        <div
-                            class="flex items-center gap-1 bg-gray-100/50 p-1 rounded-lg w-fit overflow-x-auto max-w-full">
+                    <!-- Tabs -->
+                    <div class="p-3 lg:p-5 border-b border-gray-100">
+                        <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-xl overflow-x-auto">
                             <button
-                                class="px-5 py-2.5 rounded-xl text-sm font-black bg-white shadow-sm text-gray-900 tab-btn shrink-0"
+                                class="flex-1 min-w-0 px-3 lg:px-5 py-2 rounded-lg text-xs font-black bg-white shadow-sm text-gray-900 tab-btn shrink-0 whitespace-nowrap transition-all"
                                 onclick="window.switchManagementView('banners')">Bannerlar</button>
                             <button
-                                class="px-5 py-2.5 rounded-xl text-sm font-black text-gray-400 hover:text-gray-900 tab-btn shrink-0"
+                                class="flex-1 min-w-0 px-3 lg:px-5 py-2 rounded-lg text-xs font-black text-gray-400 hover:text-gray-900 tab-btn shrink-0 whitespace-nowrap transition-all"
                                 onclick="window.switchManagementView('announcements')">Duyurular</button>
                             <button
-                                class="px-5 py-2.5 rounded-xl text-sm font-black text-gray-400 hover:text-gray-900 tab-btn shrink-0"
+                                class="flex-1 min-w-0 px-3 lg:px-5 py-2 rounded-lg text-xs font-black text-gray-400 hover:text-gray-900 tab-btn shrink-0 whitespace-nowrap transition-all"
                                 onclick="window.switchView('products')">Haftanın Ürünleri</button>
                         </div>
                     </div>
