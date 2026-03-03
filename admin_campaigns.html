@@ -33,20 +33,41 @@
             </button>
         </header>
 
-        <div class="flex-1 flex flex-col lg:flex-row gap-6 p-4 lg:p-6 overflow-y-auto lg:overflow-hidden">
-            <!-- Right: Create Form (Moved to top on mobile) -->
-            <div
-                class="w-full lg:w-[400px] bg-white rounded-2xl border border-gray-100 shadow-lg p-6 flex flex-col shrink-0 h-fit order-1 lg:order-2">
-                <div class="flex items-center gap-3 mb-6">
-                    <span class="w-10 h-10 rounded-lg bg-[#fff4e5] text-primary flex items-center justify-center">
-                        <span class="material-symbols-outlined" id="formIcon">add_photo_alternate</span>
-                    </span>
-                    <h2 class="text-xl font-black text-gray-900" id="formTitle">Banner Oluştur</h2>
-                </div>
-                <p class="text-gray-500 mt-1 text-sm">HAKTAN Sarayı için ana sayfa bannerlarını ve duyuru yazılarını
-                    yönetin.</p>
+        <div class="flex-1 flex flex-col lg:flex-row gap-0 lg:gap-6 p-0 lg:p-6 overflow-y-auto lg:overflow-hidden">
 
-                <form id="campaignForm" class="space-y-5">
+            <!-- Mobile: Floating Add Button -->
+            <button onclick="window.toggleMobileForm()"
+                class="lg:hidden fixed bottom-6 right-6 z-30 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-90">
+                <span class="material-symbols-outlined text-2xl" id="fabIcon">add</span>
+            </button>
+
+            <!-- Form Panel (Bottom sheet on mobile, side panel on desktop) -->
+            <div id="formPanel" class="hidden lg:flex w-full lg:w-[400px] bg-white border border-gray-100 shadow-2xl lg:shadow-lg lg:rounded-2xl flex-col shrink-0 h-fit lg:order-2
+                       fixed bottom-0 left-0 right-0 z-20 rounded-t-3xl max-h-[90vh] overflow-y-auto
+                       lg:static lg:bottom-auto lg:left-auto lg:right-auto lg:z-auto lg:max-h-none">
+                <!-- Drag Handle for mobile -->
+                <div class="lg:hidden flex justify-center pt-3 pb-1">
+                    <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 p-4 lg:p-6 lg:mb-2">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-lg bg-[#fff4e5] text-primary flex items-center justify-center">
+                            <span class="material-symbols-outlined" id="formIcon">add_photo_alternate</span>
+                        </span>
+                        <h2 class="text-xl font-black text-gray-900" id="formTitle">Banner Oluştur</h2>
+                    </div>
+                    <button type="button" onclick="window.toggleMobileForm()"
+                        class="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="px-4 lg:px-6 pb-1">
+                    <p class="text-gray-500 text-sm">HAKTAN Sarayı için ana sayfa bannerlarını ve duyuru yazılarını
+                        yönetin.</p>
+                </div>
+
+                <form id="campaignForm" class="space-y-4 p-4 lg:p-6 pt-3">
                     <input type="hidden" name="id">
 
                     <!-- Image Upload -->
@@ -112,17 +133,22 @@
                         </label>
                     </div>
 
-                    <div class="flex gap-3 pt-4">
+                    <div class="flex gap-3 pt-2 pb-2">
                         <button type="button" onclick="resetForm()"
-                            class="flex-1 px-4 py-3 rounded-lg border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors">İptal</button>
+                            class="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors text-sm">İptal</button>
                         <button type="submit"
-                            class="flex-1 bg-primary hover:bg-[#c57910] text-white px-4 py-3 rounded-lg font-bold shadow-lg shadow-primary/20 transition-all active:scale-95">Kaydet</button>
+                            class="flex-1 bg-primary hover:bg-[#c57910] text-white px-4 py-3 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-95 text-sm">Kaydet</button>
                     </div>
                 </form>
             </div>
 
+            <!-- Mobile overlay backdrop -->
+            <div id="formBackdrop" class="hidden lg:hidden fixed inset-0 bg-black/40 z-10"
+                onclick="window.toggleMobileForm()"></div>
+
             <!-- Left: Dashboard & List -->
-            <div class="flex-1 flex flex-col gap-6 lg:overflow-y-auto lg:pr-2 custom-scrollbar order-2 lg:order-1">
+            <div
+                class="flex-1 flex flex-col gap-4 lg:gap-6 overflow-y-auto lg:overflow-hidden lg:pr-2 custom-scrollbar lg:order-1 p-4 lg:p-0">
 
                 <!-- Header -->
                 <div>
@@ -567,6 +593,11 @@
                     form.active.checked = item.active;
                 }
             }
+            // On mobile, open the form panel
+            if (window.innerWidth < 1024) {
+                window.toggleMobileForm(true);
+                document.getElementById('formPanel').scrollTop = 0;
+            }
         };
 
         window.delItem = async (id) => {
@@ -583,6 +614,30 @@
         window.resetForm = () => {
             form.reset();
             form.id.value = '';
+            // Close mobile form if open
+            if (window.innerWidth < 1024) {
+                window.toggleMobileForm(false);
+            }
+        }
+
+        window.toggleMobileForm = function (forceState) {
+            const panel = document.getElementById('formPanel');
+            const backdrop = document.getElementById('formBackdrop');
+            const fabIcon = document.getElementById('fabIcon');
+            const isOpen = !panel.classList.contains('hidden');
+            const shouldOpen = forceState !== undefined ? forceState : !isOpen;
+
+            if (shouldOpen) {
+                panel.classList.remove('hidden');
+                backdrop.classList.remove('hidden');
+                fabIcon.textContent = 'close';
+                document.body.style.overflow = 'hidden';
+            } else {
+                panel.classList.add('hidden');
+                backdrop.classList.add('hidden');
+                fabIcon.textContent = 'add';
+                document.body.style.overflow = '';
+            }
         }
 
         refreshAll();
