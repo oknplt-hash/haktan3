@@ -67,7 +67,7 @@ export async function addSlider(slider) {
     const { data, error } = await supabase.from('sliders').insert([{
         image: slider.image,
         title: slider.title,
-        subtitle: slider.subtitle || "Haktan'ın taze ve doğal lezzetlerini keşfedin.",
+        subtitle: slider.subtitle !== undefined ? slider.subtitle : "Haktan'ın taze ve doğal lezzetlerini keşfedin.",
         button_text: slider.buttonText || "Keşfet",
         button_link: slider.buttonLink || "/shoping_page.html",
         start_date: slider.startDate || new Date().toISOString().split('T')[0],
@@ -89,6 +89,7 @@ export async function updateSlider(id, updates) {
     if (updates.buttonLink) dbUpdates.button_link = updates.buttonLink;
     if (updates.startDate) dbUpdates.start_date = updates.startDate;
     if (updates.endDate) dbUpdates.end_date = updates.endDate;
+    if (updates.subtitle !== undefined) dbUpdates.subtitle = updates.subtitle;
 
     delete dbUpdates.buttonText;
     delete dbUpdates.buttonLink;

@@ -165,18 +165,7 @@
                                 <span
                                     class="material-symbols-outlined text-gray-300 group-hover:translate-x-1 transition-transform">chevron_right</span>
                             </a>
-                            <a href="admin_banners.html"
-                                class="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-primary/30 transition-all group">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                        <span class="material-symbols-outlined">image</span>
-                                    </div>
-                                    <span class="font-bold text-gray-700">Bannerları Güncelle</span>
-                                </div>
-                                <span
-                                    class="material-symbols-outlined text-gray-300 group-hover:translate-x-1 transition-transform">chevron_right</span>
-                            </a>
+
                         </div>
                     </div>
 
@@ -270,7 +259,7 @@
             document.getElementById('recentOrdersTable').innerHTML = orders.map(o => {
                 const statusColor = getStatusColor(o.status);
                 return `<tr>
-                    <td class="px-6 py-4 font-mono font-medium text-xs">#${o.id.substring(0, 8)}...</td>
+                    <td class="px-6 py-4 font-mono font-medium text-xs">#${o.id}</td>
                     <td class="px-6 py-4 text-gray-900 font-medium">${o.customer.firstName} ${o.customer.lastName}</td>
                     <td class="px-6 py-4 font-bold">${formatPrice(o.total)}</td>
                     <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${statusColor}">${o.status}</span></td>
@@ -285,7 +274,7 @@
                         <div class="flex flex-col gap-1">
                             <div class="flex items-center gap-2">
                                 <span class="font-mono font-black text-gray-400 text-[10px]">#</span>
-                                <span class="font-mono font-bold text-gray-900 text-xs tracking-tighter">${o.id.substring(0, 8)}...</span>
+                                <span class="font-mono font-bold text-gray-900 text-xs tracking-tighter">${o.id}</span>
                             </div>
                             <div class="font-bold text-sm text-gray-900">${o.customer.firstName} ${o.customer.lastName}</div>
                             <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">${new Date(o.date).toLocaleDateString('tr-TR')}</div>

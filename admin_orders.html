@@ -261,7 +261,7 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-2">
                                 <span class="font-mono font-black text-gray-400 text-xs">#</span>
-                                <span class="font-mono font-bold text-gray-900 text-sm tracking-tighter">${o.id.substring(4, 12)}...</span>
+                                <span class="font-mono font-bold text-gray-900 text-sm tracking-tighter">${o.id}</span>
                                 <button onclick="navigator.clipboard.writeText('${o.id}').then(() => showToast('ID Kopyalandı'))" 
                                     class="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-primary transition-colors opacity-0 group-hover:opacity-100">
                                     <span class="material-symbols-outlined text-sm">content_copy</span>
@@ -319,7 +319,7 @@
                                 </div>
                                 <div>
                                     <div class="font-black text-gray-900 text-sm">${o.customer.name}</div>
-                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">#${o.id.substring(0, 8)}</div>
+                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">#${o.id}</div>
                                 </div>
                             </div>
                             <span class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${statusColor} shadow-sm backdrop-blur-sm">

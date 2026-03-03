@@ -62,7 +62,7 @@
                         <table class="w-full text-left text-sm">
                             <thead class="bg-gray-50 text-gray-500 uppercase tracking-wider text-xs font-semibold">
                                 <tr>
-                                    <th class="px-6 py-4">ID</th>
+
                                     <th class="px-6 py-4">Görsel</th>
                                     <th class="px-6 py-4">Ürün Adı</th>
                                     <th class="px-6 py-4">Kategori</th>
@@ -156,7 +156,7 @@
 
         async function refreshData() {
             const tbody = document.getElementById('productsTable');
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 font-medium text-gray-400 italic">Yükleniyor...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 font-medium text-gray-400 italic">Yükleniyor...</td></tr>';
 
             try {
                 await seedProducts();
@@ -164,7 +164,7 @@
                 renderTable();
             } catch (e) {
                 console.error("Data load error:", e);
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 text-red-500 italic">Hata oluştu.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-red-500 italic">Hata oluştu.</td></tr>';
             }
         }
 
@@ -181,7 +181,7 @@
 
             if (filtered.length === 0) {
                 const emptyHTML = '<div class="text-center py-10 font-medium text-gray-400 italic">Ürün bulunamadı.</div>';
-                tbody.innerHTML = `<tr><td colspan="7">${emptyHTML}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6">${emptyHTML}</td></tr>`;
                 document.getElementById('productsListMobile').innerHTML = emptyHTML;
                 return;
             }
@@ -189,7 +189,7 @@
             // Desktop Table
             tbody.innerHTML = filtered.map(p => `
                 <tr class="hover:bg-gray-50 transition-colors group">
-                    <td class="px-6 py-4 font-mono text-[10px] text-gray-400 truncate max-w-[80px]" title="${p.id}">#${String(p.id).substring(0, 8)}...</td>
+
                     <td class="px-6 py-4"><img src="${p.image}" class="w-10 h-10 rounded object-cover border border-gray-200"></td>
                     <td class="px-6 py-4 font-medium text-gray-900">${p.name}</td>
                     <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs bg-gray-100 text-gray-600 font-bold">${CATEGORY_NAMES[p.category] || p.category}</span></td>
@@ -210,7 +210,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-start mb-1">
-                            <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">#${String(p.id).substring(0, 8)}</span>
+
                             <span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 text-[10px] font-bold">${CATEGORY_NAMES[p.category] || p.category}</span>
                         </div>
                         <h4 class="font-black text-gray-900 text-sm truncate pr-16">${p.name}</h4>

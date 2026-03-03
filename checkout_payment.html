@@ -152,15 +152,18 @@
     <div id="successModal"
         class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
         <div
-            class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl m-4 transform transition-all scale-100">
-            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span class="material-symbols-outlined text-5xl text-green-600">check_circle</span>
+            class="bg-white rounded-2xl p-6 md:p-8 max-w-sm md:max-w-md w-full text-center shadow-2xl m-4 transform transition-all scale-100 max-h-[90vh] overflow-y-auto">
+            <div
+                class="w-16 h-16 md:w-20 md:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
+                <span class="material-symbols-outlined text-4xl md:text-5xl text-green-600">check_circle</span>
             </div>
-            <h2 class="text-2xl font-black text-gray-900 mb-2">Siparişiniz Alındı!</h2>
-            <p class="text-gray-500 mb-6">Sipariş numaranız: <span id="orderIdDisplay"
-                    class="font-bold text-text-main"></span>. Teşekkür ederiz.</p>
+            <h2 class="text-xl md:text-2xl font-black text-gray-900 mb-2">Siparişiniz Alındı!</h2>
+            <div id="successModalContent" class="text-gray-500 mb-6 text-sm md:text-base">
+                <p>Sipariş numaranız: <span id="orderIdDisplay" class="font-bold text-text-main"></span>. Teşekkür
+                    ederiz.</p>
+            </div>
             <a href="index.html"
-                class="block w-full bg-primary hover:bg-[#d68311] text-white py-3 rounded-lg font-bold">Alışverişe
+                class="block w-full bg-primary hover:bg-[#d68311] text-white py-3 rounded-xl font-bold transition-colors">Alışverişe
                 Dön</a>
         </div>
     </div>
@@ -265,12 +268,23 @@
                     document.getElementById('orderIdDisplay').textContent = order.id;
 
                     // Custom message for Havale/EFT
-                    const modalBody = document.querySelector('#successModal p');
+                    const modalBody = document.getElementById('successModalContent');
                     if (paymentMethod === 'havale') {
-                        modalBody.innerHTML = `Sipariş numaranız: <span id="orderIdDisplay" class="font-bold text-text-main text-xl">${order.id}</span>.<br><br>
-                        <span class="text-red-600 font-bold block mt-2">Lütfen ödeme yaparken açıklama kısmına bu numarayı yazınız.</span>`;
+                        const bankAccountsHTML = document.getElementById('bankAccountsContainer').innerHTML;
+                        modalBody.innerHTML = `
+                            <p class="mb-4">Sipariş numaranız: <span id="orderIdDisplay" class="font-black text-text-main text-lg">${order.id}</span></p>
+                            
+                            <div class="text-left bg-gray-50/80 border border-gray-100 rounded-xl p-4 md:p-5 mb-4 shadow-inner">
+                                <p class="font-black text-gray-900 text-sm mb-3">Hesap Bilgileri:</p>
+                                <div class="space-y-3">
+                                    ${bankAccountsHTML}
+                                </div>
+                            </div>
+                            
+                            <p class="text-xs md:text-sm text-red-600 bg-red-50 border border-red-100 p-3 rounded-lg font-bold">Lütfen ödeme yaparken açıklama kısmına <u>${order.id}</u> sipariş numaranızı yazınız.</p>
+                        `;
                     } else {
-                        modalBody.innerHTML = `Sipariş numaranız: <span id="orderIdDisplay" class="font-bold text-text-main">${order.id}</span>. Teşekkür ederiz.`;
+                        modalBody.innerHTML = `<p>Sipariş numaranız: <span id="orderIdDisplay" class="font-black text-text-main text-lg">${order.id}</span>. Teşekkür ederiz.</p>`;
                     }
 
                     document.getElementById('successModal').classList.remove('hidden');

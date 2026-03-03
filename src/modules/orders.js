@@ -25,7 +25,7 @@ export async function createOrder(customerInfo) {
     const shipping = subtotal >= 500 ? 0 : 39.90;
 
     const order = {
-        id: "HKT-" + Date.now().toString(36).toUpperCase(),
+        id: "H-" + Math.floor(10000 + Math.random() * 90000),
         date: new Date().toISOString(),
         customer: customerInfo,
         items: cartItems,
