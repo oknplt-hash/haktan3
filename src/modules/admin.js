@@ -2,23 +2,32 @@
 // ============================================================
 // ADMIN MODULE
 // ============================================================
+import { supabase } from './supabase.js';
 import { getProducts } from './products.js';
 import { getOrders } from './orders.js';
 
-const ADMIN_PASSWORD = "haktan2025";
+export async function isAdminLoggedIn() {
+    const { data: { session } } = await supabase.auth.getSession();
+    return !!session;
+}
 
-export function isAdminLoggedIn() {
-    return sessionStorage.getItem("haktan_admin") === "true";
-}
-export function adminLogin(password) {
-    if (password === ADMIN_PASSWORD) {
-        sessionStorage.setItem("haktan_admin", "true");
-        return true;
+export async function adminLogin(email, password) {
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        if (error) throw error;
+        return { success: true, data };
+    } catch (error) {
+        console.error('Login error:', error.message);
+        return { success: false, error: error.message };
     }
-    return false;
 }
-export function adminLogout() {
-    sessionStorage.removeItem("haktan_admin");
+
+export async function adminLogout() {
+    await supabase.auth.signOut();
 }
 export async function getAdminStats() {
     const products = await getProducts();

@@ -28,14 +28,15 @@
             </div>
             <h2 class="text-2xl font-bold mb-6">Yönetici Girişi</h2>
             <form id="loginForm" class="space-y-4">
-                <input type="password" id="password" placeholder="Şifre"
+                <input type="email" id="email" placeholder="E-posta" required
+                    class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary">
+                <input type="password" id="password" placeholder="Şifre" required
                     class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary">
                 <button type="submit"
                     class="w-full bg-primary hover:bg-[#d68311] text-white py-3 rounded-lg font-bold transition-colors">Giriş
                     Yap</button>
-                <p id="loginError" class="text-red-500 text-sm hidden">Hatalı şifre!</p>
+                <p id="loginError" class="text-red-500 text-sm hidden">Hatalı bilgiler!</p>
             </form>
-            <p class="text-xs text-gray-400 mt-4">Varsayılan şifre: haktan2025</p>
         </div>
     </div>
 
@@ -227,8 +228,9 @@
             });
         }
 
-        function checkAuth() {
-            if (isAdminLoggedIn()) {
+        async function checkAuth() {
+            const loggedIn = await isAdminLoggedIn();
+            if (loggedIn) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
 
@@ -297,14 +299,28 @@
             return 'bg-gray-100 text-gray-700';
         }
 
-        document.getElementById('loginForm').addEventListener('submit', function (e) {
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
+            const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
-            if (adminLogin(pass)) {
+
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Giriş Yapılıyor...';
+
+            const result = await adminLogin(email, pass);
+
+            if (result.success) {
                 checkAuth();
             } else {
-                document.getElementById('loginError').classList.remove('hidden');
+                const errorEl = document.getElementById('loginError');
+                errorEl.textContent = result.error === 'Invalid login credentials' ? 'Hatalı e-posta veya şifre!' : result.error;
+                errorEl.classList.remove('hidden');
             }
+
+            btn.disabled = false;
+            btn.textContent = originalText;
         });
 
         // Initial check
