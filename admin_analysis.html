@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HAKTAN - Analitik ve Raporlar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-display min-h-screen flex lg:h-screen lg:overflow-hidden">
+
+    <!-- Sidebar injected via JS -->
+
+    <main class="flex-1 flex flex-col w-full min-h-screen lg:h-screen lg:overflow-hidden">
+        <!-- Mobile Header -->
+        <header
+            class="lg:hidden bg-white border-b border-gray-100 p-4 flex items-center justify-between sticky top-0 z-30 shrink-0">
+            <h1 class="text-xl font-black text-gray-900">HAKTAN Admin</h1>
+            <button onclick="window.toggleAdminSidebar()" class="text-gray-500 hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-2xl">menu</span>
+            </button>
+        </header>
+
+        <header
+            class="bg-white border-b border-gray-200 px-4 lg:px-8 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Analitik ve Raporlar</h2>
+                <p class="text-gray-500 text-sm">Satış performansınızı ve sipariş durumlarını detaylı inceleyin.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <select id="reportPeriod"
+                    class="rounded-xl border-gray-200 bg-gray-50 focus:border-primary focus:ring-primary text-sm font-bold pr-8 py-2.5">
+                    <option value="all">Tüm Zamanlar</option>
+                    <option value="today">Bugün</option>
+                    <option value="week">Bu Hafta</option>
+                    <option value="month">Bu Ay</option>
+                    <option value="year">Bu Yıl</option>
+                </select>
+                <button id="refreshDataBtn"
+                    class="bg-white border border-gray-300 text-gray-700 p-2.5 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="p-4 lg:p-8 overflow-y-auto flex-1 bg-gray-50 space-y-6">
+
+            <!-- High Level Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div
+                    class="bg-gradient-to-br from-primary to-[#c57910] text-white p-6 rounded-2xl shadow-lg relative overflow-hidden group">
+                    <div
+                        class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full group-hover:scale-150 transition-transform duration-700">
+                    </div>
+                    <p class="text-xs font-bold text-white/70 uppercase tracking-widest relative z-10">Toplam Ciro
+                        (Başarılı)</p>
+                    <div class="flex items-end justify-between mt-2 relative z-10">
+                        <span class="text-3xl font-black" id="totalRevenue">0,00₺</span>
+                        <span class="material-symbols-outlined text-3xl opacity-80">monitoring</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+                    <div
+                        class="absolute right-0 top-0 w-16 h-16 bg-blue-50 rounded-bl-full flex items-start justify-end p-3 text-blue-500">
+                        <span class="material-symbols-outlined">shopping_basket</span>
+                    </div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Toplam Sipariş</p>
+                    <p class="text-3xl font-black text-gray-900 mt-2" id="totalOrdersCount">0</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+                    <div
+                        class="absolute right-0 top-0 w-16 h-16 bg-emerald-50 rounded-bl-full flex items-start justify-end p-3 text-emerald-500">
+                        <span class="material-symbols-outlined">check_circle</span>
+                    </div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Teslim Edilen</p>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <p class="text-3xl font-black text-gray-900" id="completedOrdersCount">0</p>
+                        <span class="text-xs font-bold text-emerald-600" id="completedOrdersRate">%0</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+                    <div
+                        class="absolute right-0 top-0 w-16 h-16 bg-rose-50 rounded-bl-full flex items-start justify-end p-3 text-rose-500">
+                        <span class="material-symbols-outlined">cancel</span>
+                    </div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">İptal Edilen</p>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <p class="text-3xl font-black text-gray-900" id="cancelledOrdersCount">0</p>
+                        <span class="text-xs font-bold text-rose-600" id="cancelledOrdersRate">%0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Status Breakdown -->
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-6">Sipariş Durumu Dağılımı</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+
+                    <div
+                        class="flex flex-col items-center justify-center p-4 bg-amber-50 rounded-xl border border-amber-100">
+                        <span class="text-sm font-bold text-amber-700 mb-1">Beklemede</span>
+                        <span class="text-2xl font-black text-amber-600" id="statusBeklemede">0</span>
+                    </div>
+
+                    <div
+                        class="flex flex-col items-center justify-center p-4 bg-sky-50 rounded-xl border border-sky-100">
+                        <span class="text-sm font-bold text-sky-700 mb-1">Hazırlanıyor</span>
+                        <span class="text-2xl font-black text-sky-600" id="statusHazirlaniyor">0</span>
+                    </div>
+
+                    <div
+                        class="flex flex-col items-center justify-center p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                        <span class="text-sm font-bold text-indigo-700 mb-1">Kargoda</span>
+                        <span class="text-2xl font-black text-indigo-600" id="statusKargoda">0</span>
+                    </div>
+
+                    <div
+                        class="flex flex-col items-center justify-center p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                        <span class="text-sm font-bold text-emerald-700 mb-1">Teslim Edildi</span>
+                        <span class="text-2xl font-black text-emerald-600" id="statusTeslim">0</span>
+                    </div>
+
+                    <div
+                        class="flex flex-col items-center justify-center p-4 bg-rose-50 rounded-xl border border-rose-100">
+                        <span class="text-sm font-bold text-rose-700 mb-1">İptal Edildi</span>
+                        <span class="text-2xl font-black text-rose-600" id="statusIptal">0</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Payment Methods & Products Summary -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- Payment Methods -->
+                <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                    <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="font-bold text-gray-900">Ödeme Yöntemleri Dağılımı</h3>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-center gap-6">
+
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="font-bold text-gray-700 flex items-center gap-2"><span
+                                        class="w-3 h-3 rounded-full bg-orange-500"></span> Kredi Kartı</span>
+                                <span class="font-black text-gray-900" id="ccCount">0</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden border border-gray-200">
+                                <div class="bg-orange-500 h-3 rounded-full transition-all duration-1000" id="ccProgress"
+                                    style="width: 0%"></div>
+                            </div>
+                            <div class="text-right text-[10px] font-bold text-gray-400" id="ccHacim">0,00₺</div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="font-bold text-gray-700 flex items-center gap-2"><span
+                                        class="w-3 h-3 rounded-full bg-blue-500"></span> Havale / EFT</span>
+                                <span class="font-black text-gray-900" id="havaleCount">0</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden border border-gray-200">
+                                <div class="bg-blue-500 h-3 rounded-full transition-all duration-1000"
+                                    id="havaleProgress" style="width: 0%"></div>
+                            </div>
+                            <div class="text-right text-[10px] font-bold text-gray-400" id="havaleHacim">0,00₺</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Potential Missing Revenue (Cancellations) -->
+                <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                    <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-rose-50/30">
+                        <h3 class="font-bold text-rose-900">İptallerden Doğan Kayıp Kazanç</h3>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-center items-center text-center">
+                        <div
+                            class="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 mb-4">
+                            <span class="material-symbols-outlined text-4xl">trending_down</span>
+                        </div>
+                        <p class="text-sm text-gray-500 font-medium mb-1">İptal edilen siparişlerin toplam tutarı</p>
+                        <h4 class="text-4xl font-black text-rose-600 mb-2" id="lostRevenue">0,00₺</h4>
+                        <p class="text-xs text-rose-400 font-bold bg-rose-50 px-3 py-1 rounded-lg" id="lostRevenueRate">
+                            Toplam sipariş hacminin %0'ı</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script type="module" src="/src/admin-main.js"></script>
+    <script type="module">
+        import { isAdminLoggedIn } from './src/modules/admin.js';
+        import { getOrders } from './src/modules/orders.js';
+        import { formatPrice } from './src/modules/utils.js';
+
+        if (!isAdminLoggedIn()) {
+            window.location.href = 'admin.html';
+        }
+
+        // Render Sidebar
+        window.renderAdminSidebar('analysis');
+
+        let allOrders = [];
+
+        async function loadData() {
+            try {
+                allOrders = await getOrders();
+                calculateAndRenderReports();
+            } catch (e) {
+                console.error("Orders load error:", e);
+                // Handle error state
+            }
+        }
+
+        function calculateAndRenderReports() {
+            const period = document.getElementById('reportPeriod').value;
+            let filteredOrders = [...allOrders];
+
+            const now = new Date();
+            const todayStr = now.toLocaleDateString('tr-TR');
+
+            // Apply Date Filter
+            if (period !== 'all') {
+                filteredOrders = filteredOrders.filter(o => {
+                    const orderDate = new Date(o.date);
+                    if (period === 'today') {
+                        return orderDate.toLocaleDateString('tr-TR') === todayStr;
+                    } else if (period === 'week') {
+                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        return orderDate >= weekAgo;
+                    } else if (period === 'month') {
+                        return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+                    } else if (period === 'year') {
+                        return orderDate.getFullYear() === now.getFullYear();
+                    }
+                    return true;
+                });
+            }
+
+            const totalOrders = filteredOrders.length;
+
+            // successful revenue is from non-cancelled orders
+            const successfulOrders = filteredOrders.filter(o => o.status !== 'İptal Edildi');
+            const totalRevenue = successfulOrders.reduce((sum, o) => sum + o.total, 0);
+
+            // Statuses
+            const completed = filteredOrders.filter(o => o.status === 'Teslim Edildi').length;
+            const cancelled = filteredOrders.filter(o => o.status === 'İptal Edildi').length;
+            const beklemede = filteredOrders.filter(o => o.status === 'Beklemede').length;
+            const hazirlaniyor = filteredOrders.filter(o => o.status === 'Hazırlanıyor').length;
+            const kargoda = filteredOrders.filter(o => o.status === 'Kargoda').length;
+
+            const lostRevenue = filteredOrders.filter(o => o.status === 'İptal Edildi').reduce((sum, o) => sum + o.total, 0);
+            const totalVolume = totalRevenue + lostRevenue;
+
+            // Payment Methods
+            const ccOrders = filteredOrders.filter(o => o.customer.paymentMethod === 'Kredi Kartı');
+            const havaleOrders = filteredOrders.filter(o => o.customer.paymentMethod === 'Havale/EFT');
+
+            const ccCount = ccOrders.length;
+            const havaleCount = havaleOrders.length;
+
+            const ccVolume = ccOrders.reduce((sum, o) => sum + o.total, 0);
+            const havaleVolume = havaleOrders.reduce((sum, o) => sum + o.total, 0);
+
+            // RENDER
+
+            // High Level
+            document.getElementById('totalRevenue').textContent = formatPrice(totalRevenue);
+            document.getElementById('totalOrdersCount').textContent = totalOrders;
+            document.getElementById('completedOrdersCount').textContent = completed;
+            document.getElementById('cancelledOrdersCount').textContent = cancelled;
+
+            document.getElementById('completedOrdersRate').textContent = totalOrders > 0 ? `%${Math.round((completed / totalOrders) * 100)}` : '%0';
+            document.getElementById('cancelledOrdersRate').textContent = totalOrders > 0 ? `%${Math.round((cancelled / totalOrders) * 100)}` : '%0';
+
+            // Status Breakdown
+            document.getElementById('statusBeklemede').textContent = beklemede;
+            document.getElementById('statusHazirlaniyor').textContent = hazirlaniyor;
+            document.getElementById('statusKargoda').textContent = kargoda;
+            document.getElementById('statusTeslim').textContent = completed;
+            document.getElementById('statusIptal').textContent = cancelled;
+
+            // Payment Methods
+            document.getElementById('ccCount').textContent = ccCount;
+            document.getElementById('havaleCount').textContent = havaleCount;
+
+            document.getElementById('ccHacim').textContent = formatPrice(ccVolume);
+            document.getElementById('havaleHacim').textContent = formatPrice(havaleVolume);
+
+            const totalCountForPayment = ccCount + havaleCount;
+            const ccPct = totalCountForPayment > 0 ? (ccCount / totalCountForPayment) * 100 : 0;
+            const havalePct = totalCountForPayment > 0 ? (havaleCount / totalCountForPayment) * 100 : 0;
+
+            document.getElementById('ccProgress').style.width = ccPct + '%';
+            document.getElementById('havaleProgress').style.width = havalePct + '%';
+
+            // Lost Revenue
+            document.getElementById('lostRevenue').textContent = formatPrice(lostRevenue);
+            const lostPct = totalVolume > 0 ? (lostRevenue / totalVolume) * 100 : 0;
+            document.getElementById('lostRevenueRate').textContent = `Toplam sipariş hacminin %${Math.round(lostPct)}'i`;
+        }
+
+        document.getElementById('reportPeriod').addEventListener('change', calculateAndRenderReports);
+        document.getElementById('refreshDataBtn').addEventListener('click', loadData);
+
+        // Init
+        loadData();
+
+    </script>
+</body>
+
+</html>

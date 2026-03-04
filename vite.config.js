@@ -10,6 +10,7 @@ export default defineConfig({
             input: {
                 main: resolve(__dirname, 'index.html'),
                 admin: resolve(__dirname, 'admin.html'),
+                admin_analysis: resolve(__dirname, 'admin_analysis.html'),
                 admin_banners: resolve(__dirname, 'admin_banners.html'),
                 admin_campaigns: resolve(__dirname, 'admin_campaigns.html'),
                 admin_orders: resolve(__dirname, 'admin_orders.html'),

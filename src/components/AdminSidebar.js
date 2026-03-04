@@ -46,8 +46,8 @@ export function renderSidebar(activePage) {
             </a>
 
             <div class="pt-4 mt-2 border-t border-border-light/50">
-                 <a href="#"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                 <a href="admin_analysis.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activePage === 'analysis' ? 'bg-primary/10 text-primary' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}">
                     <span class="material-symbols-outlined text-[20px]">analytics</span> Analitik
                 </a>
                 <a href="admin_settings.html"
