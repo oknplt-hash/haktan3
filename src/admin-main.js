@@ -58,7 +58,7 @@ window.renderAdminSidebar = function (activePage) {
             logoutBtn.style.pointerEvents = 'none';
             try {
                 await HaktanApp.adminLogout();
-                window.location.href = 'admin.html';
+                window.location.href = 'index.html';
             } catch (error) {
                 console.error('Logout error:', error);
                 logoutBtn.innerHTML = btnHtml;
