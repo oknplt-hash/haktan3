@@ -52,9 +52,18 @@ window.renderAdminSidebar = function (activePage) {
     // Attach Logout Listener
     const logoutBtn = document.getElementById('adminLogoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            HaktanApp.adminLogout();
-            window.location.href = 'admin.html';
+        logoutBtn.addEventListener('click', async () => {
+            const btnHtml = logoutBtn.innerHTML;
+            logoutBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span> Çıkış Yapılıyor...';
+            logoutBtn.style.pointerEvents = 'none';
+            try {
+                await HaktanApp.adminLogout();
+                window.location.href = 'admin.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                logoutBtn.innerHTML = btnHtml;
+                logoutBtn.style.pointerEvents = 'auto';
+            }
         });
     }
 
