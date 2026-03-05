@@ -171,7 +171,7 @@
     <script type="module" src="/src/admin-main.js"></script>
     <script type="module" src="/src/admin-main.js"></script>
     <script type="module">
-        import { getOrders, updateOrderStatus } from './src/modules/orders.js';
+        import { getOrders, updateOrderStatus, deleteOrder } from './src/modules/orders.js';
         import { isAdminLoggedIn } from './src/modules/admin.js';
         import { formatPrice, CATEGORY_NAMES } from './src/modules/utils.js';
         import { showToast } from './src/modules/ui.js';
@@ -469,7 +469,10 @@
                             <option value="İptal Edildi" ${order.status === 'İptal Edildi' ? 'selected' : ''}>İPTAL EDİLDİ</option>
                         </select>
                     </div>
-                    <button onclick="window.closeOrderModal()" class="w-full py-3 rounded-xl border border-gray-200 text-gray-500 font-black text-xs hover:bg-gray-100 transition-all uppercase tracking-widest">Kapat</button>
+                    <div class="flex gap-3 mt-4">
+                        <button onclick="window.handleDeleteOrder('${order.id}')" class="flex-1 py-3 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 font-black text-xs hover:bg-rose-100 transition-all uppercase tracking-widest flex items-center justify-center gap-1"><span class="material-symbols-outlined text-sm">delete</span> Sil</button>
+                        <button onclick="window.closeOrderModal()" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-500 font-black text-xs hover:bg-gray-100 transition-all uppercase tracking-widest">Kapat</button>
+                    </div>
                 </div>
             `;
 
@@ -541,6 +544,20 @@
                 showToast('Sipariş durumu güncellendi.');
                 await refreshData();
             } else {
+                await refreshData();
+            }
+        };
+
+        window.handleDeleteOrder = async function (id) {
+            if (confirm('DİKKAT! Bu siparişi tamamen silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+                const btn = event.currentTarget;
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Siliniyor...';
+                btn.style.pointerEvents = 'none';
+
+                await deleteOrder(id);
+                showToast('Sipariş başarıyla silindi.', 'error'); // error style for delete action looks better typically, or standard
+                window.closeOrderModal();
                 await refreshData();
             }
         };
