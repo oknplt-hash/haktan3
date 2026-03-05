@@ -18,8 +18,8 @@ export function renderSidebar(activePage) {
                     <span class="material-symbols-outlined">shield_person</span>
                 </div>
                 <div class="flex flex-col text-left">
-                    <h3 class="text-sm font-black text-gray-900 leading-tight">HAKTAN Admin</h3>
-                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Yönetici Paneli</span>
+                    <h3 class="text-xl font-black text-gray-900 leading-tight">HAKTAN</h3>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 whitespace-nowrap">Kuruyemiş & Şarküteri Sarayı</span>
                 </div>
             </div>
             <button class="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 hover:text-gray-900 active:scale-90 transition-all" onclick="window.toggleAdminSidebar()">
