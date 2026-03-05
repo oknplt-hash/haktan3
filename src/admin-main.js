@@ -1,4 +1,9 @@
 import './style.css';
+import { inject } from '@vercel/analytics';
+
+// Initialize Vercel Analytics
+inject();
+
 import * as Products from './modules/products.js';
 import * as Orders from './modules/orders.js';
 import * as Utils from './modules/utils.js';

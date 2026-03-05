@@ -1,5 +1,10 @@
 
 import './style.css';
+import { inject } from '@vercel/analytics';
+
+// Initialize Vercel Analytics
+inject();
+
 import { seedProducts } from './modules/products.js';
 import { seedBanners } from './modules/banners.js';
 
