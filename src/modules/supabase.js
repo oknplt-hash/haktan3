@@ -8,3 +8,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+
+// Global Auth Listener for Invites and Password Resets
+supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+        window.location.href = '/admin.html#reset-password';
+    }
+});

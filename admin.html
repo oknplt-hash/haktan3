@@ -40,6 +40,27 @@
         </div>
     </div>
 
+    <!-- Password Reset Screen -->
+    <div id="passwordResetScreen" class="fixed inset-0 z-[60] bg-gray-900 flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center">
+            <div
+                class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600">
+                <span class="material-symbols-outlined text-3xl">lock_reset</span>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Şifre Belirleme</h2>
+            <p class="text-gray-500 text-sm mb-6">Hesabınıza giriş yapabilmek için lütfen güvenli bir şifre belirleyin.
+            </p>
+            <form id="resetPasswordForm" class="space-y-4">
+                <input type="password" id="newPassword" placeholder="Yeni Şifre" required minlength="6"
+                    class="w-full rounded-lg border-gray-300 focus:border-green-600 focus:ring-green-600">
+                <button type="submit"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition-colors shadow-lg shadow-green-600/30">Şifreyi
+                    Kaydet</button>
+                <p id="resetError" class="text-red-500 text-sm hidden">Hata oluştu!</p>
+            </form>
+        </div>
+    </div>
+
     <!-- Admin Dashboard -->
     <div id="dashboard" class="flex min-h-screen lg:h-screen lg:overflow-hidden hidden">
         <!-- Sidebar injected via JS -->
@@ -209,9 +230,10 @@
 
     <script type="module" src="/src/admin-main.js"></script>
     <script type="module">
-        import { adminLogin, isAdminLoggedIn, getAdminStats } from './src/modules/admin.js';
+        import { adminLogin, isAdminLoggedIn, getAdminStats, updateAdminPassword } from './src/modules/admin.js';
         import { getOrders } from './src/modules/orders.js';
         import { formatPrice } from './src/modules/utils.js';
+        import { showToast } from './src/modules/ui.js';
 
         function updateGreeting() {
             const now = new Date();
@@ -323,8 +345,44 @@
             btn.textContent = originalText;
         });
 
-        // Initial check
-        checkAuth();
+        // Initialize Password Reset logic
+        if (window.location.hash === '#reset-password' || window.location.hash.includes('type=recovery') || window.location.hash.includes('type=invite')) {
+            document.getElementById('passwordResetScreen').classList.remove('hidden');
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+        } else {
+            // Initial check only if not resetting password
+            checkAuth();
+        }
+
+        document.getElementById('resetPasswordForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const newPassword = document.getElementById('newPassword').value;
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+
+            btn.disabled = true;
+            btn.textContent = 'Kaydediliyor...';
+            btn.classList.add('opacity-70');
+
+            const result = await updateAdminPassword(newPassword);
+
+            if (result.success) {
+                showToast('Şifreniz başarıyla kaydedildi.', 'success');
+                window.location.hash = ''; // Clear hash
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                const errorEl = document.getElementById('resetError');
+                errorEl.textContent = 'Şifre güncellenemedi: ' + result.error;
+                errorEl.classList.remove('hidden');
+                btn.disabled = false;
+                btn.textContent = originalText;
+                btn.classList.remove('opacity-70');
+            }
+        });
+
     </script>
 </body>
 

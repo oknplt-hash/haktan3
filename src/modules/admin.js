@@ -29,6 +29,21 @@ export async function adminLogin(email, password) {
 export async function adminLogout() {
     await supabase.auth.signOut();
 }
+
+export async function updateAdminPassword(newPassword) {
+    try {
+        const { data, error } = await supabase.auth.updateUser({
+            password: newPassword
+        });
+
+        if (error) throw error;
+        return { success: true, data };
+    } catch (error) {
+        console.error('Password update error:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
 export async function getAdminStats() {
     const products = await getProducts();
     const orders = await getOrders();
