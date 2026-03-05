@@ -42,7 +42,7 @@ export function renderHeader() {
                 </div>
                 <div class="flex flex-col">
                     <h2 class="text-2xl font-black leading-none tracking-tight text-gray-900">HAKTAN</h2>
-                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] mt-0.5">Gurme Market</span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 whitespace-nowrap hidden sm:block">Kuruyemiş & Şarküteri Sarayı</span>
                 </div>
             </a>
             
@@ -101,7 +101,10 @@ export function renderHeader() {
                     <div style="background:linear-gradient(135deg,#ec9213,#d68311);padding:6px;border-radius:8px;">
                         <span class="material-symbols-outlined" style="color:white;font-size:20px;">nutrition</span>
                     </div>
-                    <span style="font-size:20px;font-weight:900;color:#111827;">HAKTAN</span>
+                    <div style="display:flex;flex-direction:column;">
+                        <span style="font-size:18px;line-height:1;font-weight:900;color:#111827;">HAKTAN</span>
+                        <span style="font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-top:2px;white-space:nowrap;">Kuruyemiş & Şarküteri Sarayı</span>
+                    </div>
                 </a>
                 <button id="closeMobileMenu" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;border:none;background:transparent;cursor:pointer;color:#6b7280;">
                     <span class="material-symbols-outlined" style="font-size:24px;">close</span>
