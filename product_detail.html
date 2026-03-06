@@ -57,12 +57,19 @@
 
                 <div class="mb-8">
                     <p id="productDescription" class="text-gray-500 text-sm md:text-base leading-relaxed mb-6"></p>
-                    <div class="flex items-end gap-3 mb-6">
+                    <div class="flex items-end gap-3 mb-2">
                         <span id="oldPrice" class="text-gray-400 text-lg line-through hidden"></span>
                         <span id="currentPrice"
                             class="text-primary text-2xl md:text-3xl font-bold md:font-black"></span>
                         <span class="text-gray-500 text-xs md:text-sm mb-1 font-medium ml-1">/ <span
                                 id="weight"></span></span>
+                    </div>
+
+                    <!-- Variant Selector Buttons -->
+                    <div id="variantSelector" class="hidden mb-6">
+                        <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Ağırlık : <span
+                                id="selectedWeightLabel" class="text-gray-900"></span></div>
+                        <div id="variantButtons" class="flex flex-wrap gap-2"></div>
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-4">
@@ -147,8 +154,6 @@
                     document.getElementById('mainImage').src = product.image;
                     document.getElementById('productName').textContent = product.name;
                     document.getElementById('productDescription').textContent = product.description;
-                    document.getElementById('currentPrice').textContent = formatPrice(product.price);
-                    document.getElementById('weight').textContent = product.weight;
                     document.getElementById('reviewCount').textContent = product.reviews;
                     document.getElementById('starRating').innerHTML = renderStars(product.rating);
 
@@ -159,21 +164,78 @@
                     document.getElementById('crumbCategory').href = 'product_category.html?cat=' + product.category;
                     document.getElementById('crumbProduct').textContent = product.name;
 
-                    if (product.oldPrice) {
-                        const oldEl = document.getElementById('oldPrice');
-                        oldEl.textContent = formatPrice(product.oldPrice);
-                        oldEl.classList.remove('hidden');
+                    let selectedVariantIndex = null;
 
-                        const discount = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
-                        const badge = document.getElementById('discountBadge');
-                        badge.textContent = '-' + discount + '%';
-                        badge.classList.remove('hidden');
+                    // Check if product has variants
+                    if (product.variants && product.variants.length > 0) {
+                        document.getElementById('variantSelector').classList.remove('hidden');
+                        const btnContainer = document.getElementById('variantButtons');
+
+                        product.variants.forEach((v, i) => {
+                            const btn = document.createElement('button');
+                            btn.className = 'variant-btn px-5 py-2.5 border-2 rounded-xl text-sm font-bold transition-all ' +
+                                (i === 0 ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600 hover:border-gray-300');
+                            btn.textContent = v.weight;
+                            btn.dataset.index = i;
+                            btn.addEventListener('click', () => selectVariant(i));
+                            btnContainer.appendChild(btn);
+                        });
+
+                        function selectVariant(index) {
+                            selectedVariantIndex = index;
+                            const v = product.variants[index];
+                            document.getElementById('currentPrice').textContent = formatPrice(v.price);
+                            document.getElementById('weight').textContent = v.weight;
+                            document.getElementById('selectedWeightLabel').textContent = v.weight;
+
+                            // Update old price / discount
+                            const oldEl = document.getElementById('oldPrice');
+                            const badge = document.getElementById('discountBadge');
+                            if (v.oldPrice) {
+                                oldEl.textContent = formatPrice(v.oldPrice);
+                                oldEl.classList.remove('hidden');
+                                const discount = Math.round(((v.oldPrice - v.price) / v.oldPrice) * 100);
+                                badge.textContent = '-' + discount + '%';
+                                badge.classList.remove('hidden');
+                            } else {
+                                oldEl.classList.add('hidden');
+                                badge.classList.add('hidden');
+                            }
+
+                            // Update button styles
+                            btnContainer.querySelectorAll('.variant-btn').forEach((b, bi) => {
+                                if (bi === index) {
+                                    b.className = 'variant-btn px-5 py-2.5 border-2 rounded-xl text-sm font-bold transition-all border-primary bg-primary/5 text-primary';
+                                } else {
+                                    b.className = 'variant-btn px-5 py-2.5 border-2 rounded-xl text-sm font-bold transition-all border-gray-200 text-gray-600 hover:border-gray-300';
+                                }
+                            });
+                        }
+
+                        // Select first variant by default
+                        selectVariant(0);
+                    } else {
+                        // Single price product
+                        document.getElementById('currentPrice').textContent = formatPrice(product.price);
+                        document.getElementById('weight').textContent = product.weight;
+
+                        if (product.oldPrice) {
+                            const oldEl = document.getElementById('oldPrice');
+                            oldEl.textContent = formatPrice(product.oldPrice);
+                            oldEl.classList.remove('hidden');
+
+                            const discount = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
+                            const badge = document.getElementById('discountBadge');
+                            badge.textContent = '-' + discount + '%';
+                            badge.classList.remove('hidden');
+                        }
                     }
 
                     document.getElementById('addToCartBtn').addEventListener('click', () => {
                         const qty = parseInt(qtyInput.value);
-                        addToCart(product.id, qty);
-                        showToast('Sepete ' + qty + ' adet eklendi!');
+                        addToCart(product.id, qty, selectedVariantIndex);
+                        const weightText = selectedVariantIndex !== null ? product.variants[selectedVariantIndex].weight : product.weight;
+                        showToast('Sepete ' + qty + ' adet (' + weightText + ') eklendi!');
                     });
 
                     const allRelated = await getProductsByCategory(product.category);

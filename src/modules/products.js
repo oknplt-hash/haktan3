@@ -63,7 +63,7 @@ export async function getProducts() {
         console.error("Error fetching products:", error);
         return [];
     }
-    return data.map(p => ({ ...p, oldPrice: p.old_price }));
+    return data.map(p => ({ ...p, oldPrice: p.old_price, variants: p.variants || null }));
 }
 
 export async function getProduct(id) {
@@ -72,7 +72,7 @@ export async function getProduct(id) {
         console.error("Error fetching product:", error);
         return null;
     }
-    return { ...data, oldPrice: data.old_price };
+    return { ...data, oldPrice: data.old_price, variants: data.variants || null };
 }
 
 export async function getProductsByCategory(cat) {
@@ -82,7 +82,7 @@ export async function getProductsByCategory(cat) {
         console.error("Error fetching products by category:", error);
         return [];
     }
-    return data.map(p => ({ ...p, oldPrice: p.old_price }));
+    return data.map(p => ({ ...p, oldPrice: p.old_price, variants: p.variants || null }));
 }
 
 export async function searchProducts(query) {
@@ -95,11 +95,11 @@ export async function searchProducts(query) {
         console.error("Error searching products:", error);
         return [];
     }
-    return data.map(p => ({ ...p, oldPrice: p.old_price }));
+    return data.map(p => ({ ...p, oldPrice: p.old_price, variants: p.variants || null }));
 }
 
 export async function addProduct(product) {
-    const { data, error } = await supabase.from('products').insert([{
+    const insertData = {
         name: product.name,
         category: product.category,
         price: product.price,
@@ -108,14 +108,17 @@ export async function addProduct(product) {
         rating: product.rating || 0,
         reviews: product.reviews || 0,
         image: product.image,
-        description: product.description
-    }]).select().single();
+        description: product.description,
+        variants: product.variants || null
+    };
+
+    const { data, error } = await supabase.from('products').insert([insertData]).select().single();
 
     if (error) {
         console.error("Error adding product:", error);
         return null;
     }
-    return { ...data, oldPrice: data.old_price };
+    return { ...data, oldPrice: data.old_price, variants: data.variants || null };
 }
 
 export async function updateProduct(id, updates) {
@@ -124,13 +127,14 @@ export async function updateProduct(id, updates) {
         dbUpdates.old_price = updates.oldPrice;
         delete dbUpdates.oldPrice;
     }
+    // variants is already in correct format for jsonb
 
     const { data, error } = await supabase.from('products').update(dbUpdates).eq('id', id).select().single();
     if (error) {
         console.error("Error updating product:", error);
         return null;
     }
-    return { ...data, oldPrice: data.old_price };
+    return { ...data, oldPrice: data.old_price, variants: data.variants || null };
 }
 
 export async function deleteProduct(id) {
@@ -152,5 +156,5 @@ export async function getBestSellers(limit = 8) {
         console.error("Error fetching best sellers:", error);
         return [];
     }
-    return data.map(p => ({ ...p, oldPrice: p.old_price }));
+    return data.map(p => ({ ...p, oldPrice: p.old_price, variants: p.variants || null }));
 }

@@ -11,39 +11,57 @@ export function getCart() {
 export function setCart(cart) {
     localStorage.setItem("haktan_cart", JSON.stringify(cart));
 }
-export function addToCart(productId, qty) {
+
+export function addToCart(productId, qty, variantIndex) {
     qty = qty || 1;
+    variantIndex = variantIndex !== undefined ? Number(variantIndex) : null;
     const cart = getCart();
-    const existing = cart.find((item) => item.productId === Number(productId));
+
+    // Find existing item with same productId AND same variantIndex
+    const existing = cart.find(
+        (item) => item.productId === Number(productId) && item.variantIndex === variantIndex
+    );
+
     if (existing) {
         existing.qty += qty;
     } else {
-        cart.push({ productId: Number(productId), qty: qty });
+        cart.push({ productId: Number(productId), qty: qty, variantIndex: variantIndex });
     }
     setCart(cart);
     updateCartBadge();
 }
-export function removeFromCart(productId) {
-    const cart = getCart().filter((item) => item.productId !== Number(productId));
+
+export function removeFromCart(productId, variantIndex) {
+    variantIndex = variantIndex !== undefined ? Number(variantIndex) : null;
+    const cart = getCart().filter(
+        (item) => !(item.productId === Number(productId) && item.variantIndex === variantIndex)
+    );
     setCart(cart);
     updateCartBadge();
 }
-export function updateCartQty(productId, qty) {
+
+export function updateCartQty(productId, qty, variantIndex) {
+    variantIndex = variantIndex !== undefined ? Number(variantIndex) : null;
     const cart = getCart();
-    const item = cart.find((i) => i.productId === Number(productId));
+    const item = cart.find(
+        (i) => i.productId === Number(productId) && i.variantIndex === variantIndex
+    );
     if (item) {
         item.qty = Math.max(1, qty);
         setCart(cart);
     }
     updateCartBadge();
 }
+
 export function clearCart() {
     setCart([]);
     updateCartBadge();
 }
+
 export function getCartCount() {
     return getCart().reduce((sum, item) => sum + item.qty, 0);
 }
+
 export async function getCartTotal() {
     const items = await getCartItems();
     return items.reduce((sum, item) => sum + item.total, 0);
@@ -53,26 +71,36 @@ export async function getCartItems() {
     const cart = getCart();
     if (cart.length === 0) return [];
 
-    const productIds = cart.map((item) => item.productId);
+    // Get unique product IDs to avoid duplicate fetches
+    const uniqueIds = [...new Set(cart.map(item => item.productId))];
+    const productMap = {};
+    const products = await Promise.all(uniqueIds.map(id => getProduct(id)));
+    products.forEach(p => { if (p) productMap[p.id] = p; });
 
-    // Import supabase dynamically to avoid circular dependency issues if any,
-    // though here it is imported at top in other files.
-    // Better to use getProducts logic or direct supabase call.
-    // Since we can't change imports easily here, let's assume getProduct can be optimized or we do manual fetch.
-    // Actually, let's just use supabase directly here if possible or add a bulk fetch in products.js.
-    // But to keep it simple and contained in cart.js for now without changing products.js signature too much:
-
-    // We need to fetch products. Let's rely on the imported supabase client if available, 
-    // BUT cart.js imports getProduct from products.js, which imports supabase.
-    // Let's use getProduct but in parallel with Promise.all for now, or better:
-    // Update products.js to have getProductsByIds? No, let's just do Promise.all(cart.map(...))
-    // It's not the most efficient but it's correct and easy to implement right now.
-
-    const products = await Promise.all(cart.map(item => getProduct(item.productId)));
-
-    return cart.map((item, index) => {
-        const product = products[index];
+    return cart.map((item) => {
+        const product = productMap[item.productId];
         if (!product) return null;
-        return { ...product, qty: item.qty, total: product.price * item.qty };
+
+        let price = product.price;
+        let weight = product.weight;
+        let variantInfo = null;
+
+        // If this cart item has a variant selected
+        if (item.variantIndex !== null && product.variants && product.variants[item.variantIndex]) {
+            const variant = product.variants[item.variantIndex];
+            price = variant.price;
+            weight = variant.weight;
+            variantInfo = variant;
+        }
+
+        return {
+            ...product,
+            price: price,
+            weight: weight,
+            variantIndex: item.variantIndex,
+            variantInfo: variantInfo,
+            qty: item.qty,
+            total: price * item.qty
+        };
     }).filter(Boolean);
 }

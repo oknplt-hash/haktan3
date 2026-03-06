@@ -33,9 +33,30 @@ export function showToast(msg, type) {
 
 // We need HaktanApp global for inline onclick handlers, so we'll wrap addToCart to use global
 export function renderProductCard(product) {
-    const discount = product.oldPrice
-        ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
+    const hasVariants = product.variants && product.variants.length > 0;
+
+    // For variant products, find min price; for single, use product.price
+    let displayPrice = product.price;
+    let displayOldPrice = product.oldPrice;
+    let displayWeight = product.weight;
+
+    if (hasVariants) {
+        const minVariant = product.variants.reduce((min, v) => v.price < min.price ? v : min, product.variants[0]);
+        displayPrice = minVariant.price;
+        displayOldPrice = minVariant.oldPrice;
+        displayWeight = minVariant.weight;
+    }
+
+    const discount = displayOldPrice
+        ? Math.round(((displayOldPrice - displayPrice) / displayOldPrice) * 100)
         : 0;
+
+    // For variant products, cart button goes to detail page; for single, adds to cart directly
+    const cartAction = hasVariants
+        ? 'event.stopPropagation();window.location.href=\'product_detail.html?id=' + product.id + '\''
+        : 'event.stopPropagation();HaktanApp.addToCart(' + product.id + ');HaktanApp.showToast(\'Sepete eklendi!\')';
+
+    const pricePrefix = hasVariants ? '<span class="text-gray-400 text-[10px] font-medium block">başlayan</span>' : '';
 
     // Note: Inline onclicks rely on HaktanApp being global
     return (
@@ -46,28 +67,29 @@ export function renderProductCard(product) {
             : "") +
         '<img alt="' + product.name + '" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" src="' + product.image + '" />' +
         "</a>" +
-        '<button onclick="event.stopPropagation();HaktanApp.addToCart(' + product.id + ');HaktanApp.showToast(\'Sepete eklendi!\')" ' +
+        '<button onclick="' + cartAction + '" ' +
         'class="absolute bottom-2 right-2 bg-white text-gray-800 p-2 rounded-full shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-[#ec9213] hover:text-white border border-gray-100 z-10" style="position:absolute">' +
-        '<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span></button>' +
+        '<span class="material-symbols-outlined text-[18px]">' + (hasVariants ? 'open_in_new' : 'add_shopping_cart') + '</span></button>' +
         '<div class="p-2 md:p-2.5 flex flex-col flex-1">' +
         '<div class="text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">' +
         (CATEGORY_NAMES[product.category] || product.category) +
         "</div>" +
         '<a href="product_detail.html?id=' + product.id + '" class="text-gray-900 font-bold text-[13px] md:text-[14px] mb-1.5 line-clamp-2 leading-tight hover:text-[#ec9213] transition-colors">' +
-        product.name + " (" + product.weight + ")</a>" +
+        product.name + " (" + displayWeight + ")</a>" +
         '<div class="flex items-center gap-0.5 mb-2">' +
         renderStars(product.rating) +
         '<span class="text-gray-400 text-[10px] ml-0.5 font-medium">(' + product.reviews + ")</span></div>" +
         '<div class="mt-auto flex items-center justify-between border-t border-gray-100 pt-3">' +
         '<div class="flex flex-col">' +
-        (product.oldPrice
-            ? '<span class="text-gray-400 text-[10px] line-through">' + formatPrice(product.oldPrice) + "</span>"
+        pricePrefix +
+        (displayOldPrice
+            ? '<span class="text-gray-400 text-[10px] line-through">' + formatPrice(displayOldPrice) + "</span>"
             : "") +
-        '<span class="text-[#ec9213] text-base font-black">' + formatPrice(product.price) + "</span>" +
+        '<span class="text-[#ec9213] text-base font-black">' + formatPrice(displayPrice) + "</span>" +
         "</div>" +
-        '<button onclick="event.stopPropagation();HaktanApp.addToCart(' + product.id + ');HaktanApp.showToast(\'Sepete eklendi!\')" ' +
+        '<button onclick="' + cartAction + '" ' +
         'class="bg-[#ec9213] hover:bg-[#d68311] text-white px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1">' +
-        '<span class="material-symbols-outlined text-[14px]">add_shopping_cart</span></button>' +
+        '<span class="material-symbols-outlined text-[14px]">' + (hasVariants ? 'open_in_new' : 'add_shopping_cart') + '</span></button>' +
         "</div></div></div>"
     );
 }
