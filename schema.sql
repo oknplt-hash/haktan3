@@ -6,6 +6,8 @@ create table if not exists public.site_settings (
     site_name text default 'HAKTAN Kuruyemiş Şarküteri Sarayı',
     contact_email text default 'iletisim@haktan.com',
     address text default 'Haktan Sarayı, İstanbul',
+    shipping_fee numeric default 39.90,
+    free_shipping_threshold numeric default 500,
     created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -44,8 +46,8 @@ begin
 end $$;
 
 -- 5. Insert default data safely
-insert into public.site_settings (id, whatsapp_number, site_name, contact_email, address)
-values (1, '905000000000', 'HAKTAN Kuruyemiş Şarküteri Sarayı', 'iletisim@haktan.com', 'Haktan Sarayı, İstanbul')
+insert into public.site_settings (id, whatsapp_number, site_name, contact_email, address, shipping_fee, free_shipping_threshold)
+values (1, '905000000000', 'HAKTAN Kuruyemiş Şarküteri Sarayı', 'iletisim@haktan.com', 'Haktan Sarayı, İstanbul', 39.90, 500)
 on conflict (id) do nothing;
 
 insert into public.bank_accounts (bank_name, account_holder, iban)

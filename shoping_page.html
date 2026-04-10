@@ -94,6 +94,7 @@
         import { getProducts } from './src/modules/products.js';
         import { formatPrice, CATEGORY_NAMES } from './src/modules/utils.js';
         import { renderProductCard, showToast } from './src/modules/ui.js';
+        import { getShippingSettings } from './src/modules/settings.js';
 
         // Bind global window functions for inline onclicks in the rendered list?
         // Or better, add event listeners after rendering.
@@ -155,7 +156,8 @@
 
             // Calculate totals from items we already fetched instead of re-fetching
             const subtotal = items.reduce((sum, i) => sum + i.total, 0);
-            const shipping = subtotal >= 500 ? 0 : 39.90;
+            const { shippingFee, freeShippingThreshold } = await getShippingSettings();
+            const shipping = subtotal >= freeShippingThreshold ? 0 : shippingFee;
             const total = subtotal + shipping;
 
             document.getElementById('subtotalPrice').textContent = formatPrice(subtotal);
@@ -169,6 +171,7 @@
             } else {
                 shipEl.textContent = formatPrice(shipping);
                 shipEl.className = 'font-bold text-text-main';
+                shipInfo.innerHTML = `<span class="font-bold text-blue-600">Bilgi:</span> ${formatPrice(freeShippingThreshold)} üzeri kargo bedava!`;
                 shipInfo.classList.remove('hidden');
             }
             document.getElementById('totalPrice').textContent = formatPrice(total);

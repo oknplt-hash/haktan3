@@ -4,6 +4,7 @@
 // ============================================================
 import { getCartItems, getCartTotal, clearCart } from './cart.js';
 import { supabase } from './supabase.js';
+import { getShippingSettings } from './settings.js';
 
 export async function getOrders() {
     const { data, error } = await supabase
@@ -22,7 +23,8 @@ export async function createOrder(customerInfo) {
     const cartItems = await getCartItems();
     if (cartItems.length === 0) return null;
     const subtotal = await getCartTotal();
-    const shipping = subtotal >= 500 ? 0 : 39.90;
+    const { shippingFee, freeShippingThreshold } = await getShippingSettings();
+    const shipping = subtotal >= freeShippingThreshold ? 0 : shippingFee;
 
     const order = {
         id: "H-" + Math.floor(10000 + Math.random() * 90000),

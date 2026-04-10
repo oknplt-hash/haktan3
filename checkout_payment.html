@@ -175,6 +175,7 @@
         import { getCartItems, getCartTotal, clearCart } from './src/modules/cart.js';
         import { createOrder } from './src/modules/orders.js';
         import { formatPrice } from './src/modules/utils.js';
+        import { getShippingSettings } from './src/modules/settings.js';
 
         // Init
         (async () => {
@@ -185,7 +186,8 @@
             }
 
             const subtotal = await getCartTotal();
-            const shipping = subtotal >= 500 ? 0 : 39.90;
+            const { shippingFee, freeShippingThreshold } = await getShippingSettings();
+            const shipping = subtotal >= freeShippingThreshold ? 0 : shippingFee;
             const total = subtotal + shipping;
 
             document.getElementById('checkoutSubtotal').textContent = formatPrice(subtotal);

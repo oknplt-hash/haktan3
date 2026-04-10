@@ -14,7 +14,7 @@ export function setCart(cart) {
 
 export function addToCart(productId, qty, variantIndex) {
     qty = qty || 1;
-    variantIndex = variantIndex !== undefined ? Number(variantIndex) : null;
+    variantIndex = (variantIndex == null) ? null : Number(variantIndex);
     const cart = getCart();
 
     // Find existing item with same productId AND same variantIndex
@@ -32,7 +32,7 @@ export function addToCart(productId, qty, variantIndex) {
 }
 
 export function removeFromCart(productId, variantIndex) {
-    variantIndex = variantIndex !== undefined ? Number(variantIndex) : null;
+    variantIndex = (variantIndex == null) ? null : Number(variantIndex);
     const cart = getCart().filter(
         (item) => !(item.productId === Number(productId) && item.variantIndex === variantIndex)
     );
@@ -41,7 +41,7 @@ export function removeFromCart(productId, variantIndex) {
 }
 
 export function updateCartQty(productId, qty, variantIndex) {
-    variantIndex = variantIndex !== undefined ? Number(variantIndex) : null;
+    variantIndex = (variantIndex == null) ? null : Number(variantIndex);
     const cart = getCart();
     const item = cart.find(
         (i) => i.productId === Number(productId) && i.variantIndex === variantIndex

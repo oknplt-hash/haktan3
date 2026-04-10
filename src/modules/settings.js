@@ -6,7 +6,9 @@ const DEFAULT_SETTINGS = {
     iban_list: "HAKTAN SARAYI - TR00 0000 0000 0000 0000 0000 00",
     site_name: "HAKTAN Kuruyemiş Şarküteri Sarayı",
     contact_email: "iletisim@haktan.com",
-    address: "Haktan Sarayı, İstanbul"
+    address: "Haktan Sarayı, İstanbul",
+    shipping_fee: 39.90,
+    free_shipping_threshold: 500
 };
 
 export async function getSettings() {
@@ -59,6 +61,16 @@ export async function updateSettings(updates) {
         if (error) throw error;
     }
 }
+
+// Shipping Settings Helper
+export async function getShippingSettings() {
+    const settings = await getSettings();
+    return {
+        shippingFee: parseFloat(settings.shipping_fee) || 39.90,
+        freeShippingThreshold: parseFloat(settings.free_shipping_threshold) || 500
+    };
+}
+
 // Bank Account Management
 export async function getBankAccounts() {
     try {
